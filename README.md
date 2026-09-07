@@ -1,3 +1,5 @@
-# flutter_application_1
+PawLife
 
-A new Flutter project.
+flutter clean
+flutter pub get
+flutter run
