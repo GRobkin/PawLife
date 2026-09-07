@@ -1,18 +1,8 @@
-// views/walk_summary_screen.dart
-//
-// Pantalla de resumen que se muestra al terminar un paseo.
-// Es puramente presentacional: no tiene ViewModel ni lógica de negocio.
-// Recibe la WalkSession ya cerrada y muestra sus datos + la ruta de fondo.
-//
-// Los únicos controles activos son cerrar (X) y "Save Walk", que
-// simplemente vuelven al Home. El botón de compartir y el resto de
-// los elementos son decorativos por ahora.
-
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../models/route_point.dart';
+import 'package:pawlife/model/pawlife_models.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
 const _kAccentGreen = Color(0xFF3FB77E);
@@ -21,47 +11,43 @@ const _kBackground = Color(0xFFF7F8FA);
 const _kCardGreen = Color(0xFFF1F8F4);
 
 class WalkSummaryScreen extends StatelessWidget {
-  const WalkSummaryScreen({super.key, required this.session});
+  final Paseo paseo;
 
-  final WalkSession session;
+  const WalkSummaryScreen({super.key, required this.paseo});
 
-  List<LatLng> get _points => session.points
+  List<LatLng> get _points => paseo.ruta
       .map((p) => LatLng(p.latitude, p.longitude))
       .toList(growable: false);
 
   String get _formattedDistance =>
-      (session.distanceMeters / 1000).toStringAsFixed(2);
+      (paseo.distanciaMetros / 1000).toStringAsFixed(2);
 
-  /// Usamos "min"/"s" en vez de "m" para no confundir minutos con metros.
   String get _formattedDuration {
-    final seconds = session.duration.inSeconds;
+    final seconds = paseo.duracionSegundos;
     if (seconds < 60) return '$seconds s';
-    final minutes = session.duration.inMinutes;
+    final minutes = seconds ~/ 60;
     if (minutes < 60) return '$minutes min';
-    final h = session.duration.inHours;
+    final h = minutes ~/ 60;
     final m = minutes % 60;
     return '${h}h ${m}min';
   }
 
   String get _formattedSpeed {
-    final seconds = session.duration.inSeconds;
+    final seconds = paseo.duracionSegundos;
     if (seconds == 0) return '0.0';
-    final kmh = (session.distanceMeters / 1000) / (seconds / 3600);
+    final kmh = (paseo.distanciaMetros / 1000) / (seconds / 3600);
     return kmh.toStringAsFixed(1);
   }
 
   String get _formattedTime {
-    final t = session.startedAt;
+    final t = paseo.fechaInicio;
     final hour = t.hour % 12 == 0 ? 12 : t.hour % 12;
     final minute = t.minute.toString().padLeft(2, '0');
     final suffix = t.hour < 12 ? 'AM' : 'PM';
     return '$hour:$minute $suffix';
   }
 
-  bool get _hasRoute => _points.length > 1;
-
   void _close(BuildContext context) {
-    // Vuelve al Home, descartando también la pantalla de Active Walk.
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -73,7 +59,6 @@ class WalkSummaryScreen extends StatelessWidget {
       backgroundColor: _kBackground,
       body: Stack(
         children: [
-          // 1. Mapa de fondo, anclado arriba
           Positioned(
             top: 0,
             left: 0,
@@ -81,19 +66,13 @@ class WalkSummaryScreen extends StatelessWidget {
             height: mapHeight,
             child: _MapHeader(points: _points),
           ),
-
-          // 2. Contenido scrolleable, empieza debajo del mapa
           Positioned.fill(
             child: ListView(
-              // clipBehavior none para que el badge pueda sobresalir
-              // hacia arriba sin quedar recortado.
               clipBehavior: Clip.none,
               padding: EdgeInsets.fromLTRB(
                 20,
                 mapHeight - 20,
                 20,
-                // Espacio para el botón fijo de abajo + la barra de
-                // navegación del sistema.
                 MediaQuery.of(context).padding.bottom + 100,
               ),
               children: [
@@ -123,8 +102,6 @@ class WalkSummaryScreen extends StatelessWidget {
               ],
             ),
           ),
-
-          // 3. Botón de cerrar, flotando sobre el mapa
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
@@ -142,8 +119,6 @@ class WalkSummaryScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // 4. Botón principal fijo abajo, respetando la barra del sistema
           Positioned(
             left: 20,
             right: 20,
@@ -165,8 +140,7 @@ class WalkSummaryScreen extends StatelessWidget {
                   icon: const Icon(Icons.save_alt, size: 20),
                   label: const Text(
                     'Save Walk',
-                    style:
-                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -182,9 +156,9 @@ class WalkSummaryScreen extends StatelessWidget {
       alignment: Alignment.centerRight,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: _kBadgeGreen,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -264,16 +238,16 @@ class WalkSummaryScreen extends StatelessWidget {
   }
 
   Widget _buildPetCard() {
-    return _SummaryCard(
+    return const _SummaryCard(
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 20,
             backgroundColor: Colors.black12,
             child: Icon(Icons.pets, size: 20, color: Colors.black45),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -293,17 +267,12 @@ class WalkSummaryScreen extends StatelessWidget {
               ],
             ),
           ),
-          // Decorativo: todavía no comparte nada.
-          const Icon(Icons.share_outlined, color: Colors.black54),
+          Icon(Icons.share_outlined, color: Colors.black54),
         ],
       ),
     );
   }
 }
-
-// ---------------------------------------------------------------------
-// Mapa de fondo con la ruta recorrida
-// ---------------------------------------------------------------------
 
 class _MapHeader extends StatelessWidget {
   const _MapHeader({required this.points});
@@ -314,10 +283,9 @@ class _MapHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final LatLng center = points.isNotEmpty
         ? points.first
-        : const LatLng(-30.9053, -55.5508); // Rivera, por defecto
+        : const LatLng(-30.9053, -55.5508);
 
     return ShaderMask(
-      // Desvanece el borde inferior del mapa hacia el fondo de la pantalla
       shaderCallback: (rect) => const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -326,7 +294,6 @@ class _MapHeader extends StatelessWidget {
       ).createShader(rect),
       blendMode: BlendMode.dstIn,
       child: IgnorePointer(
-        // El mapa es decorativo en esta pantalla: no se puede mover.
         child: FlutterMap(
           options: MapOptions(
             initialCenter: center,
@@ -345,6 +312,7 @@ class _MapHeader extends StatelessWidget {
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.example.pawlife',
+              tileProvider: CancellableNetworkTileProvider(),
             ),
             if (points.length > 1)
               PolylineLayer(
@@ -356,7 +324,6 @@ class _MapHeader extends StatelessWidget {
                   ),
                 ],
               ),
-            // Si solo hay un punto (paseo muy corto), al menos lo marcamos.
             if (points.length == 1)
               MarkerLayer(
                 markers: [
@@ -380,10 +347,6 @@ class _MapHeader extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------
-// Widgets auxiliares de presentación
-// ---------------------------------------------------------------------
 
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.child});

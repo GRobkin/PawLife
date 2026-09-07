@@ -1,12 +1,7 @@
-// views/home_screen.dart
-//
-// Pantalla estática (sin ViewModel propio) que replica el diseño del
-// Home Dashboard. La ÚNICA parte funcional es el botón "Start Walk",
-// que navega a RouteScreen (Active Walk). Todo lo demás (saludo, resumen
-// de actividad, lista de tareas, bottom nav) es decorativo por ahora.
-
-import 'package:flutter/material.dart';
-
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pawlife/viewmodel/route_view_model.dart';
 import 'route_screen.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
@@ -15,9 +10,24 @@ const _kBackground = Color(0xFFF4F5F7);
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _onStartWalkPressed(BuildContext context) {
+  Future<void> _onStartWalkPressed(BuildContext context) async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      try {
+        await FirebaseAuth.instance.signInAnonymously();
+      } catch (e) {
+        debugPrint('Error authenticating anonymously: $e');
+      }
+    }
+
+    if (!context.mounted) return;
+
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RouteScreen()),
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider(
+          create: (_) => RouteViewModel(mascotaId: 'buddy_123')..init(),
+          child: const RouteScreen(),
+        ),
+      ),
     );
   }
 
@@ -51,36 +61,6 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _buildActivitySummary(),
-            const SizedBox(height: 24),
-            const Text(
-              'Today',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-            _buildTaskTile(
-              icon: Icons.medical_services_outlined,
-              iconColor: Colors.red,
-              title: 'Morning Medication',
-              subtitle: '8:00 AM • Overdue',
-              subtitleColor: Colors.red,
-              checked: false,
-            ),
-            const SizedBox(height: 10),
-            _buildTaskTile(
-              icon: Icons.restaurant_outlined,
-              iconColor: Colors.orange,
-              title: 'Daily feeding',
-              subtitle: 'Completed',
-              checked: true,
-            ),
-            const SizedBox(height: 10),
-            _buildTaskTile(
-              icon: Icons.directions_walk,
-              iconColor: Colors.blueGrey,
-              title: 'Afternoon Walk',
-              subtitle: '2:00 PM • Upcoming',
-              checked: false,
-            ),
           ],
         ),
       ),
@@ -89,10 +69,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar() {
-    return Row(
+    return const Row(
       children: [
-        const Icon(Icons.menu),
-        const Expanded(
+        Icon(Icons.menu),
+        Expanded(
           child: Center(
             child: Text(
               'PawLife',
@@ -100,7 +80,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        const CircleAvatar(
+        CircleAvatar(
           radius: 16,
           backgroundColor: Colors.black12,
           child: Icon(Icons.person, size: 18, color: Colors.black45),
@@ -116,15 +96,15 @@ class HomeScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 22,
             backgroundColor: Colors.black12,
             child: Icon(Icons.pets, color: Colors.black45),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -136,15 +116,12 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down),
+          Icon(Icons.keyboard_arrow_down),
         ],
       ),
     );
   }
 
-  // -------------------------------------------------------------------
-  // Única parte funcional de esta pantalla: iniciar el paseo
-  // -------------------------------------------------------------------
   Widget _buildStartWalkCard(BuildContext context) {
     return Material(
       color: _kDarkGreen,
@@ -255,53 +232,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required bool checked,
-    Color subtitleColor = Colors.black54,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: subtitleColor == Colors.red
-            ? const Border(left: BorderSide(color: Colors.red, width: 4))
-            : null,
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: iconColor.withValues(alpha: 0.12),
-            child: Icon(icon, size: 16, color: iconColor),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                Text(subtitle,
-                    style: TextStyle(fontSize: 12, color: subtitleColor)),
-              ],
-            ),
-          ),
-          // Decorativo: no dispara ninguna acción todavía.
-          Icon(
-            checked ? Icons.check_box : Icons.check_box_outline_blank,
-            color: checked ? _kDarkGreen : Colors.black26,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBottomNav(BuildContext context) {
     return BottomAppBar(
       color: Colors.white,
@@ -312,14 +242,12 @@ class HomeScreen extends StatelessWidget {
           children: [
             _buildNavItem(Icons.home, 'Home', active: true),
             _buildNavItem(Icons.pets, 'Pets'),
-            // Ícono central de "Walk": también funcional, por comodidad
-            // de navegación (misma acción que la tarjeta Start Walk).
             GestureDetector(
               onTap: () => _onStartWalkPressed(context),
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 radius: 22,
                 backgroundColor: _kDarkGreen,
-                child: const Icon(Icons.directions_walk,
+                child: Icon(Icons.directions_walk,
                     color: Colors.white, size: 20),
               ),
             ),

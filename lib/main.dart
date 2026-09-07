@@ -1,24 +1,26 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'view/home_screen.dart';
 
-import 'views/home_screen.dart';
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-void main() {
-  runApp(const PawLifeApp());
+  runApp(const MyApp());
 }
 
-class PawLifeApp extends StatelessWidget {
-  const PawLifeApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PawLife',
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
+      home: HomeScreen(),
     );
   }
 }

@@ -57,7 +57,6 @@ class DefaultFirebaseOptions {
     projectId: 'pawlife-84d14',
     storageBucket: 'pawlife-84d14.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBohzzehBRCtcW0clSZABWEIiUdl5aq5Wg',
     appId: '1:445417300823:ios:0b6753d145a80f8b565412',
@@ -66,7 +65,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'pawlife-84d14.firebasestorage.app',
     iosBundleId: 'com.example.flutterApplication1',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBohzzehBRCtcW0clSZABWEIiUdl5aq5Wg',
     appId: '1:445417300823:ios:0b6753d145a80f8b565412',
