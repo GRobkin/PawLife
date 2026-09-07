@@ -3,9 +3,9 @@
 // View: solo se encarga de construir la UI y de reaccionar al estado
 // del RouteViewModel. No contiene lógica de negocio.
 //
-// Diseño: pantalla "Active Walk" — el paseo ya está en curso apenas se
+// Diseño: pantalla "Paseo en curso" — el paseo ya está en curso apenas se
 // entra (arranca solo desde el ViewModel), y el único control es el
-// botón "Finish Walk" para terminarlo.
+// botón "Finalizar paseo" para terminarlo.
 //
 // DEPENDENCIAS (agregar en pubspec.yaml):
 //   provider, flutter_map, latlong2, geolocator
@@ -28,19 +28,25 @@ const _kAccentGreen = Color(0xFF3FB77E);
 const _kBackground = Color(0xFFF4F5F7);
 
 class RouteScreen extends StatelessWidget {
-  const RouteScreen({super.key});
+  const RouteScreen({super.key, required this.mascotaId});
+
+  /// Mascota a la que se le atribuye el paseo. Define dónde se guarda en
+  /// Firestore: users/{uid}/mascotas/{mascotaId}/paseos.
+  final String mascotaId;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => RouteViewModel()..init(),
-      child: const _RouteScreenBody(),
+      child: _RouteScreenBody(mascotaId: mascotaId),
     );
   }
 }
 
 class _RouteScreenBody extends StatefulWidget {
-  const _RouteScreenBody();
+  const _RouteScreenBody({required this.mascotaId});
+
+  final String mascotaId;
 
   @override
   State<_RouteScreenBody> createState() => _RouteScreenBodyState();
@@ -71,12 +77,15 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
 
   void _onFinishPressed(BuildContext context, RouteViewModel vm) {
     final WalkSession session = vm.stopWalk();
-    // Acá es donde, en la app real, mandarías `session.toJson()`
-    // a tu backend en Vercel / Supabase.
-    debugPrint('Paseo finalizado: ${session.toJson()}');
+    // El guardado en Firestore lo hace la pantalla de resumen, que es la
+    // que puede mostrar el estado ("Guardando…", error, reintentar) sin
+    // depender de este ViewModel, que muere en este mismo push.
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => WalkSummaryScreen(session: session),
+        builder: (_) => WalkSummaryScreen(
+          session: session,
+          mascotaId: widget.mascotaId,
+        ),
       ),
     );
   }
@@ -122,7 +131,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
           const Expanded(
             child: Center(
               child: Text(
-                'Active Walk',
+                'Paseo en curso',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -228,7 +237,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
               ),
             ),
 
-            // Badge "GPS Active"
+            // Badge "GPS activo"
             Positioned(
               top: 12,
               left: 0,
@@ -280,7 +289,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                           icon: const Icon(Icons.stop_circle_outlined,
                               size: 20),
                           label: const Text(
-                            'Finish Walk',
+                            'Finalizar paseo',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -399,7 +408,7 @@ class _GpsActiveBadge extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            active ? 'GPS Active' : 'GPS Inactivo',
+            active ? 'GPS activo' : 'GPS inactivo',
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -437,9 +446,9 @@ class _StatsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _StatBlock(label: 'DURATION', value: vm.formattedElapsed),
+              _StatBlock(label: 'DURACIÓN', value: vm.formattedElapsed),
               _StatBlock(
-                label: 'DISTANCE',
+                label: 'DISTANCIA',
                 value: vm.formattedDistance.split(' ').first,
                 unit: 'km',
                 alignEnd: true,

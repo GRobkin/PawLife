@@ -1,23 +1,43 @@
 // views/home_screen.dart
 //
 // Pantalla estática (sin ViewModel propio) que replica el diseño del
-// Home Dashboard. La ÚNICA parte funcional es el botón "Start Walk",
-// que navega a RouteScreen (Active Walk). Todo lo demás (saludo, resumen
+// Home Dashboard. La ÚNICA parte funcional es el botón "Iniciar paseo",
+// que navega a RouteScreen (paseo en curso). Todo lo demás (saludo, resumen
 // de actividad, lista de tareas, bottom nav) es decorativo por ahora.
 
 import 'package:flutter/material.dart';
 
+import '../services/walk_repository.dart';
 import 'route_screen.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
 const _kBackground = Color(0xFFF4F5F7);
 
+/// Mascota fija por ahora: todavía no existe la pantalla para elegirla,
+/// así que todos los paseos se le atribuyen a Buddy (la del PetCard).
+const _kMascotaId = 'buddy_123';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _onStartWalkPressed(BuildContext context) {
+  Future<void> _onStartWalkPressed(BuildContext context) async {
+    // Autenticamos ANTES de salir a caminar, mientras es razonable
+    // suponer que hay conexión. Si esperáramos al final del paseo y no
+    // hubiera señal, el guardado fallaría con la ruta ya hecha.
+    try {
+      await WalkRepository().ensureSignedIn();
+    } catch (e) {
+      debugPrint('No se pudo autenticar al iniciar el paseo: $e');
+      // Seguimos igual: el paseo se puede registrar y el guardado se
+      // reintenta desde la pantalla de resumen.
+    }
+
+    if (!context.mounted) return;
+
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RouteScreen()),
+      MaterialPageRoute(
+        builder: (_) => const RouteScreen(mascotaId: _kMascotaId),
+      ),
     );
   }
 
@@ -32,12 +52,12 @@ class HomeScreen extends StatelessWidget {
             _buildTopBar(),
             const SizedBox(height: 20),
             const Text(
-              'Good morning, Sarah!',
+              '¡Buenos días, Sarah!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             const Text(
-              "Here's your schedule for today.",
+              'Esta es tu agenda de hoy.',
               style: TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 20),
@@ -46,22 +66,22 @@ class HomeScreen extends StatelessWidget {
             _buildStartWalkCard(context),
             const SizedBox(height: 24),
             const Text(
-              'Activity Summary',
+              'Resumen de actividad',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             _buildActivitySummary(),
             const SizedBox(height: 24),
             const Text(
-              'Today',
+              'Hoy',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             _buildTaskTile(
               icon: Icons.medical_services_outlined,
               iconColor: Colors.red,
-              title: 'Morning Medication',
-              subtitle: '8:00 AM • Overdue',
+              title: 'Medicación de la mañana',
+              subtitle: '8:00 • Atrasada',
               subtitleColor: Colors.red,
               checked: false,
             ),
@@ -69,16 +89,16 @@ class HomeScreen extends StatelessWidget {
             _buildTaskTile(
               icon: Icons.restaurant_outlined,
               iconColor: Colors.orange,
-              title: 'Daily feeding',
-              subtitle: 'Completed',
+              title: 'Alimentación diaria',
+              subtitle: 'Completada',
               checked: true,
             ),
             const SizedBox(height: 10),
             _buildTaskTile(
               icon: Icons.directions_walk,
               iconColor: Colors.blueGrey,
-              title: 'Afternoon Walk',
-              subtitle: '2:00 PM • Upcoming',
+              title: 'Paseo de la tarde',
+              subtitle: '14:00 • Próximo',
               checked: false,
             ),
           ],
@@ -161,7 +181,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Start Walk',
+                      'Iniciar paseo',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -170,7 +190,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Ready for an adventure?',
+                      '¿Listos para una aventura?',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -199,9 +219,9 @@ class HomeScreen extends StatelessWidget {
           child: _buildSummaryCard(
             icon: Icons.map_outlined,
             iconColor: Colors.green,
-            label: 'Last Walk',
+            label: 'Último paseo',
             value: '2.4 km',
-            hint: 'Yesterday, 5:30 PM',
+            hint: 'Ayer, 17:30',
           ),
         ),
         const SizedBox(width: 12),
@@ -209,9 +229,9 @@ class HomeScreen extends StatelessWidget {
           child: _buildSummaryCard(
             icon: Icons.timer_outlined,
             iconColor: Colors.blueGrey,
-            label: 'Active Time',
+            label: 'Tiempo activo',
             value: '45 min',
-            hint: 'Daily goal: 60m',
+            hint: 'Meta diaria: 60 min',
           ),
         ),
       ],
@@ -310,10 +330,10 @@ class HomeScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(Icons.home, 'Home', active: true),
-            _buildNavItem(Icons.pets, 'Pets'),
+            _buildNavItem(Icons.home, 'Inicio', active: true),
+            _buildNavItem(Icons.pets, 'Mascotas'),
             // Ícono central de "Walk": también funcional, por comodidad
-            // de navegación (misma acción que la tarjeta Start Walk).
+            // de navegación (misma acción que la tarjeta Iniciar paseo).
             GestureDetector(
               onTap: () => _onStartWalkPressed(context),
               child: CircleAvatar(
@@ -323,8 +343,8 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.white, size: 20),
               ),
             ),
-            _buildNavItem(Icons.assignment_outlined, 'Tasks'),
-            _buildNavItem(Icons.person_outline, 'Profile'),
+            _buildNavItem(Icons.assignment_outlined, 'Tareas'),
+            _buildNavItem(Icons.person_outline, 'Perfil'),
           ],
         ),
       ),

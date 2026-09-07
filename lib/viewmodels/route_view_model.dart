@@ -39,6 +39,9 @@ class RouteViewModel extends ChangeNotifier {
   double distanceMeters = 0;
   Duration elapsed = Duration.zero;
 
+  /// Velocidad puntual más alta del paseo, calculada tramo a tramo.
+  double maxSpeedKmh = 0;
+
   Timer? _ticker;
   DateTime? _startedAt;
 
@@ -97,6 +100,7 @@ class RouteViewModel extends ChangeNotifier {
     routePoints.clear();
     _rawPoints.clear();
     distanceMeters = 0;
+    maxSpeedKmh = 0;
     elapsed = Duration.zero;
     _startedAt = DateTime.now();
     isTracking = true;
@@ -139,6 +143,7 @@ class RouteViewModel extends ChangeNotifier {
       distanceMeters: distanceMeters,
       duration: elapsed,
       startedAt: _startedAt ?? DateTime.now(),
+      maxSpeedKmh: maxSpeedKmh,
     );
   }
 
@@ -154,26 +159,53 @@ class RouteViewModel extends ChangeNotifier {
 
     final newPoint = LatLng(lat, lng);
 
+    // El TaskHandler manda el momento exacto de la lectura. Lo usamos en
+    // vez de DateTime.now() porque el dato puede llegar con retraso desde
+    // el isolate del servicio, y eso falsearía la velocidad del tramo.
+    final millis = data['timestampMillis'] as int?;
+    final timestamp = millis != null
+        ? DateTime.fromMillisecondsSinceEpoch(millis)
+        : DateTime.now();
+
     if (routePoints.isNotEmpty) {
       final last = routePoints.last;
-      distanceMeters += _locationService.distanceBetween(
+      final segmentMeters = _locationService.distanceBetween(
         last.latitude,
         last.longitude,
         newPoint.latitude,
         newPoint.longitude,
       );
+      distanceMeters += segmentMeters;
+      _updateMaxSpeed(segmentMeters, timestamp);
     }
 
     routePoints.add(newPoint);
     _rawPoints.add(RoutePoint(
       latitude: lat,
       longitude: lng,
-      timestamp: DateTime.now(),
+      timestamp: timestamp,
     ));
     currentPosition = newPoint;
 
     onNewPoint?.call(newPoint);
     notifyListeners();
+  }
+
+  /// Actualiza la velocidad máxima con el tramo recién recorrido.
+  ///
+  /// Descartamos tramos de menos de un segundo (dividir por un intervalo
+  /// diminuto dispara la velocidad a valores absurdos) y los que dan más
+  /// de 30 km/h, que a pie solo puede ser un salto de precisión del GPS.
+  void _updateMaxSpeed(double segmentMeters, DateTime timestamp) {
+    final previous = _rawPoints.isNotEmpty ? _rawPoints.last.timestamp : null;
+    if (previous == null) return;
+
+    final seconds = timestamp.difference(previous).inMilliseconds / 1000;
+    if (seconds < 1) return;
+
+    final kmh = (segmentMeters / 1000) / (seconds / 3600);
+    if (kmh > 30) return;
+    if (kmh > maxSpeedKmh) maxSpeedKmh = kmh;
   }
 
   // -----------------------------------------------------------------

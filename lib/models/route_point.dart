@@ -28,24 +28,32 @@ class RoutePoint {
       );
 }
 
-/// Resultado final de un paseo, listo para enviar al backend (Vercel/Supabase).
+/// Resultado final de un paseo, listo para persistir en el backend.
 class WalkSession {
   final List<RoutePoint> points;
   final double distanceMeters;
   final Duration duration;
   final DateTime startedAt;
 
+  /// Velocidad puntual más alta registrada durante el paseo, en km/h.
+  /// Se calcula tramo a tramo en el ViewModel; no es la velocidad media.
+  final double maxSpeedKmh;
+
   const WalkSession({
     required this.points,
     required this.distanceMeters,
     required this.duration,
     required this.startedAt,
+    this.maxSpeedKmh = 0,
   });
+
+  DateTime get endedAt => startedAt.add(duration);
 
   Map<String, dynamic> toJson() => {
         'points': points.map((p) => p.toJson()).toList(),
         'distanceMeters': distanceMeters,
         'durationSeconds': duration.inSeconds,
         'startedAt': startedAt.toIso8601String(),
+        'maxSpeedKmh': maxSpeedKmh,
       };
 }
