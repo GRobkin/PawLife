@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // lib/main.dart
 //
 // Punto de entrada de la app. Arranca directamente en el Home Dashboard.
@@ -23,16 +24,31 @@ Future<void> main() async {
   );
 
   runApp(const PawLifeApp());
+=======
+﻿import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'view/home_screen.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(const MyApp());
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6
 }
 
-class PawLifeApp extends StatelessWidget {
-  const PawLifeApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PawLife',
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
+<<<<<<< HEAD
       // Toda la interfaz está en español: fijamos el locale para que los
       // widgets propios de Material (selectores, menús de texto, tooltips)
       // también se muestren traducidos, sin depender del idioma del sistema.
@@ -48,6 +64,9 @@ class PawLifeApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const HomeScreen(),
+=======
+      home: HomeScreen(),
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6
     );
   }
 }

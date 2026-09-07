@@ -1,3 +1,4 @@
+<<<<<<< HEAD:lib/views/home_screen.dart
 // views/home_screen.dart
 //
 // Pantalla estática (sin ViewModel propio) que replica el diseño del
@@ -8,6 +9,12 @@
 import 'package:flutter/material.dart';
 
 import '../services/walk_repository.dart';
+=======
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pawlife/viewmodel/route_view_model.dart';
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6:lib/view/home_screen.dart
 import 'route_screen.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
@@ -21,6 +28,7 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Future<void> _onStartWalkPressed(BuildContext context) async {
+<<<<<<< HEAD:lib/views/home_screen.dart
     // Autenticamos ANTES de salir a caminar, mientras es razonable
     // suponer que hay conexión. Si esperáramos al final del paseo y no
     // hubiera señal, el guardado fallaría con la ruta ya hecha.
@@ -30,13 +38,28 @@ class HomeScreen extends StatelessWidget {
       debugPrint('No se pudo autenticar al iniciar el paseo: $e');
       // Seguimos igual: el paseo se puede registrar y el guardado se
       // reintenta desde la pantalla de resumen.
+=======
+    if (FirebaseAuth.instance.currentUser == null) {
+      try {
+        await FirebaseAuth.instance.signInAnonymously();
+      } catch (e) {
+        debugPrint('Error authenticating anonymously: $e');
+      }
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6:lib/view/home_screen.dart
     }
 
     if (!context.mounted) return;
 
     Navigator.of(context).push(
       MaterialPageRoute(
+<<<<<<< HEAD:lib/views/home_screen.dart
         builder: (_) => const RouteScreen(mascotaId: _kMascotaId),
+=======
+        builder: (_) => ChangeNotifierProvider(
+          create: (_) => RouteViewModel(mascotaId: 'buddy_123')..init(),
+          child: const RouteScreen(),
+        ),
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6:lib/view/home_screen.dart
       ),
     );
   }
@@ -71,6 +94,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _buildActivitySummary(),
+<<<<<<< HEAD:lib/views/home_screen.dart
             const SizedBox(height: 24),
             const Text(
               'Hoy',
@@ -101,6 +125,8 @@ class HomeScreen extends StatelessWidget {
               subtitle: '14:00 • Próximo',
               checked: false,
             ),
+=======
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6:lib/view/home_screen.dart
           ],
         ),
       ),
@@ -109,10 +135,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar() {
-    return Row(
+    return const Row(
       children: [
-        const Icon(Icons.menu),
-        const Expanded(
+        Icon(Icons.menu),
+        Expanded(
           child: Center(
             child: Text(
               'PawLife',
@@ -120,7 +146,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        const CircleAvatar(
+        CircleAvatar(
           radius: 16,
           backgroundColor: Colors.black12,
           child: Icon(Icons.person, size: 18, color: Colors.black45),
@@ -136,15 +162,15 @@ class HomeScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 22,
             backgroundColor: Colors.black12,
             child: Icon(Icons.pets, color: Colors.black45),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -156,15 +182,12 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down),
+          Icon(Icons.keyboard_arrow_down),
         ],
       ),
     );
   }
 
-  // -------------------------------------------------------------------
-  // Única parte funcional de esta pantalla: iniciar el paseo
-  // -------------------------------------------------------------------
   Widget _buildStartWalkCard(BuildContext context) {
     return Material(
       color: _kDarkGreen,
@@ -275,53 +298,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required bool checked,
-    Color subtitleColor = Colors.black54,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: subtitleColor == Colors.red
-            ? const Border(left: BorderSide(color: Colors.red, width: 4))
-            : null,
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: iconColor.withValues(alpha: 0.12),
-            child: Icon(icon, size: 16, color: iconColor),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                Text(subtitle,
-                    style: TextStyle(fontSize: 12, color: subtitleColor)),
-              ],
-            ),
-          ),
-          // Decorativo: no dispara ninguna acción todavía.
-          Icon(
-            checked ? Icons.check_box : Icons.check_box_outline_blank,
-            color: checked ? _kDarkGreen : Colors.black26,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBottomNav(BuildContext context) {
     return BottomAppBar(
       color: Colors.white,
@@ -330,16 +306,21 @@ class HomeScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+<<<<<<< HEAD:lib/views/home_screen.dart
             _buildNavItem(Icons.home, 'Inicio', active: true),
             _buildNavItem(Icons.pets, 'Mascotas'),
             // Ícono central de "Walk": también funcional, por comodidad
             // de navegación (misma acción que la tarjeta Iniciar paseo).
+=======
+            _buildNavItem(Icons.home, 'Home', active: true),
+            _buildNavItem(Icons.pets, 'Pets'),
+>>>>>>> 6b5301e6ed537dd8b8e718730d397f895dd14bf6:lib/view/home_screen.dart
             GestureDetector(
               onTap: () => _onStartWalkPressed(context),
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 radius: 22,
                 backgroundColor: _kDarkGreen,
-                child: const Icon(Icons.directions_walk,
+                child: Icon(Icons.directions_walk,
                     color: Colors.white, size: 20),
               ),
             ),
