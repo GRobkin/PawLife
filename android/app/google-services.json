@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "445417300823",
+    "project_id": "pawlife-84d14",
+    "storage_bucket": "pawlife-84d14.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445417300823:android:7f7cfa9333148cca565412",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCZ6UdJZfkEPm8Vb-XQaKADK2pQqfgpM0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
