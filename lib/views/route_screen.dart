@@ -30,8 +30,8 @@ const _kBackground = Color(0xFFF4F5F7);
 class RouteScreen extends StatelessWidget {
   const RouteScreen({super.key, required this.mascotaId});
 
-  /// Mascota a la que se le atribuye el paseo. Define dónde se guarda en
-  /// Firestore: users/{uid}/mascotas/{mascotaId}/paseos.
+  /// Mascota a la que se le atribuye el paseo. Define la ruta de la API donde
+  /// se guarda: /api/mascotas/{mascotaId}/paseos.
   final String mascotaId;
 
   @override
@@ -77,7 +77,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
 
   void _onFinishPressed(BuildContext context, RouteViewModel vm) {
     final WalkSession session = vm.stopWalk();
-    // El guardado en Firestore lo hace la pantalla de resumen, que es la
+    // El guardado lo hace la pantalla de resumen, que es la
     // que puede mostrar el estado ("Guardando…", error, reintentar) sin
     // depender de este ViewModel, que muere en este mismo push.
     Navigator.of(context).pushReplacement(

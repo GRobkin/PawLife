@@ -7,7 +7,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../services/walk_repository.dart';
+import '../services/auth_service.dart';
+import '../services/pawlife_repository.dart';
 import 'route_screen.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
@@ -21,13 +22,20 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   Future<void> _onStartWalkPressed(BuildContext context) async {
-    // Autenticamos ANTES de salir a caminar, mientras es razonable
-    // suponer que hay conexión. Si esperáramos al final del paseo y no
-    // hubiera señal, el guardado fallaría con la ruta ya hecha.
+    // Preparamos la mascota ANTES de salir a caminar, mientras es razonable
+    // suponer que hay conexión. Si esperáramos al final del paseo y no hubiera
+    // señal, el guardado fallaría con la ruta ya hecha.
+    //
+    // La sesión ya está abierta: a esta pantalla solo se llega pasando por el
+    // AuthGate de main.dart.
     try {
-      await WalkRepository().ensureSignedIn();
+      await PawLifeRepository().ensureMascota(
+        id: _kMascotaId,
+        nombre: 'Buddy',
+        especie: 'Perro',
+      );
     } catch (e) {
-      debugPrint('No se pudo autenticar al iniciar el paseo: $e');
+      debugPrint('No se pudo preparar el paseo: $e');
       // Seguimos igual: el paseo se puede registrar y el guardado se
       // reintenta desde la pantalla de resumen.
     }
@@ -49,11 +57,11 @@ class HomeScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           children: [
-            _buildTopBar(),
+            _buildTopBar(context),
             const SizedBox(height: 20),
-            const Text(
-              '¡Buenos días, Sarah!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              _saludo(),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             const Text(
@@ -108,7 +116,31 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar() {
+  /// Saludo con el nombre de quien inició sesión. Con Google llega solo; con
+  /// email y contraseña es el que se escribió al registrarse. Si no hay
+  /// ninguno (cuentas creadas antes de pedir el nombre), se saluda sin él.
+  String _saludo() {
+    final usuario = AuthService().currentUser;
+    final nombre = usuario?.displayName?.trim();
+
+    final hora = DateTime.now().hour;
+    final momento = hora < 13
+        ? 'Buenos días'
+        : hora < 21
+            ? 'Buenas tardes'
+            : 'Buenas noches';
+
+    if (nombre == null || nombre.isEmpty) return '¡$momento!';
+
+    // Solo el primer nombre: "¡Buenos días, Juana Pérez!" queda raro y además
+    // se sale de la línea en pantallas estrechas.
+    return '¡$momento, ${nombre.split(' ').first}!';
+  }
+
+  Widget _buildTopBar(BuildContext context) {
+    final usuario = AuthService().currentUser;
+    final fotoUrl = usuario?.photoURL;
+
     return Row(
       children: [
         const Icon(Icons.menu),
@@ -120,10 +152,45 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        const CircleAvatar(
-          radius: 16,
-          backgroundColor: Colors.black12,
-          child: Icon(Icons.person, size: 18, color: Colors.black45),
+        // El avatar es el único sitio desde el que se puede cerrar sesión.
+        // Al hacerlo no hay que navegar a ningún lado: el AuthGate de
+        // main.dart ve que la sesión se fue y vuelve solo a la bienvenida.
+        PopupMenuButton<String>(
+          tooltip: 'Tu cuenta',
+          offset: const Offset(0, 40),
+          onSelected: (valor) {
+            if (valor == 'salir') AuthService().signOut();
+          },
+          itemBuilder: (_) => [
+            PopupMenuItem<String>(
+              enabled: false,
+              child: Text(
+                usuario?.email ?? usuario?.displayName ?? 'Sesión iniciada',
+                style: const TextStyle(fontSize: 13, color: Colors.black54),
+              ),
+            ),
+            const PopupMenuDivider(),
+            const PopupMenuItem<String>(
+              value: 'salir',
+              child: Row(
+                children: [
+                  Icon(Icons.logout, size: 18, color: Colors.black54),
+                  SizedBox(width: 10),
+                  Text('Cerrar sesión'),
+                ],
+              ),
+            ),
+          ],
+          child: CircleAvatar(
+            radius: 16,
+            backgroundColor: Colors.black12,
+            // Google trae foto de perfil; con email y contraseña no hay, y se
+            // cae al icono genérico de siempre.
+            backgroundImage: fotoUrl == null ? null : NetworkImage(fotoUrl),
+            child: fotoUrl != null
+                ? null
+                : const Icon(Icons.person, size: 18, color: Colors.black45),
+          ),
         ),
       ],
     );
