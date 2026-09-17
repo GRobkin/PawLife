@@ -2,7 +2,10 @@
 //
 // Modelo puro de datos: un punto capturado durante el paseo.
 // No depende de Flutter ni de ningún paquete de mapas/GPS,
-// para que sea fácil de testear y de serializar (guardar en backend).
+// para que sea fácil de testear y de serializar.
+//
+// Es también el formato en el que la API (../apipaw) devuelve la ruta de un
+// paseo: una lista de {lat, lng, timestamp} con las fechas en ISO 8601.
 
 class RoutePoint {
   final double latitude;
@@ -18,17 +21,41 @@ class RoutePoint {
   Map<String, dynamic> toJson() => {
         'lat': latitude,
         'lng': longitude,
-        'timestamp': timestamp.toIso8601String(),
+        'timestamp': timestamp.toUtc().toIso8601String(),
       };
 
-  factory RoutePoint.fromJson(Map<String, dynamic> json) => RoutePoint(
-        latitude: json['lat'] as double,
-        longitude: json['lng'] as double,
-        timestamp: DateTime.parse(json['timestamp'] as String),
-      );
+  /// [fallbackTimestamp] cubre los paseos guardados por la versión anterior de
+  /// la app, cuando la ruta se escribía como lista de GeoPoint y no llevaba la
+  /// hora de cada punto. Sin él esos paseos no se podrían ni abrir.
+  factory RoutePoint.fromJson(
+    Map<String, dynamic> json, {
+    DateTime? fallbackTimestamp,
+  }) {
+    final lat = json['lat'] ?? json['latitude'];
+    final lng = json['lng'] ?? json['longitude'];
+
+    if (lat is! num || lng is! num) {
+      throw const FormatException('El punto de la ruta no trae lat/lng.');
+    }
+
+    final rawTimestamp = json['timestamp'];
+    final timestamp = rawTimestamp is String
+        ? DateTime.parse(rawTimestamp).toLocal()
+        : fallbackTimestamp;
+
+    if (timestamp == null) {
+      throw const FormatException('El punto de la ruta no trae timestamp.');
+    }
+
+    return RoutePoint(
+      latitude: lat.toDouble(),
+      longitude: lng.toDouble(),
+      timestamp: timestamp,
+    );
+  }
 }
 
-/// Resultado final de un paseo, listo para persistir en el backend.
+/// Resultado final de un paseo, listo para mandar al backend.
 class WalkSession {
   final List<RoutePoint> points;
   final double distanceMeters;
@@ -53,7 +80,7 @@ class WalkSession {
         'points': points.map((p) => p.toJson()).toList(),
         'distanceMeters': distanceMeters,
         'durationSeconds': duration.inSeconds,
-        'startedAt': startedAt.toIso8601String(),
+        'startedAt': startedAt.toUtc().toIso8601String(),
         'maxSpeedKmh': maxSpeedKmh,
       };
 }

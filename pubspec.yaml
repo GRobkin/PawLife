@@ -23,10 +23,19 @@ dependencies:
   geolocator: ^13.0.0
   flutter_foreground_task: ^11.0.3
 
-  # Backend: autenticación anónima + persistencia de los paseos en Firestore.
+  # Cliente de la API PHP (../apipaw). Todos los datos pasan por ahí: la app
+  # ya no escribe en Firestore directamente, así que no está cloud_firestore.
+  http: ^1.2.0
+
+  # Firebase se queda SOLO para autenticar. El ID token que emite firebase_auth
+  # es lo que el backend verifica para saber de quién son los datos.
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.0
-  cloud_firestore: ^5.4.0
+
+  # Login con Google. Solo obtiene la credencial de Google; quien abre la
+  # sesión sigue siendo firebase_auth, así el backend no nota la diferencia
+  # entre entrar con email o con Google: recibe el mismo tipo de ID token.
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +44,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    # Se declara la carpeta entera y no cada archivo: así añadir una imagen
+    # nueva no obliga a tocar este archivo otra vez.
+    - assets/images/

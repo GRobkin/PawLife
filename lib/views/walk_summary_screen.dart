@@ -3,16 +3,17 @@
 // Pantalla de resumen que se muestra al terminar un paseo.
 // Recibe la WalkSession ya cerrada y muestra sus datos + la ruta de fondo.
 //
-// Además persiste el paseo en Firestore apenas se abre (vía
-// WalkRepository), porque si esperáramos al botón "Paseo guardado" un cierre
-// con la X perdería el paseo entero. El botón refleja el estado del
-// guardado y permite reintentar si falló.
+// Además manda el paseo al backend apenas se abre (vía WalkRepository),
+// porque si esperáramos al botón "Paseo guardado" un cierre con la X
+// perdería el paseo entero. El botón refleja el estado del guardado y
+// permite reintentar si falló.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/route_point.dart';
+import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
@@ -40,6 +41,7 @@ class WalkSummaryScreen extends StatefulWidget {
 
 class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
   final WalkRepository _repository = WalkRepository();
+  final PawLifeRepository _mascotas = PawLifeRepository();
 
   _SaveStatus _saveStatus = _SaveStatus.saving;
   String? _saveError;
@@ -59,6 +61,15 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     });
 
     try {
+      // El home ya la crea al empezar el paseo, pero si entonces no había
+      // conexión hay que asegurarla ahora: el backend no cuelga un paseo de
+      // una mascota que no existe. Al reintentar, esto se reintenta también.
+      await _mascotas.ensureMascota(
+        id: widget.mascotaId,
+        nombre: 'Buddy',
+        especie: 'Perro',
+      );
+
       await _repository.savePaseo(
         mascotaId: widget.mascotaId,
         session: session,
