@@ -5,12 +5,14 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
+import 'services/push_service.dart';
 import 'views/home_screen.dart';
 import 'views/welcome_screen.dart';
 
@@ -31,6 +33,10 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await PushService().init();
+  }
 
   runApp(const PawLifeApp());
 }
