@@ -36,6 +36,7 @@ dependencies:
   # sesión sigue siendo firebase_auth, así el backend no nota la diferencia
   # entre entrar con email o con Google: recibe el mismo tipo de ID token.
   google_sign_in: ^7.2.0
+  firebase_messaging: 15.2.10
 
 dev_dependencies:
   flutter_test:
