@@ -37,6 +37,7 @@ class PawLifeRepository {
     required String especie,
     String? id,
     String? raza,
+    DateTime? fechaNacimiento,
     String? fotoUrl,
     String? notas,
   }) async {
@@ -45,6 +46,7 @@ class PawLifeRepository {
       'nombre': nombre,
       'especie': especie,
       'raza': raza,
+      'fechaNacimiento': fechaNacimiento?.toUtc().toIso8601String(),
       'fotoUrl': fotoUrl,
       'notas': notas,
     });
@@ -80,25 +82,19 @@ class PawLifeRepository {
     }
   }
 
-  /// Actualización parcial: solo viajan los campos que se pasen. Pasar `null`
-  /// en uno de ellos lo borra en el servidor.
-  Future<Mascota> updateMascota(
-    String id, {
-    String? nombre,
-    String? especie,
-    String? raza,
-    String? fotoUrl,
-    String? notas,
-  }) async {
-    final cambios = <String, dynamic>{
-      'nombre': ?nombre,
-      'especie': ?especie,
-      'raza': ?raza,
-      'fotoUrl': ?fotoUrl,
-      'notas': ?notas,
-    };
+  /// Guarda los cambios de una mascota existente.
+  ///
+  /// Manda todos los campos editables, incluidos los que estén en `null`: el
+  /// formulario de edición los muestra todos, así que vaciar "raza" o "notas"
+  /// tiene que borrarlos de verdad. Una actualización parcial dejaría el valor
+  /// anterior y el usuario vería que su borrado no tuvo efecto.
+  Future<Mascota> updateMascota(Mascota mascota) async {
+    final actualizada = await client.patch(
+      '/api/mascotas/${mascota.id}',
+      mascota.toJson(),
+    );
 
-    return Mascota.fromJson(await client.patch('/api/mascotas/$id', cambios));
+    return Mascota.fromJson(actualizada);
   }
 
   /// Borra la mascota y, con ella, sus vacunas, medicamentos, pesos y paseos.
@@ -216,7 +212,9 @@ class PawLifeRepository {
 
   // ----------------------------------------------------------- recordatorios
 
-  Future<List<Recordatorio>> fetchRecordatorios({bool soloPendientes = false}) async {
+  Future<List<Recordatorio>> fetchRecordatorios({
+    bool soloPendientes = false,
+  }) async {
     final items = await client.getList('/api/recordatorios');
     final recordatorios = items.map(Recordatorio.fromJson);
 
@@ -246,11 +244,13 @@ class PawLifeRepository {
     return Recordatorio.fromJson(creado);
   }
 
-  Future<Recordatorio> marcarRecordatorio(String id, {required bool completado}) async {
-    final actualizado = await client.patch(
-      '/api/recordatorios/$id',
-      {'completado': completado},
-    );
+  Future<Recordatorio> marcarRecordatorio(
+    String id, {
+    required bool completado,
+  }) async {
+    final actualizado = await client.patch('/api/recordatorios/$id', {
+      'completado': completado,
+    });
 
     return Recordatorio.fromJson(actualizado);
   }

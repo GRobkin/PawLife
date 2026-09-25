@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Instrucciones de proyecto para Claude Code. No se versiona: el archivo real
+# vive en D:\Mobile\CLAUDE.md, fuera de los repos. Esta entrada solo evita que
+# se cuele si alguna vez se crea uno aquí dentro.
+CLAUDE.md
+.claude/
