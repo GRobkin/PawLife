@@ -122,22 +122,23 @@ Para **iOS** falta además `GoogleService-Info.plist` en `ios/Runner/` y el
 
 ## Fotos de las mascotas
 
-Es la única excepción a "todos los datos pasan por el backend": la app sube el
-archivo directamente a **Firebase Storage** y a la API le manda solo la URL, que
-es lo que guarda en `fotoUrl`. Pasar el binario por una función serverless de
-Vercel obligaría a reenviarlo dos veces y choca con el límite de tamaño de
-cuerpo.
+No hacen falta servicios extra. La app reduce la foto a 256 px, la codifica en
+base64 y la guarda como data URI en el campo `fotoUrl` del propio documento de
+la mascota (`lib/services/photo_service.dart`). Unas decenas de KB, muy por
+debajo del límite de 1 MB por documento de Firestore.
 
-Como aquí el cliente sí accede directamente, las reglas de `storage.rules` son
-lo único que impide que alguien lea o sobrescriba las fotos de otra persona. La
-ruta es siempre `users/{uid}/mascotas/{mascotaId}/...` y la regla exige que ese
-uid sea el de quien sube.
+**Por qué no Firebase Storage**: exige plan Blaze en los proyectos nuevos. Para
+un avatar de 56 px, meter una miniatura en el documento sale gratis y evita
+tener que mantener reglas de Storage aparte.
 
-Hay que **habilitar Storage** en la consola de Firebase y publicar las reglas:
+La contrapartida es que la foto viaja en cada carga del listado, así que el
+tamaño importa: de ahí el reescalado antes de codificar y el tope duro en
+`PhotoService`. Para fotos grandes de galería sí haría falta un almacenamiento
+de archivos.
 
-```bash
-firebase deploy --only storage,firestore:rules
-```
+`proveedorDeFoto` en `lib/views/widgets/foto_mascota.dart` es el único sitio que
+sabe interpretar `fotoUrl`: distingue un data URI de una URL http, que es lo que
+guardaban las versiones anteriores.
 
 ## Pendiente
 

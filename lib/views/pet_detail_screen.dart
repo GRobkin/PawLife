@@ -19,6 +19,7 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import 'pet_form_screen.dart';
 import 'route_screen.dart';
+import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class PetDetailScreen extends StatefulWidget {
@@ -564,7 +565,7 @@ class _Portada extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fotoUrl = mascota.fotoUrl;
+    final foto = proveedorDeFoto(mascota.fotoUrl);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
@@ -573,13 +574,13 @@ class _Portada extends StatelessWidget {
           SizedBox(
             height: 210,
             width: double.infinity,
-            child: fotoUrl != null && fotoUrl.isNotEmpty
-                ? Image.network(
-                    fotoUrl,
+            child: foto == null
+                ? const _PortadaVacia()
+                : Image(
+                    image: foto,
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => const _PortadaVacia(),
-                  )
-                : const _PortadaVacia(),
+                  ),
           ),
           // Velo oscuro solo en la mitad inferior: sin él, el nombre en blanco
           // desaparece sobre una foto clara.

@@ -38,12 +38,10 @@ dependencies:
   google_sign_in: ^7.2.0
   firebase_messaging: 15.2.10
 
-  # Fotos de las mascotas. La app sube el archivo a Firebase Storage y manda
-  # a la API solo la URL resultante, que es lo que guarda en `fotoUrl`.
-  # Es la única excepción a "todos los datos pasan por el backend": subir
-  # binarios por una función serverless de Vercel tiene límite de tamaño y
-  # obliga a reenviar el archivo dos veces.
-  firebase_storage: ^12.3.0
+  # Fotos de las mascotas. Se reducen a 256 px y se guardan codificadas dentro
+  # del propio documento de la mascota, así que NO hace falta firebase_storage:
+  # Storage exige plan Blaze en los proyectos nuevos. Ver
+  # services/photo_service.dart.
   image_picker: ^1.1.2
 
 dev_dependencies:

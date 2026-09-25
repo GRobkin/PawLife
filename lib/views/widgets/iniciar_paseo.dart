@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/pawlife_models.dart';
 import '../../services/pawlife_repository.dart';
-import '../../theme/app_colors.dart';
 import '../route_screen.dart';
+import 'foto_mascota.dart';
 
 /// Pide las mascotas y abre la pantalla de paseo.
 ///
@@ -72,23 +72,7 @@ Future<void> iniciarPaseo(
           ),
           for (final mascota in disponibles!)
             ListTile(
-              leading: CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.verdeSuave,
-                backgroundImage:
-                    (mascota.fotoUrl != null && mascota.fotoUrl!.isNotEmpty)
-                    ? NetworkImage(mascota.fotoUrl!)
-                    : null,
-                child: (mascota.fotoUrl == null || mascota.fotoUrl!.isEmpty)
-                    ? Text(
-                        mascota.inicial,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.verdeOscuro,
-                        ),
-                      )
-                    : null,
-              ),
+              leading: AvatarMascota(mascota: mascota, radio: 18),
               title: Text(mascota.nombre),
               subtitle: Text(mascota.subtitulo),
               onTap: () {
