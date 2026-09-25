@@ -9,6 +9,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
@@ -394,40 +395,42 @@ class _PetFormScreenState extends State<PetFormScreen> {
           const SizedBox(height: 8),
           _Campo(controlador: _raza, pista: 'Ej. Golden Retriever'),
           const SizedBox(height: 18),
+          // Etiquetas y campos van en DOS filas, no en dos columnas de una
+          // etiqueta más su campo.
+          //
+          // Puestos en columnas, "Fecha de nacimiento" se parte en dos líneas
+          // y "Peso (kg)" no, así que cada campo arrancaba a una altura
+          // distinta y se veían escalonados. Separándolos, la fila de
+          // etiquetas toma la altura de la más alta y los dos campos quedan
+          // alineados sea cual sea el largo del texto o la escala de fuente
+          // del teléfono.
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _Rotulo('Fecha de nacimiento'),
-                    const SizedBox(height: 8),
-                    _buildCampoFecha(),
-                  ],
-                ),
-              ),
+              const Expanded(child: _Rotulo('Fecha de nacimiento')),
               // El peso solo al crear: en edición se registra desde el detalle,
               // porque cada peso es una entrada del historial y guardar el
               // formulario dos veces dejaría registros duplicados del mismo día.
               if (!_esEdicion) ...[
                 const SizedBox(width: 14),
+                const Expanded(child: _Rotulo('Peso (kg)')),
+              ],
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(child: _buildCampoFecha()),
+              if (!_esEdicion) ...[
+                const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const _Rotulo('Peso (kg)'),
-                      const SizedBox(height: 8),
-                      _Campo(
-                        controlador: _peso,
-                        pista: '0.0',
-                        teclado: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        formateadores: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                        ],
-                      ),
+                  child: _Campo(
+                    controlador: _peso,
+                    pista: '0.0',
+                    teclado: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    formateadores: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                     ],
                   ),
                 ),
@@ -480,18 +483,14 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (especie != Especie.otra) ...[
-                        Icon(
-                          especie == Especie.perro
-                              ? Icons.pets
-                              : Icons.cruelty_free,
-                          size: 15,
-                          color: _especie == especie
-                              ? Colors.white
-                              : Colors.black54,
-                        ),
-                        const SizedBox(width: 6),
-                      ],
+                      FaIcon(
+                        _iconoDe(especie),
+                        size: 14,
+                        color: _especie == especie
+                            ? Colors.white
+                            : Colors.black54,
+                      ),
+                      const SizedBox(width: 7),
                       Text(
                         especie.etiqueta,
                         style: TextStyle(
@@ -511,6 +510,14 @@ class _PetFormScreenState extends State<PetFormScreen> {
       ),
     );
   }
+
+  /// Material Icons no tiene gato ni perro: lo más cercano es `cruelty_free`,
+  /// que es un conejo. De ahí la dependencia de Font Awesome solo para esto.
+  static FaIconData _iconoDe(Especie especie) => switch (especie) {
+    Especie.perro => FontAwesomeIcons.dog,
+    Especie.gato => FontAwesomeIcons.cat,
+    Especie.otra => FontAwesomeIcons.paw,
+  };
 
   Widget _buildCampoFecha() {
     final fecha = _fechaNacimiento;

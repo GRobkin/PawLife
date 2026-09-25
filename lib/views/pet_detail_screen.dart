@@ -19,6 +19,7 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import 'pet_form_screen.dart';
 import 'route_screen.dart';
+import 'widgets/eliminar_mascota.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
@@ -116,42 +117,21 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     }
   }
 
-  Future<void> _registrarPeso() async {
-    final controlador = TextEditingController();
+  Future<void> _eliminar() async {
+    if (await confirmarYEliminarMascota(context, _mascota)) {
+      if (!mounted) return;
+      // La mascota ya no existe, así que esta pantalla no tiene nada que
+      // mostrar: se vuelve al listado, que se recarga solo al recibir el pop.
+      Navigator.of(context).pop();
+    }
+  }
 
+  Future<void> _registrarPeso() async {
     final valor = await showDialog<double>(
       context: context,
-      builder: (contexto) => AlertDialog(
-        title: const Text('Registrar peso'),
-        content: TextField(
-          controller: controlador,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-          ],
-          decoration: const InputDecoration(suffixText: 'kg', hintText: '0.0'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(contexto).pop(),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              final texto = controlador.text.trim().replaceAll(',', '.');
-              final kg = double.tryParse(texto);
-              if (kg == null || kg <= 0 || kg > 200) return;
-
-              Navigator.of(contexto).pop(kg);
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
-      ),
+      builder: (_) => const _DialogoPeso(),
     );
 
-    controlador.dispose();
     if (valor == null || !mounted) return;
 
     try {
@@ -189,56 +169,72 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             onPressed: _editar,
             icon: const Icon(Icons.edit_outlined),
           ),
+          IconButton(
+            tooltip: 'Eliminar',
+            onPressed: _eliminar,
+            icon: const Icon(Icons.delete_outline),
+          ),
         ],
       ),
+      // NestedScrollView y no un ListView con el TabBarView dentro: así la
+      // cabecera y el contenido de la pestaña comparten un único scroll.
+      //
+      // Antes la pestaña era un ListView de alto fijo metido en otro ListView,
+      // y eso impedía arrastrar hacia arriba desde dentro de la pestaña: el
+      // gesto lo capturaba la lista interna, que al estar ya arriba no tenía
+      // a dónde ir y no lo propagaba al padre. La cabecera quedaba atrapada
+      // fuera de la pantalla.
       body: _error != null
           ? _buildError()
           : RefreshIndicator(
               onRefresh: _cargar,
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 24),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Column(
-                      children: [
-                        _Portada(mascota: _mascota),
-                        const SizedBox(height: 16),
-                        _buildMetricas(),
-                      ],
+              child: NestedScrollView(
+                headerSliverBuilder: (context, _) => [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Column(
+                        children: [
+                          _Portada(mascota: _mascota),
+                          const SizedBox(height: 16),
+                          _buildMetricas(),
+                          const SizedBox(height: 22),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 22),
-                  TabBar(
-                    controller: _tabs,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: AppColors.verdeOscuro,
-                    unselectedLabelColor: Colors.black54,
-                    indicatorColor: AppColors.verdeOscuro,
-                    indicatorSize: TabBarIndicatorSize.label,
-                    tabs: const [
-                      Tab(text: 'Resumen'),
-                      Tab(text: 'Vacunas'),
-                      Tab(text: 'Medicamentos'),
-                      Tab(text: 'Paseos'),
-                    ],
-                  ),
-                  // Alto fijo porque el TabBarView va dentro de un ListView y
-                  // ahí no tiene ninguna altura de la que tirar.
-                  SizedBox(
-                    height: 420,
-                    child: TabBarView(
-                      controller: _tabs,
-                      children: [
-                        _buildResumen(),
-                        _buildVacunas(),
-                        _buildMedicamentos(),
-                        _buildPaseos(),
-                      ],
+                  SliverPersistentHeader(
+                    // El TabBar se queda pegado arriba al scrollear, para poder
+                    // cambiar de pestaña sin volver a subir.
+                    pinned: true,
+                    delegate: _CabeceraPestanas(
+                      TabBar(
+                        controller: _tabs,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        labelColor: AppColors.verdeOscuro,
+                        unselectedLabelColor: Colors.black54,
+                        indicatorColor: AppColors.verdeOscuro,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        tabs: const [
+                          Tab(text: 'Resumen'),
+                          Tab(text: 'Vacunas'),
+                          Tab(text: 'Medicamentos'),
+                          Tab(text: 'Paseos'),
+                        ],
+                      ),
                     ),
                   ),
                 ],
+                body: TabBarView(
+                  controller: _tabs,
+                  children: [
+                    _buildResumen(),
+                    _buildVacunas(),
+                    _buildMedicamentos(),
+                    _buildPaseos(),
+                  ],
+                ),
               ),
             ),
       bottomNavigationBar: PawLifeBottomNav(
@@ -343,6 +339,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     final proximaVacuna = _proximaVacuna();
 
     return ListView(
+      key: const PageStorageKey("resumen"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
         const _TituloSeccion('Próximos cuidados'),
@@ -407,6 +404,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       ..sort((a, b) => a.proximaFecha.compareTo(b.proximaFecha));
 
     return ListView(
+      key: const PageStorageKey("vacunas"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
         for (final vacuna in ordenadas)
@@ -438,6 +436,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     }
 
     return ListView(
+      key: const PageStorageKey("medicamentos"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
         for (final medicamento in medicamentos)
@@ -469,6 +468,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     }
 
     return ListView(
+      key: const PageStorageKey("paseos"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
         for (final paseo in paseos)
@@ -555,6 +555,111 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       '${f.day} ${_meses[f.month - 1]}, '
       '${f.hour.toString().padLeft(2, '0')}:'
       '${f.minute.toString().padLeft(2, '0')}';
+}
+
+/// Diálogo para anotar un peso. Devuelve los kg, o null si se canceló.
+///
+/// Es un StatefulWidget y no un AlertDialog suelto porque así el controlador
+/// del campo lo crea y lo libera el propio diálogo, en su dispose().
+///
+/// Creándolo fuera y liberándolo justo después de `await showDialog` se
+/// rompía: showDialog devuelve en cuanto se hace pop, pero el TextField sigue
+/// vivo durante la animación de salida, así que se quedaba apuntando a un
+/// controlador ya destruido y Flutter lanzaba
+/// "'_dependents.isEmpty': is not true".
+class _DialogoPeso extends StatefulWidget {
+  const _DialogoPeso();
+
+  @override
+  State<_DialogoPeso> createState() => _DialogoPesoState();
+}
+
+class _DialogoPesoState extends State<_DialogoPeso> {
+  final _controlador = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _controlador.dispose();
+    super.dispose();
+  }
+
+  void _guardar() {
+    final texto = _controlador.text.trim().replaceAll(',', '.');
+    final kg = double.tryParse(texto);
+
+    // Antes, con un valor inválido el botón simplemente no hacía nada y no
+    // había forma de saber por qué.
+    if (kg == null) {
+      setState(() => _error = 'Escribí un número.');
+      return;
+    }
+    if (kg <= 0 || kg > 200) {
+      setState(() => _error = 'Tiene que estar entre 0 y 200 kg.');
+      return;
+    }
+
+    Navigator.of(context).pop(kg);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Registrar peso'),
+      content: TextField(
+        controller: _controlador,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+        ],
+        onSubmitted: (_) => _guardar(),
+        decoration: InputDecoration(
+          suffixText: 'kg',
+          hintText: '0.0',
+          errorText: _error,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(onPressed: _guardar, child: const Text('Guardar')),
+      ],
+    );
+  }
+}
+
+/// Deja el TabBar fijo arriba mientras se scrollea el contenido de la pestaña.
+///
+/// Hace falta un delegado propio porque SliverPersistentHeader necesita saber
+/// de antemano cuánto mide, y un TabBar no lo dice: se le pregunta a su
+/// `preferredSize`.
+class _CabeceraPestanas extends SliverPersistentHeaderDelegate {
+  const _CabeceraPestanas(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    // Fondo opaco: sin él, el contenido de la pestaña se vería pasar por
+    // detrás de los rótulos al scrollear.
+    return ColoredBox(color: AppColors.fondo, child: tabBar);
+  }
+
+  @override
+  bool shouldRebuild(_CabeceraPestanas anterior) => anterior.tabBar != tabBar;
 }
 
 /// Foto grande con el nombre encima, como en el prototipo.

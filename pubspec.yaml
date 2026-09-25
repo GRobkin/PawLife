@@ -44,6 +44,16 @@ dependencies:
   # services/photo_service.dart.
   image_picker: ^1.1.2
 
+  # Iconos de gato y perro: Material Icons no tiene ninguno de los dos. Lo más
+  # parecido es `cruelty_free`, que es un conejo. Flutter recorta las fuentes de
+  # iconos sin usar al compilar en release, así que el peso real es mínimo.
+  #
+  # Hace falta la 11 o superior: la 10.x define sus iconos extendiendo IconData,
+  # que en las versiones actuales de Flutter es `final class`, y no compila.
+  # En la 11 los iconos son `FaIconData`, no `IconData`, y eso importa al
+  # escribir la firma de cualquier función que los devuelva.
+  font_awesome_flutter: ^11.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
