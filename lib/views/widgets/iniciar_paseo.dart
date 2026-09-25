@@ -12,14 +12,15 @@ import 'package:flutter/material.dart';
 
 import '../../models/pawlife_models.dart';
 import '../../services/pawlife_repository.dart';
+import '../../services/seleccion_mascota.dart';
 import '../route_screen.dart';
-import 'foto_mascota.dart';
+import 'selector_mascota.dart';
 
-/// Pide las mascotas y abre la pantalla de paseo.
+/// Pide las mascotas si hace falta y abre la pantalla de paseo.
 ///
-/// Con una sola mascota va directo; con varias pregunta, porque elegir la
-/// primera sería adivinar y el paseo quedaría mal atribuido sin que se note.
-/// Sin ninguna, avisa de que hay que crear una antes.
+/// Usa la mascota activa (la que se elige en el Home) en vez de preguntar cada
+/// vez: ya es una elección del usuario, y volver a pedirla en cada paseo sería
+/// insistir. Solo pregunta si hay varias y ninguna está activa todavía.
 ///
 /// [mascotas] permite pasar una lista ya cargada para ahorrarse la petición,
 /// como hace el listado, que acaba de pedirlas.
@@ -52,43 +53,20 @@ Future<void> iniciarPaseo(
     return;
   }
 
-  if (disponibles.length == 1) {
-    _abrir(context, disponibles.first);
-    return;
-  }
+  // `resolver` cae en la primera mascota cuando no hay ninguna activa, así que
+  // con una sola mascota nunca llega a preguntar.
+  final elegida = disponibles.length == 1
+      ? disponibles.first
+      : SeleccionMascota.resolver(disponibles) ??
+            await elegirMascota(
+              context,
+              disponibles,
+              titulo: '¿Con quién vas a pasear?',
+            );
 
-  await showModalBottomSheet<void>(
-    context: context,
-    builder: (contexto) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              '¿Con quién vas a pasear?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
-          for (final mascota in disponibles!)
-            ListTile(
-              leading: AvatarMascota(mascota: mascota, radio: 18),
-              title: Text(mascota.nombre),
-              subtitle: Text(mascota.subtitulo),
-              onTap: () {
-                Navigator.of(contexto).pop();
-                _abrir(context, mascota);
-              },
-            ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    ),
-  );
-}
+  if (elegida == null || !context.mounted) return;
 
-void _abrir(BuildContext context, Mascota mascota) {
   Navigator.of(
     context,
-  ).push(MaterialPageRoute(builder: (_) => RouteScreen(mascotaId: mascota.id)));
+  ).push(MaterialPageRoute(builder: (_) => RouteScreen(mascotaId: elegida.id)));
 }

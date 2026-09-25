@@ -20,7 +20,8 @@ import '../services/pawlife_repository.dart';
 import '../theme/app_colors.dart';
 import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
-import 'route_screen.dart';
+import 'widgets/eliminar_mascota.dart';
+import 'widgets/iniciar_paseo.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
@@ -111,100 +112,21 @@ class _PetsScreenState extends State<PetsScreen> {
   }
 
   Future<void> _confirmarBorrado(Mascota mascota) async {
-    final confirmado = await showDialog<bool>(
-      context: context,
-      builder: (contexto) => AlertDialog(
-        title: Text('¿Eliminar a ${mascota.nombre}?'),
-        // Se dice explícitamente lo que se lleva por delante: el backend borra
-        // las subcolecciones en cascada y no hay forma de recuperarlas.
-        content: const Text(
-          'Se borrarán también sus vacunas, medicamentos, registros de peso y '
-          'paseos. No se puede deshacer.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(contexto).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(contexto).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.alerta),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmado != true) return;
-
-    try {
-      await _repositorio.deleteMascota(mascota.id);
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${mascota.nombre} eliminada.')));
+    if (await confirmarYEliminarMascota(
+      context,
+      mascota,
+      repositorio: _repositorio,
+    )) {
       await _cargar();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
     }
   }
 
   /// El botón central de paseo necesita una mascota a la que atribuirlo.
+  /// Reaprovecha la lista ya cargada para no volver a pedirla.
   void _iniciarPaseo() {
-    final mascotas = _mascotas;
-
-    if (mascotas == null || mascotas.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Primero agregá una mascota para registrar el paseo.'),
-        ),
-      );
-      return;
-    }
-
-    if (mascotas.length == 1) {
-      _irAlPaseo(mascotas.first.mascota);
-      return;
-    }
-
-    // Con varias mascotas hay que preguntar: atribuir el paseo a la primera
-    // sería adivinar, y el dato quedaría mal guardado sin que se note.
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (contexto) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                '¿Con quién vas a pasear?',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
-            for (final resumen in mascotas)
-              ListTile(
-                leading: AvatarMascota(mascota: resumen.mascota, radio: 18),
-                title: Text(resumen.mascota.nombre),
-                subtitle: Text(resumen.mascota.subtitulo),
-                onTap: () {
-                  Navigator.of(contexto).pop();
-                  _irAlPaseo(resumen.mascota);
-                },
-              ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _irAlPaseo(Mascota mascota) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RouteScreen(mascotaId: mascota.id)),
+    iniciarPaseo(
+      context,
+      mascotas: _mascotas?.map((r) => r.mascota).toList(growable: false),
     );
   }
 

@@ -1,27 +1,143 @@
 // views/home_screen.dart
 //
-// Home Dashboard. La parte funcional es el saludo con el nombre real, el menú
-// de la cuenta y el botón "Iniciar paseo". El resumen de actividad y la lista
-// de tareas siguen siendo datos escritos a mano: se llenarán cuando exista la
-// pantalla de Tareas.
+// Home Dashboard. Funcionan el saludo con el nombre real, el menú de la
+// cuenta, la tarjeta de mascota (que permite cambiar de mascota activa) y el
+// botón "Iniciar paseo". El resumen de actividad y la lista de tareas siguen
+// siendo datos escritos a mano: se llenarán cuando exista la pantalla de
+// Tareas.
 
 import 'package:flutter/material.dart';
 
+import '../models/pawlife_models.dart';
 import '../services/auth_service.dart';
+import '../services/pawlife_repository.dart';
+import '../services/seleccion_mascota.dart';
+import '../services/walk_repository.dart';
+import 'pets_screen.dart';
+import 'widgets/foto_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/pawlife_bottom_nav.dart';
+import 'widgets/selector_mascota.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
 const _kBackground = Color(0xFFF4F5F7);
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  /// Las mascotas del usuario. null mientras se cargan; vacía si no tiene.
+  List<Mascota>? _mascotas;
+
+  /// Paseos de la mascota activa, para el resumen de actividad. null mientras
+  /// se cargan.
+  List<Paseo>? _paseos;
+
+  @override
+  void initState() {
+    super.initState();
+    // Al cambiar de mascota hay que recargar los paseos: el resumen habla de
+    // la activa, no del usuario.
+    SeleccionMascota.id.addListener(_cargarPaseos);
+    _cargarMascotas();
+  }
+
+  @override
+  void dispose() {
+    SeleccionMascota.id.removeListener(_cargarPaseos);
+    super.dispose();
+  }
+
+  Future<void> _cargarMascotas() async {
+    try {
+      final mascotas = await PawLifeRepository().fetchMascotas();
+      if (!mounted) return;
+      setState(() => _mascotas = mascotas);
+      await _cargarPaseos();
+    } catch (_) {
+      // El Home tiene que poder abrirse sin conexión: la tarjeta se queda con
+      // el aviso de que no se pudieron cargar y el resto de la pantalla sigue
+      // siendo utilizable.
+      if (!mounted) return;
+      setState(() {
+        _mascotas = const [];
+        _paseos = const [];
+      });
+    }
+  }
+
+  Future<void> _cargarPaseos() async {
+    final mascotas = _mascotas;
+    final activa = mascotas == null
+        ? null
+        : SeleccionMascota.resolver(mascotas);
+
+    if (activa == null) {
+      if (mounted) setState(() => _paseos = const []);
+      return;
+    }
+
+    if (mounted) setState(() => _paseos = null);
+
+    try {
+      // 20 basta: el resumen solo mira el último paseo y los de hoy.
+      final paseos = await WalkRepository().fetchPaseos(activa.id, limite: 20);
+      if (!mounted) return;
+      setState(() => _paseos = paseos);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _paseos = const []);
+    }
+  }
+
   /// Antes esta pantalla creaba una mascota fija llamada Buddy y le atribuía
-  /// todos los paseos. Ahora que existe el listado de mascotas, se pregunta a
-  /// cuál corresponde (ver widgets/iniciar_paseo.dart).
-  Future<void> _onStartWalkPressed(BuildContext context) =>
-      iniciarPaseo(context);
+  /// todos los paseos. Ahora usa la mascota activa (ver iniciar_paseo.dart).
+  Future<void> _onStartWalkPressed(BuildContext context) async {
+    await iniciarPaseo(context, mascotas: _mascotas);
+    // Al volver del paseo puede haber uno nuevo guardado, así que el resumen
+    // se queda viejo si no se recarga.
+    if (mounted) await _cargarPaseos();
+  }
+
+  Future<void> _cambiarMascota() async {
+    final mascotas = _mascotas;
+
+    if (mascotas == null) return;
+
+    if (mascotas.isEmpty) {
+      // Sin mascotas no hay nada que elegir: se lleva al listado, que tiene el
+      // botón para crear la primera.
+      _irAMascotas();
+      return;
+    }
+
+    if (mascotas.length == 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Solo tenés una mascota por ahora.')),
+      );
+      return;
+    }
+
+    final elegida = await elegirMascota(
+      context,
+      mascotas,
+      titulo: 'Cambiar de mascota',
+      seleccionadaId: SeleccionMascota.resolver(mascotas)?.id,
+    );
+
+    if (elegida == null) return;
+    SeleccionMascota.seleccionar(elegida);
+  }
+
+  void _irAMascotas() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const PetsScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,39 +289,74 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Tarjeta de la mascota activa. Al pulsarla se cambia de mascota.
+  ///
+  /// Escucha `SeleccionMascota.id` en vez de guardarse la elegida en el estado:
+  /// así cambiarla desde cualquier otro sitio también repinta esta tarjeta.
   Widget _buildPetCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 22,
-            backgroundColor: Colors.black12,
-            child: Icon(Icons.pets, color: Colors.black45),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Buddy',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                ),
-                Text(
-                  'Golden Retriever',
-                  style: TextStyle(color: Colors.black54, fontSize: 13),
-                ),
-              ],
+    return ValueListenableBuilder<String?>(
+      valueListenable: SeleccionMascota.id,
+      builder: (context, _, _) {
+        final mascotas = _mascotas;
+        final activa = mascotas == null
+            ? null
+            : SeleccionMascota.resolver(mascotas);
+
+        return Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: _cambiarMascota,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  if (activa != null)
+                    AvatarMascota(mascota: activa, radio: 22)
+                  else
+                    const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.black12,
+                      child: Icon(Icons.pets, color: Colors.black45),
+                    ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          activa?.nombre ??
+                              (mascotas == null ? 'Cargando…' : 'Sin mascotas'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          activa?.subtitulo ??
+                              (mascotas == null
+                                  ? ''
+                                  : 'Tocá para agregar la primera'),
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // La flecha solo tiene sentido si hay entre qué elegir.
+                  if (mascotas != null && mascotas.length > 1)
+                    const Icon(Icons.keyboard_arrow_down)
+                  else if (mascotas != null && mascotas.isEmpty)
+                    const Icon(Icons.add, color: Colors.black45),
+                ],
+              ),
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -262,7 +413,48 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Resumen de actividad de la mascota activa, con datos reales de sus paseos.
+  ///
+  /// Antes eran dos valores escritos a mano ("2.4 km, ayer" y "45 min, meta
+  /// diaria 60"). La meta diaria se quitó porque no existe en ningún sitio: no
+  /// hay dónde configurarla ni con qué compararla, así que la segunda tarjeta
+  /// pasó a contar el tiempo caminado HOY, que sí se puede sumar de los paseos.
   Widget _buildActivitySummary() {
+    final paseos = _paseos;
+
+    if (paseos == null) {
+      return Row(
+        children: [
+          Expanded(
+            child: _buildSummaryCard(
+              icon: Icons.map_outlined,
+              iconColor: Colors.green,
+              label: 'Último paseo',
+              value: '…',
+              hint: 'Cargando',
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSummaryCard(
+              icon: Icons.timer_outlined,
+              iconColor: Colors.blueGrey,
+              label: 'Tiempo activo',
+              value: '…',
+              hint: 'Cargando',
+            ),
+          ),
+        ],
+      );
+    }
+
+    final ultimo = paseos.isEmpty ? null : paseos.first;
+
+    final deHoy = paseos.where((p) => _esHoy(p.fechaInicio));
+    final minutosHoy =
+        deHoy.fold<int>(0, (t, p) => t + p.duracionSegundos) ~/ 60;
+    final cuantosHoy = deHoy.length;
+
     return Row(
       children: [
         Expanded(
@@ -270,8 +462,10 @@ class HomeScreen extends StatelessWidget {
             icon: Icons.map_outlined,
             iconColor: Colors.green,
             label: 'Último paseo',
-            value: '2.4 km',
-            hint: 'Ayer, 17:30',
+            value: ultimo == null
+                ? '—'
+                : '${(ultimo.distanciaMetros / 1000).toStringAsFixed(2)} km',
+            hint: ultimo == null ? 'Sin paseos' : _cuando(ultimo.fechaInicio),
           ),
         ),
         const SizedBox(width: 12),
@@ -280,12 +474,57 @@ class HomeScreen extends StatelessWidget {
             icon: Icons.timer_outlined,
             iconColor: Colors.blueGrey,
             label: 'Tiempo activo',
-            value: '45 min',
-            hint: 'Meta diaria: 60 min',
+            value: cuantosHoy == 0 ? '—' : '$minutosHoy min',
+            hint: switch (cuantosHoy) {
+              0 => 'Sin paseos hoy',
+              1 => '1 paseo hoy',
+              _ => '$cuantosHoy paseos hoy',
+            },
           ),
         ),
       ],
     );
+  }
+
+  static bool _esHoy(DateTime fecha) {
+    final ahora = DateTime.now();
+
+    return fecha.year == ahora.year &&
+        fecha.month == ahora.month &&
+        fecha.day == ahora.day;
+  }
+
+  /// "Hoy, 17:30", "Ayer, 09:15", "14 sep, 18:40".
+  static String _cuando(DateTime fecha) {
+    final hora =
+        '${fecha.hour.toString().padLeft(2, '0')}:'
+        '${fecha.minute.toString().padLeft(2, '0')}';
+
+    if (_esHoy(fecha)) return 'Hoy, $hora';
+
+    final ayer = DateTime.now().subtract(const Duration(days: 1));
+    if (fecha.year == ayer.year &&
+        fecha.month == ayer.month &&
+        fecha.day == ayer.day) {
+      return 'Ayer, $hora';
+    }
+
+    const meses = [
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
+    ];
+
+    return '${fecha.day} ${meses[fecha.month - 1]}, $hora';
   }
 
   Widget _buildSummaryCard({

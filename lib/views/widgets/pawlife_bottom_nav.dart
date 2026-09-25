@@ -31,6 +31,15 @@ class PawLifeBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomAppBar(
       color: Colors.white,
+      // Altura y padding explícitos. Material 3 le pone al BottomAppBar 80 de
+      // alto con 12 de padding vertical propio, y sumándole el padding de aquí
+      // el contenido no cabía: salía el "BOTTOM OVERFLOWED BY 4.0 PIXELS".
+      //
+      // Con 70 de alto y el padding propio a cero, el contenido (icono 22 +
+      // rótulo de 10) entra con holgura incluso si el teléfono tiene la escala
+      // de fuente subida.
+      height: 70,
+      padding: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
