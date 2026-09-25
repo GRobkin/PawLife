@@ -1,53 +1,27 @@
 // views/home_screen.dart
 //
-// Pantalla estática (sin ViewModel propio) que replica el diseño del
-// Home Dashboard. La ÚNICA parte funcional es el botón "Iniciar paseo",
-// que navega a RouteScreen (paseo en curso). Todo lo demás (saludo, resumen
-// de actividad, lista de tareas, bottom nav) es decorativo por ahora.
+// Home Dashboard. La parte funcional es el saludo con el nombre real, el menú
+// de la cuenta y el botón "Iniciar paseo". El resumen de actividad y la lista
+// de tareas siguen siendo datos escritos a mano: se llenarán cuando exista la
+// pantalla de Tareas.
 
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
-import '../services/pawlife_repository.dart';
-import 'route_screen.dart';
+import 'widgets/iniciar_paseo.dart';
+import 'widgets/pawlife_bottom_nav.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
 const _kBackground = Color(0xFFF4F5F7);
 
-/// Mascota fija por ahora: todavía no existe la pantalla para elegirla,
-/// así que todos los paseos se le atribuyen a Buddy (la del PetCard).
-const _kMascotaId = 'buddy_123';
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  Future<void> _onStartWalkPressed(BuildContext context) async {
-    // Preparamos la mascota ANTES de salir a caminar, mientras es razonable
-    // suponer que hay conexión. Si esperáramos al final del paseo y no hubiera
-    // señal, el guardado fallaría con la ruta ya hecha.
-    //
-    // La sesión ya está abierta: a esta pantalla solo se llega pasando por el
-    // AuthGate de main.dart.
-    try {
-      await PawLifeRepository().ensureMascota(
-        id: _kMascotaId,
-        nombre: 'Buddy',
-        especie: 'Perro',
-      );
-    } catch (e) {
-      debugPrint('No se pudo preparar el paseo: $e');
-      // Seguimos igual: el paseo se puede registrar y el guardado se
-      // reintenta desde la pantalla de resumen.
-    }
-
-    if (!context.mounted) return;
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const RouteScreen(mascotaId: _kMascotaId),
-      ),
-    );
-  }
+  /// Antes esta pantalla creaba una mascota fija llamada Buddy y le atribuía
+  /// todos los paseos. Ahora que existe el listado de mascotas, se pregunta a
+  /// cuál corresponde (ver widgets/iniciar_paseo.dart).
+  Future<void> _onStartWalkPressed(BuildContext context) =>
+      iniciarPaseo(context);
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +86,10 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+      bottomNavigationBar: PawLifeBottomNav(
+        activa: SeccionNav.inicio,
+        onPaseo: () => _onStartWalkPressed(context),
+      ),
     );
   }
 
@@ -127,8 +104,8 @@ class HomeScreen extends StatelessWidget {
     final momento = hora < 13
         ? 'Buenos días'
         : hora < 21
-            ? 'Buenas tardes'
-            : 'Buenas noches';
+        ? 'Buenas tardes'
+        : 'Buenas noches';
 
     if (nombre == null || nombre.isEmpty) return '¡$momento!';
 
@@ -215,11 +192,14 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Buddy',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 15)),
-                Text('Golden Retriever',
-                    style: TextStyle(color: Colors.black54, fontSize: 13)),
+                Text(
+                  'Buddy',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                ),
+                Text(
+                  'Golden Retriever',
+                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -269,8 +249,11 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.directions_walk,
-                    color: _kDarkGreen, size: 20),
+                child: const Icon(
+                  Icons.directions_walk,
+                  color: _kDarkGreen,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -325,18 +308,22 @@ class HomeScreen extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: iconColor),
               const SizedBox(width: 6),
-              Text(label,
-                  style:
-                      const TextStyle(fontSize: 12, color: Colors.black54)),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 2),
-          Text(hint,
-              style: const TextStyle(fontSize: 11, color: Colors.black45)),
+          Text(
+            hint,
+            style: const TextStyle(fontSize: 11, color: Colors.black45),
+          ),
         ],
       ),
     );
@@ -371,11 +358,17 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                Text(subtitle,
-                    style: TextStyle(fontSize: 12, color: subtitleColor)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 12, color: subtitleColor),
+                ),
               ],
             ),
           ),
@@ -386,47 +379,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNav(BuildContext context) {
-    return BottomAppBar(
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.home, 'Inicio', active: true),
-            _buildNavItem(Icons.pets, 'Mascotas'),
-            // Ícono central de "Walk": también funcional, por comodidad
-            // de navegación (misma acción que la tarjeta Iniciar paseo).
-            GestureDetector(
-              onTap: () => _onStartWalkPressed(context),
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: _kDarkGreen,
-                child: const Icon(Icons.directions_walk,
-                    color: Colors.white, size: 20),
-              ),
-            ),
-            _buildNavItem(Icons.assignment_outlined, 'Tareas'),
-            _buildNavItem(Icons.person_outline, 'Perfil'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, {bool active = false}) {
-    final color = active ? _kDarkGreen : Colors.black45;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color, size: 22),
-        const SizedBox(height: 2),
-        Text(label, style: TextStyle(fontSize: 10, color: color)),
-      ],
     );
   }
 }

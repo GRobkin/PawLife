@@ -120,9 +120,34 @@ otra distinta: hay que registrarlas todas.
 Para **iOS** falta además `GoogleService-Info.plist` en `ios/Runner/` y el
 `CFBundleURLSchemes` con el `REVERSED_CLIENT_ID` en `Info.plist`.
 
+## Fotos de las mascotas
+
+Es la única excepción a "todos los datos pasan por el backend": la app sube el
+archivo directamente a **Firebase Storage** y a la API le manda solo la URL, que
+es lo que guarda en `fotoUrl`. Pasar el binario por una función serverless de
+Vercel obligaría a reenviarlo dos veces y choca con el límite de tamaño de
+cuerpo.
+
+Como aquí el cliente sí accede directamente, las reglas de `storage.rules` son
+lo único que impide que alguien lea o sobrescriba las fotos de otra persona. La
+ruta es siempre `users/{uid}/mascotas/{mascotaId}/...` y la regla exige que ese
+uid sea el de quien sube.
+
+Hay que **habilitar Storage** en la consola de Firebase y publicar las reglas:
+
+```bash
+firebase deploy --only storage,firestore:rules
+```
+
 ## Pendiente
 
-- **Elegir mascota.** El home trabaja con una mascota fija (`buddy_123`) que se
-  crea sola si no existe. Falta la pantalla para darlas de alta y elegir.
-- Las vistas de vacunas, medicamentos, pesos y recordatorios no existen
-  todavía, aunque la API y los repositorios ya las soportan.
+- Formularios para dar de alta **vacunas, medicamentos y recordatorios**. En el
+  detalle de mascota ya se ven, pero solo en modo lectura. El único registro
+  que se puede crear desde la app es el de peso.
+- Las secciones **Tareas** y **Perfil** de la barra inferior avisan con un
+  snackbar: todavía no existen.
+- **Notificaciones push a medias**: `lib/services/push_service.dart` solo
+  imprime el token FCM. No llega al backend, no hay manejadores de mensajes y
+  se inicializa antes del login, cuando aún no hay uid al que asociarlo.
+- El Home sigue con el resumen de actividad y la lista de tareas escritos a
+  mano.

@@ -59,12 +59,39 @@ int _entero(Map<String, dynamic> json, String campo) {
   return valor.toInt();
 }
 
+/// Especies que la app conoce. `otra` recoge todo lo demás para no cerrarle la
+/// puerta a un conejo o un loro: el backend acepta cualquier texto en
+/// `especie`, esto es solo lo que ofrece el formulario.
+enum Especie {
+  perro('Perro'),
+  gato('Gato'),
+  otra('Otra');
+
+  const Especie(this.etiqueta);
+
+  final String etiqueta;
+
+  /// Tolerante a propósito: los datos pueden venir de una versión anterior de
+  /// la app o haberse creado a mano, así que lo que no se reconozca cae en
+  /// `otra` en vez de reventar al abrir la pantalla.
+  static Especie desde(String valor) {
+    final normalizado = valor.trim().toLowerCase();
+
+    return switch (normalizado) {
+      'perro' || 'dog' => Especie.perro,
+      'gato' || 'cat' => Especie.gato,
+      _ => Especie.otra,
+    };
+  }
+}
+
 class Mascota {
   const Mascota({
     required this.id,
     required this.nombre,
     required this.especie,
     this.raza,
+    this.fechaNacimiento,
     this.fotoUrl,
     this.notas,
   });
@@ -73,43 +100,105 @@ class Mascota {
   final String nombre;
   final String especie;
   final String? raza;
+
+  /// Opcional: hay quien adopta y no sabe la fecha exacta. Sin ella no se
+  /// muestra la edad, en lugar de inventarse una.
+  final DateTime? fechaNacimiento;
   final String? fotoUrl;
   final String? notas;
 
   factory Mascota.fromJson(Map<String, dynamic> json) => Mascota(
-        id: _texto(json, 'id'),
-        nombre: _texto(json, 'nombre'),
-        especie: _texto(json, 'especie'),
-        raza: json['raza'] as String?,
-        fotoUrl: json['fotoUrl'] as String?,
-        notas: json['notas'] as String?,
-      );
+    id: _texto(json, 'id'),
+    nombre: _texto(json, 'nombre'),
+    especie: _texto(json, 'especie'),
+    raza: json['raza'] as String?,
+    fechaNacimiento: _fechaOpcional(json, 'fechaNacimiento'),
+    fotoUrl: json['fotoUrl'] as String?,
+    notas: json['notas'] as String?,
+  );
 
   /// Cuerpo para POST/PATCH. El `id` no va: lo pone el backend y viaja en la
   /// URL cuando se edita.
   Map<String, dynamic> toJson() => {
-        'nombre': nombre,
-        'especie': especie,
-        'raza': raza,
-        'fotoUrl': fotoUrl,
-        'notas': notas,
-      };
+    'nombre': nombre,
+    'especie': especie,
+    'raza': raza,
+    'fechaNacimiento': fechaNacimiento == null ? null : _iso(fechaNacimiento!),
+    'fotoUrl': fotoUrl,
+    'notas': notas,
+  };
+
+  Especie get especieConocida => Especie.desde(especie);
+
+  /// Inicial para el avatar cuando todavía no hay foto.
+  String get inicial =>
+      nombre.trim().isEmpty ? '?' : nombre.trim()[0].toUpperCase();
+
+  /// Edad en meses cumplidos, o null si no se sabe la fecha de nacimiento.
+  int? get edadEnMeses {
+    final nacimiento = fechaNacimiento;
+    if (nacimiento == null) return null;
+
+    final ahora = DateTime.now();
+    var meses =
+        (ahora.year - nacimiento.year) * 12 + (ahora.month - nacimiento.month);
+
+    // Si aún no llegó el día del mes, ese mes no está cumplido.
+    if (ahora.day < nacimiento.day) meses--;
+
+    return meses < 0 ? 0 : meses;
+  }
+
+  /// Edad en texto corto: "3 años", "1 año", "8 meses", "3 semanas".
+  ///
+  /// Por debajo del mes se cuenta en semanas porque en un cachorro recién
+  /// nacido "0 meses" no dice nada.
+  String? get edadTexto {
+    final meses = edadEnMeses;
+    if (meses == null) return null;
+
+    if (meses < 1) {
+      final dias = DateTime.now().difference(fechaNacimiento!).inDays;
+      final semanas = dias ~/ 7;
+      if (semanas < 1) return '$dias ${dias == 1 ? 'día' : 'días'}';
+
+      return '$semanas ${semanas == 1 ? 'semana' : 'semanas'}';
+    }
+
+    if (meses < 24) return '$meses ${meses == 1 ? 'mes' : 'meses'}';
+
+    final anios = meses ~/ 12;
+
+    return '$anios ${anios == 1 ? 'año' : 'años'}';
+  }
+
+  /// Línea bajo el nombre en las tarjetas: "Golden Retriever • 3 años".
+  /// Se omite lo que falte en vez de dejar separadores huérfanos.
+  String get subtitulo {
+    final partes = [
+      if (raza != null && raza!.trim().isNotEmpty) raza!.trim() else especie,
+      ?edadTexto,
+    ];
+
+    return partes.join(' • ');
+  }
 
   Mascota copyWith({
     String? nombre,
     String? especie,
     String? raza,
+    DateTime? fechaNacimiento,
     String? fotoUrl,
     String? notas,
-  }) =>
-      Mascota(
-        id: id,
-        nombre: nombre ?? this.nombre,
-        especie: especie ?? this.especie,
-        raza: raza ?? this.raza,
-        fotoUrl: fotoUrl ?? this.fotoUrl,
-        notas: notas ?? this.notas,
-      );
+  }) => Mascota(
+    id: id,
+    nombre: nombre ?? this.nombre,
+    especie: especie ?? this.especie,
+    raza: raza ?? this.raza,
+    fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
+    fotoUrl: fotoUrl ?? this.fotoUrl,
+    notas: notas ?? this.notas,
+  );
 }
 
 class Vacuna {
@@ -130,19 +219,19 @@ class Vacuna {
   final int anticipacionDias;
 
   factory Vacuna.fromJson(Map<String, dynamic> json) => Vacuna(
-        id: _texto(json, 'id'),
-        nombre: _texto(json, 'nombre'),
-        fechaAplicacion: _fecha(json, 'fechaAplicacion'),
-        proximaFecha: _fecha(json, 'proximaFecha'),
-        anticipacionDias: (json['anticipacionDias'] as num?)?.toInt() ?? 3,
-      );
+    id: _texto(json, 'id'),
+    nombre: _texto(json, 'nombre'),
+    fechaAplicacion: _fecha(json, 'fechaAplicacion'),
+    proximaFecha: _fecha(json, 'proximaFecha'),
+    anticipacionDias: (json['anticipacionDias'] as num?)?.toInt() ?? 3,
+  );
 
   Map<String, dynamic> toJson() => {
-        'nombre': nombre,
-        'fechaAplicacion': _iso(fechaAplicacion),
-        'proximaFecha': _iso(proximaFecha),
-        'anticipacionDias': anticipacionDias,
-      };
+    'nombre': nombre,
+    'fechaAplicacion': _iso(fechaAplicacion),
+    'proximaFecha': _iso(proximaFecha),
+    'anticipacionDias': anticipacionDias,
+  };
 }
 
 class Medicamento {
@@ -167,25 +256,25 @@ class Medicamento {
   final bool activo;
 
   factory Medicamento.fromJson(Map<String, dynamic> json) => Medicamento(
-        id: _texto(json, 'id'),
-        nombre: _texto(json, 'nombre'),
-        dosis: _texto(json, 'dosis'),
-        horarios: (json['horarios'] as List<dynamic>? ?? const [])
-            .map((h) => h.toString())
-            .toList(growable: false),
-        fechaInicio: _fecha(json, 'fechaInicio'),
-        fechaFin: _fechaOpcional(json, 'fechaFin'),
-        activo: json['activo'] as bool? ?? true,
-      );
+    id: _texto(json, 'id'),
+    nombre: _texto(json, 'nombre'),
+    dosis: _texto(json, 'dosis'),
+    horarios: (json['horarios'] as List<dynamic>? ?? const [])
+        .map((h) => h.toString())
+        .toList(growable: false),
+    fechaInicio: _fecha(json, 'fechaInicio'),
+    fechaFin: _fechaOpcional(json, 'fechaFin'),
+    activo: json['activo'] as bool? ?? true,
+  );
 
   Map<String, dynamic> toJson() => {
-        'nombre': nombre,
-        'dosis': dosis,
-        'horarios': horarios,
-        'fechaInicio': _iso(fechaInicio),
-        'fechaFin': fechaFin == null ? null : _iso(fechaFin!),
-        'activo': activo,
-      };
+    'nombre': nombre,
+    'dosis': dosis,
+    'horarios': horarios,
+    'fechaInicio': _iso(fechaInicio),
+    'fechaFin': fechaFin == null ? null : _iso(fechaFin!),
+    'activo': activo,
+  };
 }
 
 class RegistroPeso {
@@ -200,15 +289,12 @@ class RegistroPeso {
   final double valorKg;
 
   factory RegistroPeso.fromJson(Map<String, dynamic> json) => RegistroPeso(
-        id: _texto(json, 'id'),
-        fecha: _fecha(json, 'fecha'),
-        valorKg: _decimal(json, 'valorKg'),
-      );
+    id: _texto(json, 'id'),
+    fecha: _fecha(json, 'fecha'),
+    valorKg: _decimal(json, 'valorKg'),
+  );
 
-  Map<String, dynamic> toJson() => {
-        'fecha': _iso(fecha),
-        'valorKg': valorKg,
-      };
+  Map<String, dynamic> toJson() => {'fecha': _iso(fecha), 'valorKg': valorKg};
 }
 
 class Paseo {
@@ -256,13 +342,13 @@ class Paseo {
   }
 
   Map<String, dynamic> toJson() => {
-        'fechaInicio': _iso(fechaInicio),
-        'fechaFin': _iso(fechaFin),
-        'duracionSegundos': duracionSegundos,
-        'distanciaMetros': distanciaMetros,
-        'velocidadMaximaKmh': velocidadMaximaKmh,
-        'ruta': ruta.map((p) => p.toJson()).toList(growable: false),
-      };
+    'fechaInicio': _iso(fechaInicio),
+    'fechaFin': _iso(fechaFin),
+    'duracionSegundos': duracionSegundos,
+    'distanciaMetros': distanciaMetros,
+    'velocidadMaximaKmh': velocidadMaximaKmh,
+    'ruta': ruta.map((p) => p.toJson()).toList(growable: false),
+  };
 
   Duration get duracion => Duration(seconds: duracionSegundos);
 }
@@ -287,19 +373,19 @@ class Recordatorio {
   final bool completado;
 
   factory Recordatorio.fromJson(Map<String, dynamic> json) => Recordatorio(
-        id: _texto(json, 'id'),
-        tipo: _texto(json, 'tipo'),
-        mascotaId: _texto(json, 'mascotaId'),
-        fecha: _fecha(json, 'fecha'),
-        mensaje: _texto(json, 'mensaje'),
-        completado: json['completado'] as bool? ?? false,
-      );
+    id: _texto(json, 'id'),
+    tipo: _texto(json, 'tipo'),
+    mascotaId: _texto(json, 'mascotaId'),
+    fecha: _fecha(json, 'fecha'),
+    mensaje: _texto(json, 'mensaje'),
+    completado: json['completado'] as bool? ?? false,
+  );
 
   Map<String, dynamic> toJson() => {
-        'tipo': tipo,
-        'mascotaId': mascotaId,
-        'fecha': _iso(fecha),
-        'mensaje': mensaje,
-        'completado': completado,
-      };
+    'tipo': tipo,
+    'mascotaId': mascotaId,
+    'fecha': _iso(fecha),
+    'mensaje': mensaje,
+    'completado': completado,
+  };
 }

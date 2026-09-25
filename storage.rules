@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// Reglas de Firebase Storage para las fotos de las mascotas.
+//
+// Ojo con la diferencia respecto a firestore.rules, que deniega todo: ahí el
+// cliente no accede nunca porque escribe el backend con una service account.
+// Aquí sí accede el cliente directamente, así que estas reglas son la ÚNICA
+// cosa que impide que alguien lea o sobrescriba las fotos de otra persona.
+//
+// La app sube siempre a users/{uid}/mascotas/{mascotaId}/..., y la condición
+// `request.auth.uid == uid` es la que ata cada archivo a su dueño.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{uid}/{resto=**} {
+      // Lectura: solo el dueño. Las fotos salen en la app a través de una URL
+      // de descarga con token, que se obtiene autenticado.
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   // Solo imágenes: sin esto el bucket sirve para alojar
+                   // cualquier cosa a costa del proyecto.
+                   && request.resource.contentType.matches('image/.*')
+                   // 5 MB. La app ya reescala a 1024 px antes de subir, así
+                   // que esto es un tope de seguridad, no el tamaño esperado.
+                   && request.resource.size < 5 * 1024 * 1024;
+
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Todo lo que quede fuera del árbol de un usuario, cerrado.
+    match /{otros=**} {
+      allow read, write: if false;
+    }
+  }
+}
