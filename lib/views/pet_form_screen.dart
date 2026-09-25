@@ -7,15 +7,18 @@
 // Devuelve `true` al hacer pop cuando guardó algo, para que la pantalla que la
 // abrió sepa que tiene que recargar.
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
-import '../services/storage_service.dart';
+import '../services/photo_service.dart';
 import '../theme/app_colors.dart';
+import 'widgets/foto_mascota.dart';
+
+/// Lo que puede elegirse en el menú de la foto. "Quitar" no es un origen, así
+/// que no cabe en `OrigenFoto`.
+enum _AccionFoto { galeria, camara, quitar }
 
 class PetFormScreen extends StatefulWidget {
   const PetFormScreen({super.key, this.mascota});
@@ -29,7 +32,7 @@ class PetFormScreen extends StatefulWidget {
 
 class _PetFormScreenState extends State<PetFormScreen> {
   final _repositorio = PawLifeRepository();
-  final _storage = StorageService();
+  final _fotos = PhotoService();
 
   late final TextEditingController _nombre;
   late final TextEditingController _raza;
@@ -39,11 +42,10 @@ class _PetFormScreenState extends State<PetFormScreen> {
   late Especie _especie;
   DateTime? _fechaNacimiento;
 
-  /// Foto recién elegida, todavía sin subir. Se sube al guardar y no al
-  /// elegirla: si el usuario cancela el formulario, no queremos haber dejado
-  /// un archivo huérfano en Storage.
-  File? _fotoNueva;
-  String? _fotoUrlActual;
+  /// La foto como data URI, ya reducida y codificada. Es el valor que se
+  /// guarda tal cual en `fotoUrl`, así que no hay diferencia entre "la que
+  /// tenía" y "la que acaba de elegir": es el mismo campo.
+  String? _foto;
 
   bool _guardando = false;
   String? _error;
@@ -60,7 +62,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
     _notas = TextEditingController(text: mascota?.notas ?? '');
     _especie = mascota == null ? Especie.perro : mascota.especieConocida;
     _fechaNacimiento = mascota?.fechaNacimiento;
-    _fotoUrlActual = mascota?.fotoUrl;
+    _foto = mascota?.fotoUrl;
   }
 
   @override
@@ -73,7 +75,10 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }
 
   Future<void> _elegirFoto() async {
-    final origen = await showModalBottomSheet<OrigenFoto>(
+    // El menú devuelve su propio enum en vez de OrigenFoto porque "quitar" no
+    // es un origen, y null ya significa "cerró el menú sin elegir": cerrarlo
+    // deslizándolo no debe borrar la foto.
+    final accion = await showModalBottomSheet<_AccionFoto>(
       context: context,
       builder: (contexto) => SafeArea(
         child: Column(
@@ -82,14 +87,14 @@ class _PetFormScreenState extends State<PetFormScreen> {
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
               title: const Text('Elegir de la galería'),
-              onTap: () => Navigator.of(contexto).pop(OrigenFoto.galeria),
+              onTap: () => Navigator.of(contexto).pop(_AccionFoto.galeria),
             ),
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined),
               title: const Text('Tomar una foto'),
-              onTap: () => Navigator.of(contexto).pop(OrigenFoto.camara),
+              onTap: () => Navigator.of(contexto).pop(_AccionFoto.camara),
             ),
-            if (_fotoNueva != null || _fotoUrlActual != null)
+            if (_foto != null)
               ListTile(
                 leading: const Icon(
                   Icons.delete_outline,
@@ -99,33 +104,28 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   'Quitar foto',
                   style: TextStyle(color: AppColors.alerta),
                 ),
-                onTap: () => Navigator.of(contexto).pop(null),
+                onTap: () => Navigator.of(contexto).pop(_AccionFoto.quitar),
               ),
           ],
         ),
       ),
     );
 
-    if (!mounted) return;
+    if (!mounted || accion == null) return;
 
-    // Cerrar el menú deslizándolo también devuelve null, así que solo se
-    // interpreta como "quitar" si hay algo que quitar.
-    if (origen == null) {
-      if (_fotoNueva != null || _fotoUrlActual != null) {
-        setState(() {
-          _fotoNueva = null;
-          _fotoUrlActual = null;
-        });
-      }
+    if (accion == _AccionFoto.quitar) {
+      setState(() => _foto = null);
       return;
     }
 
     try {
-      final archivo = await _storage.elegirFoto(origen);
-      if (archivo == null || !mounted) return;
+      final foto = await _fotos.elegirFoto(
+        accion == _AccionFoto.camara ? OrigenFoto.camara : OrigenFoto.galeria,
+      );
+      if (foto == null || !mounted) return;
 
-      setState(() => _fotoNueva = archivo);
-    } on StorageException catch (e) {
+      setState(() => _foto = foto);
+    } on PhotoException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.message);
     }
@@ -183,43 +183,39 @@ class _PetFormScreenState extends State<PetFormScreen> {
       final nombre = _nombre.text.trim();
       final raza = _raza.text.trim();
       final notas = _notas.text.trim();
-
-      var mascota = widget.mascota;
+      final mascota = widget.mascota;
 
       if (mascota == null) {
-        // Se crea primero sin foto porque la ruta en Storage necesita el id
-        // que asigna el backend.
-        mascota = await _repositorio.createMascota(
+        // La foto ya viene codificada, así que se manda en la misma creación:
+        // no hace falta crear primero para conocer el id, como sí haría falta
+        // si el archivo se subiera a un almacenamiento aparte.
+        final creada = await _repositorio.createMascota(
           nombre: nombre,
           especie: _especie.etiqueta,
           raza: raza.isEmpty ? null : raza,
           fechaNacimiento: _fechaNacimiento,
+          fotoUrl: _foto,
           notas: notas.isEmpty ? null : notas,
         );
 
-        await _guardarPesoInicial(mascota.id);
+        await _guardarPesoInicial(creada.id);
+      } else {
+        // Se construye la Mascota a mano en vez de con copyWith porque este
+        // formulario tiene que poder VACIAR campos: copyWith usa `?? this.x`,
+        // así que un null significaría "no cambies" y quitar la foto o borrar
+        // la raza no tendría efecto. Aquí un null es un null.
+        await _repositorio.updateMascota(
+          Mascota(
+            id: mascota.id,
+            nombre: nombre,
+            especie: _especie.etiqueta,
+            raza: raza.isEmpty ? null : raza,
+            fechaNacimiento: _fechaNacimiento,
+            fotoUrl: _foto,
+            notas: notas.isEmpty ? null : notas,
+          ),
+        );
       }
-
-      final fotoUrl = await _resolverFoto(mascota.id);
-
-      // Se construye la Mascota a mano en vez de con copyWith porque este
-      // formulario tiene que poder VACIAR campos: copyWith usa `?? this.x`, así
-      // que un null significaría "no cambies" y borrar la raza no tendría
-      // efecto. Aquí un null es un null.
-      //
-      // Tanto al crear (para añadirle la foto, que necesita el id ya asignado)
-      // como al editar se termina guardando con PATCH.
-      await _repositorio.updateMascota(
-        Mascota(
-          id: mascota.id,
-          nombre: nombre,
-          especie: _especie.etiqueta,
-          raza: raza.isEmpty ? null : raza,
-          fechaNacimiento: _fechaNacimiento,
-          fotoUrl: fotoUrl,
-          notas: notas.isEmpty ? null : notas,
-        ),
-      );
 
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -230,25 +226,6 @@ class _PetFormScreenState extends State<PetFormScreen> {
         _error = e.toString();
       });
     }
-  }
-
-  /// Sube la foto nueva si hay, borra la anterior, y devuelve la URL que hay
-  /// que guardar (null si el usuario quitó la foto).
-  Future<String?> _resolverFoto(String mascotaId) async {
-    final nueva = _fotoNueva;
-
-    if (nueva == null) return _fotoUrlActual;
-
-    final url = await _storage.subirFotoMascota(
-      mascotaId: mascotaId,
-      archivo: nueva,
-    );
-
-    // La anterior ya no la referencia nadie: se borra para no ir dejando
-    // archivos que se pagan y nadie ve.
-    await _storage.borrarPorUrl(_fotoUrlActual);
-
-    return url;
   }
 
   /// El peso del formulario se guarda como el primer registro del historial,
@@ -361,15 +338,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }
 
   Widget _buildSelectorFoto() {
-    final nueva = _fotoNueva;
-    final actual = _fotoUrlActual;
-
-    ImageProvider? imagen;
-    if (nueva != null) {
-      imagen = FileImage(nueva);
-    } else if (actual != null && actual.isNotEmpty) {
-      imagen = NetworkImage(actual);
-    }
+    final imagen = proveedorDeFoto(_foto);
 
     return GestureDetector(
       onTap: _guardando ? null : _elegirFoto,

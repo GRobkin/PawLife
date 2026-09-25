@@ -21,6 +21,7 @@ import '../theme/app_colors.dart';
 import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'route_screen.dart';
+import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class PetsScreen extends StatefulWidget {
@@ -186,7 +187,7 @@ class _PetsScreenState extends State<PetsScreen> {
             ),
             for (final resumen in mascotas)
               ListTile(
-                leading: _AvatarMascota(mascota: resumen.mascota, radio: 18),
+                leading: AvatarMascota(mascota: resumen.mascota, radio: 18),
                 title: Text(resumen.mascota.nombre),
                 subtitle: Text(resumen.mascota.subtitulo),
                 onTap: () {
@@ -404,7 +405,7 @@ class _TarjetaMascota extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  _AvatarMascota(mascota: mascota, radio: 28),
+                  AvatarMascota(mascota: mascota, radio: 28),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -537,40 +538,6 @@ class _Celda extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Foto de la mascota, o un círculo con su inicial mientras no tenga.
-class _AvatarMascota extends StatelessWidget {
-  const _AvatarMascota({required this.mascota, required this.radio});
-
-  final Mascota mascota;
-  final double radio;
-
-  @override
-  Widget build(BuildContext context) {
-    final fotoUrl = mascota.fotoUrl;
-
-    if (fotoUrl != null && fotoUrl.isNotEmpty) {
-      return CircleAvatar(
-        radius: radio,
-        backgroundColor: AppColors.verdeSuave,
-        backgroundImage: NetworkImage(fotoUrl),
-      );
-    }
-
-    return CircleAvatar(
-      radius: radio,
-      backgroundColor: AppColors.verdeSuave,
-      child: Text(
-        mascota.inicial,
-        style: TextStyle(
-          fontSize: radio * 0.8,
-          fontWeight: FontWeight.bold,
-          color: AppColors.verdeOscuro,
-        ),
       ),
     );
   }
