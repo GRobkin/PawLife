@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import 'api_client.dart';
@@ -11,6 +12,8 @@ import 'local_reminder_service.dart';
 /// Mantiene el perfil y el dispositivo asociados a una sola sesion.
 class SessionRegistration {
   StreamSubscription<String>? _tokens;
+  StreamSubscription<RemoteMessage>? _messages;
+  StreamSubscription<RemoteMessage>? _opened;
   Timer? _retry;
   ApiClient? _client;
   int _generation = 0;
@@ -80,6 +83,23 @@ class SessionRegistration {
     }
 
     if (push != null) {
+      _messages = push.onMessage.listen((message) {
+        if (generation != _generation) return;
+        unawaited(
+          LocalReminderService.instance
+              .showIncoming(
+                reminderId:
+                    message.data['recordatorioId'] ?? message.messageId ?? '',
+                title: message.notification?.title ?? 'PawLife',
+                body:
+                    message.notification?.body ?? 'Tenes un cuidado pendiente.',
+              )
+              .catchError((Object _) {}),
+        );
+      });
+      _opened = push.onMessageOpenedApp.listen((_) {
+        if (generation == _generation) unawaited(refreshReminders());
+      });
       _tokens = push.onTokenRefresh.listen(
         (token) {
           unawaited(
@@ -107,6 +127,10 @@ class SessionRegistration {
     unawaited(LocalReminderService.instance.clear().catchError((Object _) {}));
     _tokens?.cancel();
     _tokens = null;
+    _messages?.cancel();
+    _messages = null;
+    _opened?.cancel();
+    _opened = null;
     _retry?.cancel();
     _retry = null;
     _client?.close();
