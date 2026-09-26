@@ -82,10 +82,8 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
     // depender de este ViewModel, que muere en este mismo push.
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => WalkSummaryScreen(
-          session: session,
-          mascotaId: widget.mascotaId,
-        ),
+        builder: (_) =>
+            WalkSummaryScreen(session: session, mascotaId: widget.mascotaId),
       ),
     );
   }
@@ -102,14 +100,20 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
   Widget build(BuildContext context) {
     final vm = context.watch<RouteViewModel>();
 
-    return Scaffold(
-      backgroundColor: _kBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(child: _buildContent(context, vm)),
-          ],
+    return PopScope(
+      canPop: !vm.isTracking,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && vm.isTracking) _onFinishPressed(context, vm);
+      },
+      child: Scaffold(
+        backgroundColor: _kBackground,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(child: _buildContent(context, vm)),
+            ],
+          ),
         ),
       ),
     );
@@ -126,7 +130,14 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
         children: [
           _CircleIconButton(
             icon: Icons.arrow_back,
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: () {
+              final vm = context.read<RouteViewModel>();
+              if (vm.isTracking) {
+                _onFinishPressed(context, vm);
+              } else {
+                Navigator.of(context).maybePop();
+              }
+            },
           ),
           const Expanded(
             child: Center(
@@ -201,7 +212,8 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                     // Tiles raster oficiales de OpenStreetMap. OpenFreeMap
                     // (que usamos antes) sirve mapas VECTORIALES, no PNG por
                     // tile, así que no es compatible con este TileLayer.
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.pawlife',
                   ),
                   if (vm.routePoints.length > 1)
@@ -224,10 +236,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white,
-                            border: Border.all(
-                              color: _kAccentGreen,
-                              width: 4,
-                            ),
+                            border: Border.all(color: _kAccentGreen, width: 4),
                           ),
                         ),
                       ),
@@ -280,14 +289,15 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _kDarkGreen,
                             foregroundColor: Colors.white,
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
                             ),
                           ),
-                          icon: const Icon(Icons.stop_circle_outlined,
-                              size: 20),
+                          icon: const Icon(
+                            Icons.stop_circle_outlined,
+                            size: 20,
+                          ),
                           label: const Text(
                             'Finalizar paseo',
                             style: TextStyle(
@@ -389,7 +399,7 @@ class _GpsActiveBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -435,7 +445,7 @@ class _StatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -463,21 +473,26 @@ class _StatsCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.local_fire_department,
-                      size: 16, color: _kAccentGreen),
+                  const Icon(
+                    Icons.local_fire_department,
+                    size: 16,
+                    color: _kAccentGreen,
+                  ),
                   const SizedBox(width: 6),
-                  Text(vm.formattedCalories,
-                      style: const TextStyle(
-                          fontSize: 13, color: Colors.black87)),
+                  Text(
+                    vm.formattedCalories,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
                 ],
               ),
               Row(
                 children: [
                   const Icon(Icons.speed, size: 16, color: Colors.black54),
                   const SizedBox(width: 6),
-                  Text(vm.formattedSpeed,
-                      style: const TextStyle(
-                          fontSize: 13, color: Colors.black87)),
+                  Text(
+                    vm.formattedSpeed,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
                 ],
               ),
             ],
@@ -504,8 +519,9 @@ class _StatBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment:
-          alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: alignEnd
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
         Text(
           label,

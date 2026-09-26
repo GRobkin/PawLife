@@ -1,9 +1,7 @@
 // views/pets_screen.dart
 //
 // Listado de mascotas del usuario. Es la entrada a todo lo demás: vacunas,
-// medicamentos, pesos y paseos cuelgan de una mascota en el backend
-// (users/{uid}/mascotas/{id}/...), así que sin elegir mascota no hay a qué
-// colgarlos.
+// medicamentos, pesos y paseos se relacionan por mascotaId en la API.
 //
 // Cada tarjeta resume el estado de salud. Eso obliga a pedir también las
 // vacunas y los pesos de cada mascota, así que la carga hace varias llamadas

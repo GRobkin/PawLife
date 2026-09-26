@@ -39,10 +39,11 @@ class ApiClient {
     AuthService? auth,
     http.Client? httpClient,
     String? baseUrl,
+    this.expectedUid,
     this.timeout = const Duration(seconds: 20),
-  })  : _auth = auth ?? AuthService(),
-        _http = httpClient ?? http.Client(),
-        baseUrl = _normalizeBaseUrl(baseUrl ?? defaultBaseUrl);
+  }) : _auth = auth ?? AuthService(),
+       _http = httpClient ?? http.Client(),
+       baseUrl = _normalizeBaseUrl(baseUrl ?? defaultBaseUrl);
 
   /// URL del backend. Se fija al compilar para no tener que tocar código al
   /// cambiar de entorno:
@@ -58,6 +59,7 @@ class ApiClient {
   );
 
   final AuthService _auth;
+  final String? expectedUid;
   final http.Client _http;
   final String baseUrl;
   final Duration timeout;
@@ -151,11 +153,17 @@ class ApiClient {
     Map<String, dynamic>? body,
     required bool forceRefresh,
   }) async {
-    final uri = Uri.parse('$baseUrl$path').replace(
-      queryParameters: (query == null || query.isEmpty) ? null : query,
-    );
+    final uri = Uri.parse(
+      '$baseUrl$path',
+    ).replace(queryParameters: (query == null || query.isEmpty) ? null : query);
 
+    if (expectedUid != null && _auth.currentUser?.uid != expectedUid) {
+      throw const ApiException('La sesion cambio.');
+    }
     final token = await _auth.idToken(forceRefresh: forceRefresh);
+    if (expectedUid != null && _auth.currentUser?.uid != expectedUid) {
+      throw const ApiException('La sesion cambio.');
+    }
 
     final request = http.Request(method, uri)
       ..headers['Authorization'] = 'Bearer $token'
@@ -189,7 +197,10 @@ class ApiClient {
     // 204 y cualquier respuesta vacía: no hay nada que decodificar.
     if (status == 204 || response.bodyBytes.isEmpty) {
       if (status >= 400) {
-        throw ApiException('El servidor respondió $status.', statusCode: status);
+        throw ApiException(
+          'El servidor respondió $status.',
+          statusCode: status,
+        );
       }
 
       return null;

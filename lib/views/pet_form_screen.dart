@@ -230,7 +230,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }
 
   /// El peso del formulario se guarda como el primer registro del historial,
-  /// que es donde vive en el backend (users/{uid}/mascotas/{id}/pesos).
+  /// asociado a la mascota mediante mascotaId en el backend.
   Future<void> _guardarPesoInicial(String mascotaId) async {
     final pesoTexto = _peso.text.trim().replaceAll(',', '.');
     if (pesoTexto.isEmpty) return;

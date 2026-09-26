@@ -5,16 +5,16 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
-import 'services/push_service.dart';
+import 'services/session_registration.dart';
 import 'views/home_screen.dart';
 import 'views/welcome_screen.dart';
+import 'theme/app_colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,13 +30,7 @@ Future<void> main() async {
   //
   // Sin esta llamada, FirebaseAuth.instance revienta con "[core/no-app]" y no
   // se puede ni entrar ni guardar nada.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    await PushService().init();
-  }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const PawLifeApp());
 }
@@ -60,8 +54,10 @@ class PawLifeApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: ThemeData(
-        primarySwatch: Colors.green,
         useMaterial3: true,
+        fontFamily: 'NunitoSans',
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.verdeOscuro),
+        scaffoldBackgroundColor: AppColors.fondo,
       ),
       home: const AuthGate(),
     );
@@ -85,11 +81,35 @@ class AuthGate extends StatefulWidget {
   State<AuthGate> createState() => _AuthGateState();
 }
 
-class _AuthGateState extends State<AuthGate> {
+class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
   // El stream se guarda una sola vez. Si se creara dentro de build(), cada
   // reconstrucción abriría una suscripción nueva y el StreamBuilder volvería
   // al estado "waiting", haciendo parpadear la pantalla.
-  late final Stream<User?> _sesion = AuthService().authStateChanges;
+  final SessionRegistration _registration = SessionRegistration();
+  late final Stream<User?> _sesion = AuthService().authStateChanges.map((user) {
+    _registration.start(user);
+    return user;
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _registration.refreshReminders().catchError((Object _) {});
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _registration.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +123,9 @@ class _AuthGateState extends State<AuthGate> {
           return const _SplashScreen();
         }
 
-        return snapshot.data == null ? const WelcomeScreen() : const HomeScreen();
+        return snapshot.data == null
+            ? const WelcomeScreen()
+            : const HomeScreen();
       },
     );
   }

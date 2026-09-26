@@ -15,6 +15,9 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
+
+import 'push_service.dart';
 
 /// Error de autenticación con un mensaje ya listo para enseñar en pantalla.
 class AuthException implements Exception {
@@ -178,7 +181,21 @@ class AuthService {
 
   // ---------------------------------------------------------------- sesión
 
-  Future<void> signOut() async {
+  Future<void> signOut({bool revokePush = true}) async {
+    if (revokePush &&
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
+      // Invalidar el token antes de cambiar de cuenta evita notificaciones
+      // de la sesion anterior en un dispositivo compartido.
+      try {
+        await PushService().revokeToken();
+      } catch (_) {
+        throw const AuthException(
+          'No se pudieron desconectar las notificaciones. Reintentá cerrar sesión.',
+        );
+      }
+    }
     // Se cierra también la sesión de Google: si no, el siguiente "Continuar
     // con Google" volvería a entrar con la misma cuenta sin preguntar, y no
     // habría forma de cambiar de usuario.
@@ -200,10 +217,7 @@ class AuthService {
   Future<String> idToken({bool forceRefresh = false}) async {
     final user = _auth.currentUser;
     if (user == null) {
-      throw const AuthException(
-        'No hay sesión iniciada.',
-        code: 'sin-sesion',
-      );
+      throw const AuthException('No hay sesión iniciada.', code: 'sin-sesion');
     }
 
     try {
@@ -232,18 +246,17 @@ class AuthService {
       // qué correos están registrados probando uno a uno.
       'invalid-credential' ||
       'user-not-found' ||
-      'wrong-password' =>
-        'Correo o contraseña incorrectos.',
+      'wrong-password' => 'Correo o contraseña incorrectos.',
       'email-already-in-use' => 'Ya existe una cuenta con ese correo.',
-      'weak-password' => 'La contraseña es demasiado débil (mínimo 6 caracteres).',
+      'weak-password' =>
+        'La contraseña es demasiado débil (mínimo 6 caracteres).',
       'account-exists-with-different-credential' =>
         'Ya hay una cuenta con ese correo creada con otro método de acceso.',
       'requires-recent-login' =>
         'Por seguridad, volvé a iniciar sesión para hacer este cambio.',
       'too-many-requests' =>
         'Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo.',
-      'network-request-failed' =>
-        'No hay conexión a internet.',
+      'network-request-failed' => 'No hay conexión a internet.',
       // Este no es un error del usuario: es que falta habilitar el proveedor
       // en la consola de Firebase (Authentication > Sign-in method).
       'operation-not-allowed' =>
@@ -278,7 +291,9 @@ class AuthService {
 
     return AuthException(
       mensaje,
-      code: e.code == GoogleSignInExceptionCode.canceled ? 'cancelado' : 'google',
+      code: e.code == GoogleSignInExceptionCode.canceled
+          ? 'cancelado'
+          : 'google',
     );
   }
 }

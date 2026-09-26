@@ -1,16 +1,15 @@
 // views/home_screen.dart
 //
 // Home Dashboard. Funcionan el saludo con el nombre real, el menú de la
-// cuenta, la tarjeta de mascota (que permite cambiar de mascota activa) y el
-// botón "Iniciar paseo". El resumen de actividad y la lista de tareas siguen
-// siendo datos escritos a mano: se llenarán cuando exista la pantalla de
-// Tareas.
+// cuenta, la tarjeta de mascota (que permite cambiar de mascota activa), el
+// botón "Iniciar paseo" y la agenda real de recordatorios.
 
 import 'package:flutter/material.dart';
 
 import '../models/pawlife_models.dart';
 import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
+import '../services/local_reminder_service.dart';
 import '../services/seleccion_mascota.dart';
 import '../services/walk_repository.dart';
 import 'pets_screen.dart';
@@ -36,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Paseos de la mascota activa, para el resumen de actividad. null mientras
   /// se cargan.
   List<Paseo>? _paseos;
+  List<Recordatorio>? _recordatorios;
 
   @override
   void initState() {
@@ -44,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // la activa, no del usuario.
     SeleccionMascota.id.addListener(_cargarPaseos);
     _cargarMascotas();
+    _cargarRecordatorios();
   }
 
   @override
@@ -94,6 +95,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _cargarRecordatorios() async {
+    try {
+      final items = await PawLifeRepository().fetchRecordatorios();
+      if (mounted) setState(() => _recordatorios = items);
+    } catch (_) {
+      if (mounted) setState(() => _recordatorios = const []);
+    }
+  }
+
+  Future<void> _marcarRecordatorio(Recordatorio item) async {
+    try {
+      await PawLifeRepository().marcarRecordatorio(
+        item.id,
+        completado: !item.completado,
+      );
+      await LocalReminderService.instance.syncBestEffort(PawLifeRepository());
+      await _cargarRecordatorios();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo actualizar la tarea: $e')),
+        );
+      }
+    }
+  }
+
   /// Antes esta pantalla creaba una mascota fija llamada Buddy y le atribuía
   /// todos los paseos. Ahora usa la mascota activa (ver iniciar_paseo.dart).
   Future<void> _onStartWalkPressed(BuildContext context) async {
@@ -141,6 +168,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final hoy = _recordatorios
+        ?.where(
+          (r) =>
+              r.fecha.year == now.year &&
+              r.fecha.month == now.month &&
+              r.fecha.day == now.day,
+        )
+        .toList();
     return Scaffold(
       backgroundColor: _kBackground,
       body: SafeArea(
@@ -175,36 +211,36 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _buildTaskTile(
-              icon: Icons.medical_services_outlined,
-              iconColor: Colors.red,
-              title: 'Medicación de la mañana',
-              subtitle: '8:00 • Atrasada',
-              subtitleColor: Colors.red,
-              checked: false,
-            ),
-            const SizedBox(height: 10),
-            _buildTaskTile(
-              icon: Icons.restaurant_outlined,
-              iconColor: Colors.orange,
-              title: 'Alimentación diaria',
-              subtitle: 'Completada',
-              checked: true,
-            ),
-            const SizedBox(height: 10),
-            _buildTaskTile(
-              icon: Icons.directions_walk,
-              iconColor: Colors.blueGrey,
-              title: 'Paseo de la tarde',
-              subtitle: '14:00 • Próximo',
-              checked: false,
-            ),
+            if (_recordatorios == null)
+              const Center(child: CircularProgressIndicator())
+            else if (hoy!.isEmpty)
+              const Text('No tenés tareas para hoy.')
+            else
+              ...hoy.map(
+                (r) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildTaskTile(
+                    icon: r.tipo == 'vacuna'
+                        ? Icons.medical_services_outlined
+                        : Icons.assignment_outlined,
+                    iconColor: _kDarkGreen,
+                    title: r.mensaje,
+                    subtitle: r.completado
+                        ? 'Completada'
+                        : '${r.fecha.hour.toString().padLeft(2, '0')}:'
+                              '${r.fecha.minute.toString().padLeft(2, '0')}',
+                    checked: r.completado,
+                    onTap: () => _marcarRecordatorio(r),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
       bottomNavigationBar: PawLifeBottomNav(
         activa: SeccionNav.inicio,
         onPaseo: () => _onStartWalkPressed(context),
+        onReturn: _cargarRecordatorios,
       ),
     );
   }
@@ -574,6 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required String subtitle,
     required bool checked,
+    required VoidCallback onTap,
     Color subtitleColor = Colors.black54,
   }) {
     return Container(
@@ -611,10 +648,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          // Decorativo: no dispara ninguna acción todavía.
-          Icon(
-            checked ? Icons.check_box : Icons.check_box_outline_blank,
-            color: checked ? _kDarkGreen : Colors.black26,
+          IconButton(
+            tooltip: checked ? 'Marcar pendiente' : 'Marcar completada',
+            onPressed: onTap,
+            icon: Icon(
+              checked ? Icons.check_box : Icons.check_box_outline_blank,
+              color: checked ? _kDarkGreen : Colors.black26,
+            ),
           ),
         ],
       ),

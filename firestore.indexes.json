@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {"collectionGroup":"mascotas","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"nombre","order":"ASCENDING"}]},
+    {"collectionGroup":"vacunas","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"proximaFecha","order":"ASCENDING"}]},
+    {"collectionGroup":"medicamentos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fechaInicio","order":"DESCENDING"}]},
+    {"collectionGroup":"alimentaciones","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fechaHora","order":"DESCENDING"}]},
+    {"collectionGroup":"pesos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fecha","order":"DESCENDING"}]},
+    {"collectionGroup":"paseos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fechaInicio","order":"DESCENDING"}]},
+    {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},
+    {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"completado","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},
+    {"collectionGroup":"dispositivos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"actualizadoEn","order":"DESCENDING"}]}
+  ],
+  "fieldOverrides": []
+}

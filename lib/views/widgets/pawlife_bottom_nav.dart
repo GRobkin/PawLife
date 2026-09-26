@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 import '../pets_screen.dart';
+import '../tasks_screen.dart';
+import '../profile_screen.dart';
 
 enum SeccionNav { inicio, mascotas, tareas, perfil }
 
@@ -19,6 +21,7 @@ class PawLifeBottomNav extends StatelessWidget {
     super.key,
     required this.activa,
     required this.onPaseo,
+    this.onReturn,
   });
 
   final SeccionNav activa;
@@ -26,6 +29,7 @@ class PawLifeBottomNav extends StatelessWidget {
   /// Qué hace el botón central. Lo decide cada pantalla porque el paseo
   /// necesita saber a qué mascota atribuirlo, y eso solo lo sabe quien llama.
   final VoidCallback onPaseo;
+  final VoidCallback? onReturn;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +101,7 @@ class PawLifeBottomNav extends StatelessWidget {
     );
   }
 
-  void _irA(BuildContext context, SeccionNav destino) {
+  Future<void> _irA(BuildContext context, SeccionNav destino) async {
     if (destino == activa) return;
 
     switch (destino) {
@@ -116,16 +120,18 @@ class PawLifeBottomNav extends StatelessWidget {
         ).push(MaterialPageRoute(builder: (_) => const PetsScreen()));
 
       case SeccionNav.tareas:
+        Navigator.of(context).popUntil((ruta) => ruta.isFirst);
+        await Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const TasksScreen()));
+        onReturn?.call();
+
       case SeccionNav.perfil:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'La sección ${destino == SeccionNav.tareas ? 'Tareas' : 'Perfil'} '
-              'todavía no está lista.',
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        Navigator.of(context).popUntil((ruta) => ruta.isFirst);
+        await Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
+        onReturn?.call();
     }
   }
 }
