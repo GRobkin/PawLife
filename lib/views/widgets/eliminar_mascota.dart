@@ -13,7 +13,7 @@ import '../../theme/app_colors.dart';
 /// Pide confirmación y borra. Devuelve true solo si se borró de verdad.
 ///
 /// El diálogo enumera lo que se lleva por delante: el backend borra las
-/// subcolecciones en cascada y no hay forma de recuperarlas, así que quien
+/// registros relacionados en cascada y no hay forma de recuperarlos, así que quien
 /// pulsa tiene que saber que no se está borrando "solo la ficha".
 Future<bool> confirmarYEliminarMascota(
   BuildContext context,

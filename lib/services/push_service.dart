@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 
 class PushService {
   PushService({FirebaseMessaging? messaging})
-      : _messaging = messaging ?? FirebaseMessaging.instance;
+    : _messaging = messaging ?? FirebaseMessaging.instance;
 
   final FirebaseMessaging _messaging;
 
   Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;
+
+  Future<void> revokeToken() => _messaging.deleteToken();
 
   Future<String?> init() async {
     try {
@@ -19,8 +21,6 @@ class PushService {
       }
 
       final token = await _messaging.getToken();
-
-      debugPrint('FCM TOKEN: $token');
 
       return token;
     } catch (e) {

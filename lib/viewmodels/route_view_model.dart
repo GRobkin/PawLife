@@ -23,7 +23,7 @@ enum RouteScreenStatus { loading, error, ready }
 
 class RouteViewModel extends ChangeNotifier {
   RouteViewModel({LocationService? locationService})
-      : _locationService = locationService ?? LocationService();
+    : _locationService = locationService ?? LocationService();
 
   final LocationService _locationService;
 
@@ -180,11 +180,9 @@ class RouteViewModel extends ChangeNotifier {
     }
 
     routePoints.add(newPoint);
-    _rawPoints.add(RoutePoint(
-      latitude: lat,
-      longitude: lng,
-      timestamp: timestamp,
-    ));
+    _rawPoints.add(
+      RoutePoint(latitude: lat, longitude: lng, timestamp: timestamp),
+    );
     currentPosition = newPoint;
 
     onNewPoint?.call(newPoint);
@@ -265,6 +263,7 @@ class RouteViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    if (isTracking) FlutterForegroundTask.stopService();
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     _ticker?.cancel();
     super.dispose();

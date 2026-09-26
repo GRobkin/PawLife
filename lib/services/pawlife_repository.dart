@@ -17,6 +17,39 @@ class PawLifeRepository {
 
   final ApiClient client;
 
+  Future<Map<String, dynamic>> fetchPerfil() => client.getOne('/api/me');
+
+  Future<void> eliminarCuenta() => client.delete('/api/me');
+
+  Future<Map<String, dynamic>> updatePerfil({
+    String? nombre,
+    String? fotoUrl,
+  }) => client.patch('/api/me', {'nombre': ?nombre, 'fotoUrl': ?fotoUrl});
+
+  Future<void> registrarDispositivo({
+    required String token,
+    required String plataforma,
+  }) async {
+    final data = {'token': token, 'plataforma': plataforma};
+    try {
+      await client.post('/api/dispositivos', {'id': token, ...data});
+    } on ApiException catch (e) {
+      if (e.statusCode != 409) rethrow;
+      await client.patch(
+        '/api/dispositivos/${Uri.encodeComponent(token)}',
+        data,
+      );
+    }
+  }
+
+  Future<void> eliminarDispositivo(String token) async {
+    try {
+      await client.delete('/api/dispositivos/${Uri.encodeComponent(token)}');
+    } on ApiException catch (e) {
+      if (!e.isNotFound) rethrow;
+    }
+  }
+
   // ---------------------------------------------------------------- mascotas
 
   Future<List<Mascota>> fetchMascotas() async {
@@ -56,11 +89,7 @@ class PawLifeRepository {
 
   /// Devuelve la mascota [id], creándola si todavía no existe.
   ///
-  /// Hace falta porque el backend rechaza colgar un paseo (o una vacuna, o lo
-  /// que sea) de una mascota inexistente, y mientras no haya pantalla para
-  /// darla de alta la app trabaja con una fija. Antes esto no daba problema
-  /// porque Firestore deja crear subcolecciones bajo un documento que no
-  /// existe, dejando la mascota como un hueco en el árbol.
+  /// El backend rechaza registros de cuidados asociados a una mascota inexistente.
   Future<Mascota> ensureMascota({
     required String id,
     required String nombre,
@@ -185,6 +214,32 @@ class PawLifeRepository {
 
   Future<void> deleteMedicamento(String mascotaId, String id) =>
       client.delete('${_sub(mascotaId, 'medicamentos')}/$id');
+
+  // ----------------------------------------------------------- alimentación
+
+  Future<List<Alimentacion>> fetchAlimentaciones(String mascotaId) async {
+    final items = await client.getList(_sub(mascotaId, 'alimentaciones'));
+    return items.map(Alimentacion.fromJson).toList(growable: false);
+  }
+
+  Future<Alimentacion> createAlimentacion(
+    String mascotaId, {
+    required String tipoAlimento,
+    required double cantidadGramos,
+    required DateTime fechaHora,
+    String? notas,
+  }) async {
+    final creada = await client.post(_sub(mascotaId, 'alimentaciones'), {
+      'tipoAlimento': tipoAlimento,
+      'cantidadGramos': cantidadGramos,
+      'fechaHora': fechaHora.toUtc().toIso8601String(),
+      'notas': notas,
+    });
+    return Alimentacion.fromJson(creada);
+  }
+
+  Future<void> deleteAlimentacion(String mascotaId, String id) =>
+      client.delete('${_sub(mascotaId, 'alimentaciones')}/$id');
 
   // ------------------------------------------------------------------- pesos
 

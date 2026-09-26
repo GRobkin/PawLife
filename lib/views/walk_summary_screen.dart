@@ -45,6 +45,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
 
   _SaveStatus _saveStatus = _SaveStatus.saving;
   String? _saveError;
+  String? _mascotaNombre;
 
   WalkSession get session => widget.session;
 
@@ -61,14 +62,8 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     });
 
     try {
-      // El home ya la crea al empezar el paseo, pero si entonces no había
-      // conexión hay que asegurarla ahora: el backend no cuelga un paseo de
-      // una mascota que no existe. Al reintentar, esto se reintenta también.
-      await _mascotas.ensureMascota(
-        id: widget.mascotaId,
-        nombre: 'Buddy',
-        especie: 'Perro',
-      );
+      final mascota = await _mascotas.fetchMascota(widget.mascotaId);
+      if (mounted) setState(() => _mascotaNombre = mascota.nombre);
 
       await _repository.savePaseo(
         mascotaId: widget.mascotaId,
@@ -117,8 +112,6 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     final minute = t.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
-
-  bool get _hasRoute => _points.length > 1;
 
   void _close(BuildContext context) {
     // Vuelve al Home, descartando también la pantalla de paseo en curso.
@@ -242,12 +235,19 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.cloud_off, size: 18, color: Colors.redAccent),
+                  const Icon(
+                    Icons.cloud_off,
+                    size: 18,
+                    color: Colors.redAccent,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       _saveError!,
-                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                 ],
@@ -258,8 +258,8 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
           onPressed: saving
               ? null
               : failed
-                  ? _save
-                  : () => _close(context),
+              ? _save
+              : () => _close(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: failed ? Colors.redAccent : _kDarkGreen,
             foregroundColor: Colors.white,
@@ -284,8 +284,8 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
             saving
                 ? 'Guardando paseo…'
                 : failed
-                    ? 'Reintentar'
-                    : 'Paseo guardado',
+                ? 'Reintentar'
+                : 'Paseo guardado',
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
         ),
@@ -389,22 +389,22 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
             child: Icon(Icons.pets, size: 20, color: Colors.black45),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Paseaste con Buddy',
-                  style: TextStyle(
+                  'Paseaste con ${_mascotaNombre ?? 'tu mascota'}',
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  '+120 puntos de salud',
-                  style: TextStyle(fontSize: 13, color: Colors.black54),
+                  '$_formattedDistance km • $_formattedDuration',
+                  style: const TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               ],
             ),

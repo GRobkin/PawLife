@@ -277,6 +277,37 @@ class Medicamento {
   };
 }
 
+class Alimentacion {
+  const Alimentacion({
+    required this.id,
+    required this.tipoAlimento,
+    required this.cantidadGramos,
+    required this.fechaHora,
+    this.notas,
+  });
+
+  final String id;
+  final String tipoAlimento;
+  final double cantidadGramos;
+  final DateTime fechaHora;
+  final String? notas;
+
+  factory Alimentacion.fromJson(Map<String, dynamic> json) => Alimentacion(
+    id: _texto(json, 'id'),
+    tipoAlimento: _texto(json, 'tipoAlimento'),
+    cantidadGramos: (json['cantidadGramos'] as num).toDouble(),
+    fechaHora: _fecha(json, 'fechaHora'),
+    notas: json['notas']?.toString(),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'tipoAlimento': tipoAlimento,
+    'cantidadGramos': cantidadGramos,
+    'fechaHora': _iso(fechaHora),
+    'notas': notas,
+  };
+}
+
 class RegistroPeso {
   const RegistroPeso({
     required this.id,

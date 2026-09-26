@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 import 'login_screen.dart';
+import '../theme/app_colors.dart';
 
 const _kDarkGreen = Color(0xFF12352A);
 
@@ -106,166 +107,189 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        foregroundColor: _kDarkGreen,
-        title: const Text(
-          'PawLife',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: _kDarkGreen,
-          ),
-        ),
-      ),
+      backgroundColor: AppColors.verdeSuave,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(22, 10, 22, 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Creá tu cuenta',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Completá tus datos para empezar.',
-                style: TextStyle(fontSize: 14, color: Colors.black54),
-              ),
-              const SizedBox(height: 26),
-
-              const AppFieldLabel('Nombre completo'),
-              const SizedBox(height: 8),
-              AppTextField(
-                controller: _nameController,
-                hint: 'Ej. Juana Pérez',
-                keyboardType: TextInputType.name,
-              ),
-              const SizedBox(height: 18),
-
-              const AppFieldLabel('Correo electrónico'),
-              const SizedBox(height: 8),
-              AppTextField(
-                controller: _emailController,
-                hint: 'nombre@ejemplo.com',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 18),
-
-              const AppFieldLabel('Contraseña'),
-              const SizedBox(height: 8),
-              AppTextField(
-                controller: _passwordController,
-                hint: '••••••••',
-                obscureText: _obscurePassword,
-                suffix: IconButton(
-                  icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    size: 20,
-                    color: Colors.black45,
-                  ),
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              const AppFieldLabel('Confirmar contraseña'),
-              const SizedBox(height: 8),
-              AppTextField(
-                controller: _confirmController,
-                hint: '••••••••',
-                obscureText: _obscureConfirm,
-                suffix: IconButton(
-                  icon: Icon(
-                    _obscureConfirm
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    size: 20,
-                    color: Colors.black45,
-                  ),
-                  onPressed: () =>
-                      setState(() => _obscureConfirm = !_obscureConfirm),
-                ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 22),
-                AppErrorBanner(_error!),
-              ],
-              const SizedBox(height: 28),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _cargando ? null : _onCreateAccountPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _kDarkGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            (MediaQuery.sizeOf(context).height - 730).clamp(24, 100).toDouble(),
+            20,
+            24,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(32, 32, 32, 36),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x120D2C1E),
+                      blurRadius: 24,
+                      offset: Offset(0, 10),
                     ),
-                  ),
-                  child: _cargando
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Crear cuenta',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'PawLife',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: _kDarkGreen,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    const Text(
+                      'Creá tu cuenta',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Completá tus datos para empezar.',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 26),
 
-              Center(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: '¿Ya tenés una cuenta? ',
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                      WidgetSpan(
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const LoginScreen(),
-                            ),
-                          ),
-                          child: const Text(
-                            'Iniciar sesión',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: _kDarkGreen,
-                            ),
-                          ),
+                    const AppFieldLabel('Nombre completo'),
+                    const SizedBox(height: 8),
+                    AppTextField(
+                      controller: _nameController,
+                      hint: 'Ej. Juana Pérez',
+                      keyboardType: TextInputType.name,
+                    ),
+                    const SizedBox(height: 18),
+
+                    const AppFieldLabel('Correo electrónico'),
+                    const SizedBox(height: 8),
+                    AppTextField(
+                      controller: _emailController,
+                      hint: 'nombre@ejemplo.com',
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 18),
+
+                    const AppFieldLabel('Contraseña'),
+                    const SizedBox(height: 8),
+                    AppTextField(
+                      controller: _passwordController,
+                      hint: '••••••••',
+                      obscureText: _obscurePassword,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                          color: Colors.black45,
+                        ),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    const AppFieldLabel('Confirmar contraseña'),
+                    const SizedBox(height: 8),
+                    AppTextField(
+                      controller: _confirmController,
+                      hint: '••••••••',
+                      obscureText: _obscureConfirm,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _obscureConfirm
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                          color: Colors.black45,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
+                      ),
+                    ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 22),
+                      AppErrorBanner(_error!),
                     ],
-                  ),
-                  style: const TextStyle(fontSize: 14),
+                    const SizedBox(height: 28),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _cargando ? null : _onCreateAccountPressed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _kDarkGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _cargando
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Crear cuenta',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    Center(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: '¿Ya tenés una cuenta? ',
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () =>
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (_) => const LoginScreen(),
+                                      ),
+                                    ),
+                                child: const Text(
+                                  'Iniciar sesión',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: _kDarkGreen,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

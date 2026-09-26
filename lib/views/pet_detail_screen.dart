@@ -1,13 +1,8 @@
 // views/pet_detail_screen.dart
 //
 // Perfil de una mascota. Es el centro de sus cuidados: desde aquí se ven las
-// vacunas, los medicamentos y los paseos, que en el backend cuelgan todos de
-// users/{uid}/mascotas/{id}/...
-//
-// Las pestañas de vacunas, medicamentos y paseos son de solo lectura por
-// ahora: muestran datos reales, pero darlos de alta necesita sus propios
-// formularios, que todavía no existen. El único registro que se puede crear
-// desde aquí es el de peso, con el botón "Registrar peso".
+// vacunas, los medicamentos y los paseos se filtran por mascotaId en la API.
+// Aquí se consultan y se editan los cuidados de la mascota.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,10 +10,13 @@ import 'package:flutter/services.dart';
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
+import '../services/local_reminder_service.dart';
 import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
+import 'care_form_screen.dart';
 import 'pet_form_screen.dart';
 import 'route_screen.dart';
+import 'walk_detail_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
@@ -40,13 +38,14 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   // convertir la WalkSession que produce el ViewModel al guardar.
   final _paseosRepo = WalkRepository();
 
-  late final TabController _tabs = TabController(length: 4, vsync: this);
+  late final TabController _tabs = TabController(length: 5, vsync: this);
 
   late Mascota _mascota = widget.mascota;
 
   List<RegistroPeso>? _pesos;
   List<Vacuna>? _vacunas;
   List<Medicamento>? _medicamentos;
+  List<Alimentacion>? _alimentaciones;
   List<Paseo>? _paseos;
   List<Recordatorio>? _recordatorios;
   String? _error;
@@ -73,7 +72,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         _repositorio.fetchPesos(_mascota.id),
         _repositorio.fetchVacunas(_mascota.id),
         _repositorio.fetchMedicamentos(_mascota.id),
-        _paseosRepo.fetchPaseos(_mascota.id, limite: 10),
+        _repositorio.fetchAlimentaciones(_mascota.id),
+        _paseosRepo.fetchPaseos(_mascota.id),
         _repositorio.fetchRecordatorios(soloPendientes: true),
       ]);
 
@@ -82,10 +82,11 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         _pesos = resultados[0] as List<RegistroPeso>;
         _vacunas = resultados[1] as List<Vacuna>;
         _medicamentos = resultados[2] as List<Medicamento>;
-        _paseos = resultados[3] as List<Paseo>;
+        _alimentaciones = resultados[3] as List<Alimentacion>;
+        _paseos = resultados[4] as List<Paseo>;
         // Los recordatorios cuelgan del usuario, no de la mascota, así que se
         // filtran aquí por mascotaId.
-        _recordatorios = (resultados[4] as List<Recordatorio>)
+        _recordatorios = (resultados[5] as List<Recordatorio>)
             .where((r) => r.mascotaId == _mascota.id)
             .toList(growable: false);
       });
@@ -142,6 +143,99 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('No se pudo guardar el peso: $e')));
+    }
+  }
+
+  Future<void> _abrirVacuna([Vacuna? vacuna]) async {
+    final guardada = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) =>
+            VaccineFormScreen(mascotaId: _mascota.id, vacuna: vacuna),
+      ),
+    );
+    if (guardada == true && mounted) await _cargar();
+  }
+
+  Future<void> _abrirMedicamento([Medicamento? medicamento]) async {
+    final guardado = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => MedicationFormScreen(
+          mascotaId: _mascota.id,
+          medicamento: medicamento,
+        ),
+      ),
+    );
+    if (guardado == true && mounted) await _cargar();
+  }
+
+  Future<void> _abrirAlimentacion() async {
+    final guardada = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => FoodFormScreen(mascotaId: _mascota.id)),
+    );
+    if (guardada == true && mounted) await _cargar();
+  }
+
+  Future<bool> _confirmarBorrado(String nombre) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Eliminar $nombre'),
+          content: const Text('Esta acción no se puede deshacer.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  Future<void> _borrarVacuna(Vacuna vacuna) async {
+    if (!await _confirmarBorrado(vacuna.nombre)) return;
+    try {
+      await _repositorio.deleteVacuna(_mascota.id, vacuna.id);
+      await LocalReminderService.instance.syncBestEffort(_repositorio);
+      await _cargar();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+      }
+    }
+  }
+
+  Future<void> _borrarMedicamento(Medicamento medicamento) async {
+    if (!await _confirmarBorrado(medicamento.nombre)) return;
+    try {
+      await _repositorio.deleteMedicamento(_mascota.id, medicamento.id);
+      await LocalReminderService.instance.syncBestEffort(_repositorio);
+      await _cargar();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+      }
+    }
+  }
+
+  Future<void> _borrarAlimentacion(Alimentacion alimentacion) async {
+    if (!await _confirmarBorrado(alimentacion.tipoAlimento)) return;
+    try {
+      await _repositorio.deleteAlimentacion(_mascota.id, alimentacion.id);
+      await _cargar();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+      }
     }
   }
 
@@ -220,6 +314,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                           Tab(text: 'Resumen'),
                           Tab(text: 'Vacunas'),
                           Tab(text: 'Medicamentos'),
+                          Tab(text: 'Alimentación'),
                           Tab(text: 'Paseos'),
                         ],
                       ),
@@ -232,6 +327,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                     _buildResumen(),
                     _buildVacunas(),
                     _buildMedicamentos(),
+                    _buildAlimentaciones(),
                     _buildPaseos(),
                   ],
                 ),
@@ -391,15 +487,6 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (vacunas.isEmpty) {
-      return const _Vacio(
-        icono: Icons.vaccines_outlined,
-        texto:
-            'Sin vacunas registradas.\nLa pantalla para darlas de alta '
-            'todavía no está hecha.',
-      );
-    }
-
     final ordenadas = [...vacunas]
       ..sort((a, b) => a.proximaFecha.compareTo(b.proximaFecha));
 
@@ -407,6 +494,17 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       key: const PageStorageKey("vacunas"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
+        _BotonAgregar(
+          icono: Icons.add,
+          texto: 'Añadir vacuna',
+          onTap: _abrirVacuna,
+        ),
+        const SizedBox(height: 14),
+        if (ordenadas.isEmpty)
+          const _Vacio(
+            icono: Icons.vaccines_outlined,
+            texto: 'Sin vacunas registradas.',
+          ),
         for (final vacuna in ordenadas)
           _FilaCuidado(
             icono: Icons.vaccines_outlined,
@@ -415,6 +513,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                 'Aplicada el ${_fechaCorta(vacuna.fechaAplicacion)} · '
                 'próxima ${_cuandoToca(vacuna.proximaFecha)}',
             alerta: vacuna.proximaFecha.isBefore(DateTime.now()),
+            onTap: () => _abrirVacuna(vacuna),
+            onDelete: () => _borrarVacuna(vacuna),
           ),
       ],
     );
@@ -426,19 +526,21 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (medicamentos.isEmpty) {
-      return const _Vacio(
-        icono: Icons.medication_outlined,
-        texto:
-            'Sin medicamentos registrados.\nLa pantalla para darlos de alta '
-            'todavía no está hecha.',
-      );
-    }
-
     return ListView(
       key: const PageStorageKey("medicamentos"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
+        _BotonAgregar(
+          icono: Icons.add,
+          texto: 'Añadir medicamento',
+          onTap: _abrirMedicamento,
+        ),
+        const SizedBox(height: 14),
+        if (medicamentos.isEmpty)
+          const _Vacio(
+            icono: Icons.medication_outlined,
+            texto: 'Sin medicamentos registrados.',
+          ),
         for (final medicamento in medicamentos)
           _FilaCuidado(
             icono: Icons.medication_outlined,
@@ -447,6 +549,44 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                 ? 'Activo · ${medicamento.horarios.join(', ')}'
                 : 'Finalizado',
             atenuada: !medicamento.activo,
+            onTap: () => _abrirMedicamento(medicamento),
+            onDelete: () => _borrarMedicamento(medicamento),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAlimentaciones() {
+    final alimentaciones = _alimentaciones;
+    if (alimentaciones == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final ordenadas = [...alimentaciones]
+      ..sort((a, b) => b.fechaHora.compareTo(a.fechaHora));
+
+    return ListView(
+      key: const PageStorageKey('alimentaciones'),
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
+      children: [
+        _BotonAgregar(
+          icono: Icons.add,
+          texto: 'Registrar alimentación',
+          onTap: _abrirAlimentacion,
+        ),
+        const SizedBox(height: 14),
+        if (ordenadas.isEmpty)
+          const _Vacio(
+            icono: Icons.restaurant_outlined,
+            texto: 'Sin alimentaciones registradas.',
+          ),
+        for (final alimentacion in ordenadas)
+          _FilaCuidado(
+            icono: Icons.restaurant_outlined,
+            titulo:
+                '${alimentacion.tipoAlimento} · ${alimentacion.cantidadGramos.toStringAsFixed(0)} g',
+            detalle: _fechaLarga(alimentacion.fechaHora),
+            onDelete: () => _borrarAlimentacion(alimentacion),
           ),
       ],
     );
@@ -479,6 +619,12 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                 '${_fechaLarga(paseo.fechaInicio)} · '
                 '${_duracion(paseo.duracion)} · '
                 'máx ${paseo.velocidadMaximaKmh.toStringAsFixed(1)} km/h',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) =>
+                    WalkDetailScreen(paseo: paseo, mascota: _mascota),
+              ),
+            ),
           ),
       ],
     );
@@ -901,6 +1047,8 @@ class _FilaCuidado extends StatelessWidget {
     required this.detalle,
     this.alerta = false,
     this.atenuada = false,
+    this.onTap,
+    this.onDelete,
   });
 
   final IconData icono;
@@ -908,57 +1056,92 @@ class _FilaCuidado extends StatelessWidget {
   final String detalle;
   final bool alerta;
   final bool atenuada;
+  final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(9),
-            decoration: BoxDecoration(
-              color: alerta ? AppColors.alertaSuave : const Color(0xFFEDF2F7),
-              borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: alerta ? AppColors.alertaSuave : const Color(0xFFEDF2F7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icono,
+                size: 18,
+                color: alerta ? AppColors.alerta : AppColors.verdeOscuro,
+              ),
             ),
-            child: Icon(
-              icono,
-              size: 18,
-              color: alerta ? AppColors.alerta : AppColors.verdeOscuro,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: atenuada ? Colors.black45 : Colors.black87,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: atenuada ? Colors.black45 : Colors.black87,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  detalle,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: alerta ? AppColors.alerta : Colors.black54,
+                  const SizedBox(height: 2),
+                  Text(
+                    detalle,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: alerta ? AppColors.alerta : Colors.black54,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            if (onDelete != null)
+              IconButton(
+                tooltip: 'Eliminar',
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline, color: Colors.black45),
+              ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _BotonAgregar extends StatelessWidget {
+  const _BotonAgregar({
+    required this.icono,
+    required this.texto,
+    required this.onTap,
+  });
+  final IconData icono;
+  final String texto;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => FilledButton.icon(
+    onPressed: onTap,
+    icon: Icon(icono),
+    label: Text(texto),
+    style: FilledButton.styleFrom(
+      backgroundColor: AppColors.verdeOscuro,
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+    ),
+  );
 }
 
 class _Vacio extends StatelessWidget {
