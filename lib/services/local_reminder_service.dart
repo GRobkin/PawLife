@@ -21,6 +21,40 @@ class LocalReminderService {
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS);
 
+  static const _details = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'pawlife_cuidados',
+      'Cuidados y tareas',
+      channelDescription: 'Avisos de vacunas, medicamentos y tareas',
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+    iOS: DarwinNotificationDetails(),
+  );
+
+  static int _idFor(String key) {
+    var hash = 0x811c9dc5;
+    for (final byte in key.codeUnits) {
+      hash = ((hash ^ byte) * 0x01000193) & 0x7fffffff;
+    }
+    return hash;
+  }
+
+  Future<void> showIncoming({
+    required String reminderId,
+    required String title,
+    required String body,
+  }) async {
+    if (!_supported) return;
+    await _init();
+    await _notifications.show(
+      id: _idFor('recordatorio:$reminderId'),
+      title: title,
+      body: body,
+      notificationDetails: _details,
+    );
+  }
+
   Future<void> _init() async {
     if (!_supported || _initialized) return;
     timezone_data.initializeTimeZones();
@@ -80,7 +114,14 @@ class LocalReminderService {
 
     for (final reminder in reminders) {
       if (!reminder.completado && reminder.fecha.isAfter(now)) {
-        events.add(_Notice(reminder.fecha, 'PawLife', reminder.mensaje));
+        events.add(
+          _Notice(
+            'recordatorio:${reminder.id}',
+            reminder.fecha,
+            'PawLife',
+            reminder.mensaje,
+          ),
+        );
       }
     }
 
@@ -98,6 +139,7 @@ class LocalReminderService {
             !_covered(reminders, pet.id, 'vacuna', notice)) {
           events.add(
             _Notice(
+              'vacuna:${vaccine.id}',
               notice,
               'Vacuna de ${pet.nombre}',
               'Se acerca ${vaccine.nombre}: ${due.day}/${due.month}/${due.year}.',
@@ -143,6 +185,7 @@ class LocalReminderService {
                 !_covered(reminders, pet.id, 'medicamento', time)) {
               events.add(
                 _Notice(
+                  'medicamento:${medicine.id}:${date.toIso8601String()}:$horario',
                   time,
                   'Medicamento de ${pet.nombre}',
                   '${medicine.nombre}: ${medicine.dosis}.',
@@ -156,25 +199,15 @@ class LocalReminderService {
 
     events.sort((a, b) => a.at.compareTo(b.at));
     await _notifications.cancelAllPendingNotifications();
-    const details = NotificationDetails(
-      android: AndroidNotificationDetails(
-        'pawlife_cuidados',
-        'Cuidados y tareas',
-        channelDescription: 'Avisos de vacunas, medicamentos y tareas',
-        importance: Importance.high,
-        priority: Priority.high,
-      ),
-      iOS: DarwinNotificationDetails(),
-    );
     // iOS admite un número limitado de avisos pendientes. Se priorizan los próximos.
     for (var index = 0; index < events.length && index < 60; index++) {
       final event = events[index];
       await _notifications.zonedSchedule(
-        id: index + 1000,
+        id: _idFor(event.key),
         title: event.title,
         body: event.body,
         scheduledDate: tz.TZDateTime.from(event.at, tz.local),
-        notificationDetails: details,
+        notificationDetails: _details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
     }
@@ -197,7 +230,8 @@ class LocalReminderService {
 }
 
 class _Notice {
-  const _Notice(this.at, this.title, this.body);
+  const _Notice(this.key, this.at, this.title, this.body);
+  final String key;
   final DateTime at;
   final String title;
   final String body;

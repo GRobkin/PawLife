@@ -8,6 +8,9 @@ class PushService {
   final FirebaseMessaging _messaging;
 
   Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;
+  Stream<RemoteMessage> get onMessage => FirebaseMessaging.onMessage;
+  Stream<RemoteMessage> get onMessageOpenedApp =>
+      FirebaseMessaging.onMessageOpenedApp;
 
   Future<void> revokeToken() => _messaging.deleteToken();
 
