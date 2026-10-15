@@ -34,6 +34,20 @@ class WalkRepository {
 
   final ApiClient _client;
 
+  Future<WalkPage> fetchHistory(String mascotaId, {String? cursor}) async {
+    final result = await _client.getOne(
+      '/api/mascotas/${Uri.encodeComponent(mascotaId)}/historial-paseos',
+      query: cursor == null ? null : {'cursor': cursor},
+    );
+    return WalkPage(
+      (result['items'] as List)
+          .cast<Map<String, dynamic>>()
+          .map(Paseo.fromJson)
+          .toList(),
+      result['nextCursor'] as String?,
+    );
+  }
+
   /// Convierte la sesión de paseo al cuerpo que espera la API.
   ///
   /// La ruta va con la hora de cada punto: sin ella se pierde el ritmo del
@@ -45,6 +59,7 @@ class WalkRepository {
       'duracionSegundos': session.duration.inSeconds,
       'distanciaMetros': session.distanceMeters,
       'velocidadMaximaKmh': session.maxSpeedKmh,
+      'fotoUrl': session.fotoUrl,
       'ruta': session.points.map((p) => p.toJson()).toList(growable: false),
     };
   }
@@ -53,15 +68,26 @@ class WalkRepository {
   Future<String> savePaseo({
     required String mascotaId,
     required WalkSession session,
+    String? id,
   }) async {
     try {
-      final creado = await _client.post(
-        _paseos(mascotaId),
-        bodyFromSession(session),
-      );
+      final creado = await _client.post(_paseos(mascotaId), {
+        'id': ?id,
+        ...bodyFromSession(session),
+      });
 
       return Paseo.fromJson(creado).id;
     } on ApiException catch (e) {
+      if (e.statusCode == 409 && id != null) {
+        // Una respuesta perdida no debe duplicar el mismo paseo al reintentar.
+        final existing = Paseo.fromJson(
+          await _client.getOne('${_paseos(mascotaId)}/$id'),
+        );
+        if (existing.fechaInicio.isAtSameMomentAs(session.startedAt) &&
+            existing.duracionSegundos == session.duration.inSeconds) {
+          return existing.id;
+        }
+      }
       throw WalkSaveException('No se pudo guardar el paseo: ${e.message}');
     }
   }
@@ -91,4 +117,10 @@ class WalkRepository {
 
   String _paseos(String mascotaId) =>
       '/api/mascotas/${Uri.encodeComponent(mascotaId)}/paseos';
+}
+
+class WalkPage {
+  const WalkPage(this.items, this.nextCursor);
+  final List<Paseo> items;
+  final String? nextCursor;
 }

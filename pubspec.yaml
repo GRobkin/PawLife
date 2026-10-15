@@ -46,6 +46,7 @@ dependencies:
   # Storage exige plan Blaze en los proyectos nuevos. Ver
   # services/photo_service.dart.
   image_picker: ^1.1.2
+  share_plus: ^13.3.1
 
   # Iconos de gato y perro: Material Icons no tiene ninguno de los dos. Lo más
   # parecido es `cruelty_free`, que es un conejo. Flutter recorta las fuentes de

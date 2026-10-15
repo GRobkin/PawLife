@@ -17,6 +17,7 @@ import 'care_form_screen.dart';
 import 'pet_form_screen.dart';
 import 'route_screen.dart';
 import 'walk_detail_screen.dart';
+import 'walk_history_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
@@ -611,6 +612,18 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       key: const PageStorageKey("paseos"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
+        TextButton.icon(
+          onPressed: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => WalkHistoryScreen(mascota: _mascota),
+              ),
+            );
+            if (mounted) await _cargar();
+          },
+          icon: const Icon(Icons.history),
+          label: const Text('Abrir historial de paseos'),
+        ),
         for (final paseo in paseos)
           _FilaCuidado(
             icono: Icons.directions_walk,
@@ -619,12 +632,15 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                 '${_fechaLarga(paseo.fechaInicio)} · '
                 '${_duracion(paseo.duracion)} · '
                 'máx ${paseo.velocidadMaximaKmh.toStringAsFixed(1)} km/h',
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) =>
-                    WalkDetailScreen(paseo: paseo, mascota: _mascota),
-              ),
-            ),
+            onTap: () async {
+              final deleted = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      WalkDetailScreen(paseo: paseo, mascota: _mascota),
+                ),
+              );
+              if (mounted && deleted == true) await _cargar();
+            },
           ),
       ],
     );

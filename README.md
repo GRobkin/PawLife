@@ -1,5 +1,16 @@
 # PawLife
 
+Historial: Inicio → **Ver historial de paseos**. Desde cada recorrido se abre
+el mapa, se elimina con confirmación o se comparte un PNG con mascota, foto,
+fecha, distancia, duración y traza GPS. La cámara durante el paseo guarda una
+foto reducida junto al recorrido. No necesita Firebase Storage.
+
+El panel del equipo está en `https://apipaw.vercel.app/notificaciones` y requiere
+una cuenta administradora habilitada en el backend. El detalle de las funciones,
+pruebas y pendientes de entrega está en [docs/CIERRE_ENTREGA.md](docs/CIERRE_ENTREGA.md).
+
+Pruebas nuevas: `flutter test test/walk_features_test.dart`.
+
 App Flutter de PawLife. El backend es una API PHP aparte, en `../apipaw`.
 
 ## Arquitectura

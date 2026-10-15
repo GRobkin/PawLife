@@ -45,5 +45,9 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>PawLife necesita tu ubicación para registrar el paseo</string>
+	<key>NSCameraUsageDescription</key>
+	<string>PawLife usa la cámara para guardar una foto de tu mascota o del paseo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>PawLife permite elegir una foto de tu mascota.</string>
 </dict>
 </plist>

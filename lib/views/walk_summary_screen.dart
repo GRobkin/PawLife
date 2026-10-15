@@ -11,8 +11,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:math';
 
 import '../models/route_point.dart';
+import '../models/pawlife_models.dart';
+import 'walk_share_screen.dart';
+import 'widgets/foto_mascota.dart';
 import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
 
@@ -46,6 +50,9 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
   _SaveStatus _saveStatus = _SaveStatus.saving;
   String? _saveError;
   String? _mascotaNombre;
+  Mascota? _mascota;
+  late final String _paseoId =
+      'paseo_${List.generate(16, (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0')).join()}';
 
   WalkSession get session => widget.session;
 
@@ -62,15 +69,24 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     });
 
     try {
-      final mascota = await _mascotas.fetchMascota(widget.mascotaId);
-      if (mounted) setState(() => _mascotaNombre = mascota.nombre);
-
       await _repository.savePaseo(
         mascotaId: widget.mascotaId,
         session: session,
+        id: _paseoId,
       );
       if (!mounted) return;
       setState(() => _saveStatus = _SaveStatus.saved);
+      try {
+        final mascota = await _mascotas.fetchMascota(widget.mascotaId);
+        if (mounted) {
+          setState(() {
+            _mascota = mascota;
+            _mascotaNombre = mascota.nombre;
+          });
+        }
+      } catch (_) {
+        /* El paseo quedó guardado aunque falle la carga del perfil. */
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -113,103 +129,159 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     return '$hour:$minute';
   }
 
-  void _close(BuildContext context) {
+  Future<void> _close(BuildContext context) async {
+    if (_saveStatus == _SaveStatus.saving) return;
+    if (_saveStatus == _SaveStatus.error) {
+      final discard = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('El paseo no se guardó'),
+          content: const Text(
+            'Podés reintentar el guardado. Si salís ahora, perderás este recorrido.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Volver'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Salir sin guardar'),
+            ),
+          ],
+        ),
+      );
+      if (discard != true || !context.mounted) return;
+    }
     // Vuelve al Home, descartando también la pantalla de paseo en curso.
     Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void _share() {
+    final mascota = _mascota;
+    if (mascota == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WalkShareScreen(
+          mascota: mascota,
+          paseo: Paseo(
+            id: _paseoId,
+            fechaInicio: session.startedAt,
+            fechaFin: session.endedAt,
+            duracionSegundos: session.duration.inSeconds,
+            distanciaMetros: session.distanceMeters,
+            velocidadMaximaKmh: session.maxSpeedKmh,
+            ruta: session.points,
+            fotoUrl: session.fotoUrl,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final mapHeight = MediaQuery.of(context).size.height * 0.34;
 
-    return Scaffold(
-      backgroundColor: _kBackground,
-      body: Stack(
-        children: [
-          // 1. Mapa de fondo, anclado arriba
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: mapHeight,
-            child: _MapHeader(points: _points),
-          ),
+    return PopScope(
+      canPop: _saveStatus == _SaveStatus.saved,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _close(context);
+      },
+      child: Scaffold(
+        backgroundColor: _kBackground,
+        body: Stack(
+          children: [
+            // 1. Mapa de fondo, anclado arriba
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: mapHeight,
+              child: _MapHeader(points: _points),
+            ),
 
-          // 2. Contenido scrolleable, empieza debajo del mapa
-          Positioned.fill(
-            child: ListView(
-              // clipBehavior none para que el badge pueda sobresalir
-              // hacia arriba sin quedar recortado.
-              clipBehavior: Clip.none,
-              padding: EdgeInsets.fromLTRB(
-                20,
-                mapHeight - 20,
-                20,
-                // Espacio para el botón fijo de abajo + la barra de
-                // navegación del sistema.
-                MediaQuery.of(context).padding.bottom + 100,
-              ),
-              children: [
-                _buildBadge(),
-                const SizedBox(height: 14),
-                const Center(
-                  child: Text(
-                    'Paseo de la tarde',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+            // 2. Contenido scrolleable, empieza debajo del mapa
+            Positioned.fill(
+              child: ListView(
+                // clipBehavior none para que el badge pueda sobresalir
+                // hacia arriba sin quedar recortado.
+                clipBehavior: Clip.none,
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  mapHeight - 20,
+                  20,
+                  // Espacio para el botón fijo de abajo + la barra de
+                  // navegación del sistema.
+                  MediaQuery.of(context).padding.bottom + 100,
+                ),
+                children: [
+                  _buildBadge(),
+                  const SizedBox(height: 14),
+                  Center(
+                    child: Text(
+                      'Paseo con ${_mascotaNombre ?? 'tu mascota'}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Center(
-                  child: Text(
-                    'Hoy, $_formattedTime • Parque local',
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  const SizedBox(height: 6),
+                  Center(
+                    child: Text(
+                      '${session.startedAt.day}/${session.startedAt.month}/${session.startedAt.year} · $_formattedTime',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  _buildStats(),
+                  const SizedBox(height: 14),
+                  _buildPetCard(),
+                ],
+              ),
+            ),
+
+            // 3. Botón de cerrar, flotando sobre el mapa
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 12,
+              left: 16,
+              child: Material(
+                color: Colors.white,
+                shape: const CircleBorder(),
+                elevation: 3,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => _close(context),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(Icons.close, size: 22, color: Colors.black87),
                   ),
                 ),
-                const SizedBox(height: 22),
-                _buildStats(),
-                const SizedBox(height: 14),
-                _buildPetCard(),
-              ],
+              ),
             ),
-          ),
 
-          // 3. Botón de cerrar, flotando sobre el mapa
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 12,
-            left: 16,
-            child: Material(
-              color: Colors.white,
-              shape: const CircleBorder(),
-              elevation: 3,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => _close(context),
-                child: const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Icon(Icons.close, size: 22, color: Colors.black87),
+            // 4. Botón principal fijo abajo, respetando la barra del sistema
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildSaveButton(context),
                 ),
               ),
             ),
-          ),
-
-          // 4. Botón principal fijo abajo, respetando la barra del sistema
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: 0,
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildSaveButton(context),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -383,10 +455,15 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     return _SummaryCard(
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 20,
             backgroundColor: Colors.black12,
-            child: Icon(Icons.pets, size: 20, color: Colors.black45),
+            backgroundImage: proveedorDeFoto(
+              session.fotoUrl ?? _mascota?.fotoUrl,
+            ),
+            child: session.fotoUrl == null && _mascota?.fotoUrl == null
+                ? const Icon(Icons.pets, size: 20, color: Colors.black45)
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -409,8 +486,11 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               ],
             ),
           ),
-          // Decorativo: todavía no comparte nada.
-          const Icon(Icons.share_outlined, color: Colors.black54),
+          IconButton(
+            tooltip: 'Compartir como PNG',
+            onPressed: _mascota == null ? null : _share,
+            icon: const Icon(Icons.share_outlined, color: Colors.black54),
+          ),
         ],
       ),
     );

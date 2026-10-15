@@ -4,8 +4,11 @@ import 'package:latlong2/latlong.dart';
 
 import '../models/pawlife_models.dart';
 import '../theme/app_colors.dart';
+import '../services/walk_repository.dart';
+import 'walk_share_screen.dart';
+import 'widgets/foto_mascota.dart';
 
-class WalkDetailScreen extends StatelessWidget {
+class WalkDetailScreen extends StatefulWidget {
   const WalkDetailScreen({
     super.key,
     required this.paseo,
@@ -16,12 +19,79 @@ class WalkDetailScreen extends StatelessWidget {
   final Mascota mascota;
 
   @override
+  State<WalkDetailScreen> createState() => _WalkDetailScreenState();
+}
+
+class _WalkDetailScreenState extends State<WalkDetailScreen> {
+  Paseo get paseo => widget.paseo;
+  Mascota get mascota => widget.mascota;
+  bool _deleting = false;
+
+  Future<void> _delete() async {
+    if (_deleting) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Eliminar este paseo?'),
+        content: const Text(
+          'Se borrarán el recorrido, sus estadísticas y la foto. Esta acción no se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    setState(() => _deleting = true);
+    try {
+      await WalkRepository().deletePaseo(mascota.id, paseo.id);
+      if (mounted) Navigator.pop(context, true);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo eliminar el paseo. Reintentá.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final points = paseo.ruta
         .map((point) => LatLng(point.latitude, point.longitude))
         .toList(growable: false);
     return Scaffold(
-      appBar: AppBar(title: Text('Paseo con ${mascota.nombre}')),
+      appBar: AppBar(
+        title: Text('Paseo con ${mascota.nombre}'),
+        actions: [
+          IconButton(
+            tooltip: 'Compartir como PNG',
+            icon: const Icon(Icons.ios_share),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WalkShareScreen(paseo: paseo, mascota: mascota),
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Eliminar paseo',
+            icon: const Icon(Icons.delete_outline),
+            onPressed: _deleting ? null : _delete,
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -101,6 +171,20 @@ class WalkDetailScreen extends StatelessWidget {
                     ' · Máx. ${paseo.velocidadMaximaKmh.toStringAsFixed(1)} km/h',
                   ),
                   const SizedBox(height: 4),
+                  if (paseo.fotoUrl != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundImage: proveedorDeFoto(paseo.fotoUrl),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Foto del paseo'),
+                        ],
+                      ),
+                    ),
                   const Text(
                     'Mapa © OpenStreetMap contributors',
                     style: TextStyle(fontSize: 11, color: Colors.black54),

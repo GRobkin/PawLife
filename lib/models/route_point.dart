@@ -19,10 +19,10 @@ class RoutePoint {
   });
 
   Map<String, dynamic> toJson() => {
-        'lat': latitude,
-        'lng': longitude,
-        'timestamp': timestamp.toUtc().toIso8601String(),
-      };
+    'lat': latitude,
+    'lng': longitude,
+    'timestamp': timestamp.toUtc().toIso8601String(),
+  };
 
   /// [fallbackTimestamp] cubre los paseos guardados por la versión anterior de
   /// la app, cuando la ruta se escribía como lista de GeoPoint y no llevaba la
@@ -65,6 +65,7 @@ class WalkSession {
   /// Velocidad puntual más alta registrada durante el paseo, en km/h.
   /// Se calcula tramo a tramo en el ViewModel; no es la velocidad media.
   final double maxSpeedKmh;
+  final String? fotoUrl;
 
   const WalkSession({
     required this.points,
@@ -72,15 +73,16 @@ class WalkSession {
     required this.duration,
     required this.startedAt,
     this.maxSpeedKmh = 0,
+    this.fotoUrl,
   });
 
   DateTime get endedAt => startedAt.add(duration);
 
   Map<String, dynamic> toJson() => {
-        'points': points.map((p) => p.toJson()).toList(),
-        'distanceMeters': distanceMeters,
-        'durationSeconds': duration.inSeconds,
-        'startedAt': startedAt.toUtc().toIso8601String(),
-        'maxSpeedKmh': maxSpeedKmh,
-      };
+    'points': points.map((p) => p.toJson()).toList(),
+    'distanceMeters': distanceMeters,
+    'durationSeconds': duration.inSeconds,
+    'startedAt': startedAt.toUtc().toIso8601String(),
+    'maxSpeedKmh': maxSpeedKmh,
+  };
 }

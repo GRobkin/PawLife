@@ -19,6 +19,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 import '../models/route_point.dart';
+import '../services/photo_service.dart';
+import 'widgets/foto_mascota.dart';
 import '../viewmodels/route_view_model.dart';
 import 'walk_summary_screen.dart';
 
@@ -57,6 +59,9 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
 
   /// Rotación actual del mapa en grados. 0 = norte arriba.
   double _rotation = 0;
+  String? _fotoUrl;
+  bool _takingPhoto = false;
+  bool _finishing = false;
 
   @override
   void initState() {
@@ -76,7 +81,17 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
   }
 
   void _onFinishPressed(BuildContext context, RouteViewModel vm) {
-    final WalkSession session = vm.stopWalk();
+    if (_finishing || _takingPhoto) return;
+    _finishing = true;
+    final stopped = vm.stopWalk();
+    final session = WalkSession(
+      points: stopped.points,
+      distanceMeters: stopped.distanceMeters,
+      duration: stopped.duration,
+      startedAt: stopped.startedAt,
+      maxSpeedKmh: stopped.maxSpeedKmh,
+      fotoUrl: _fotoUrl,
+    );
     // El guardado lo hace la pantalla de resumen, que es la
     // que puede mostrar el estado ("Guardando…", error, reintentar) sin
     // depender de este ViewModel, que muere en este mismo push.
@@ -88,12 +103,21 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
     );
   }
 
-  void _onCameraPressed(BuildContext context) {
-    // Placeholder: la funcionalidad de sacar foto durante el paseo
-    // no está en el alcance de esta pantalla todavía.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Funcionalidad de cámara: pendiente')),
-    );
+  Future<void> _onCameraPressed(BuildContext context) async {
+    if (_takingPhoto || _finishing) return;
+    setState(() => _takingPhoto = true);
+    try {
+      final photo = await PhotoService().elegirFoto(OrigenFoto.camara);
+      if (mounted && photo != null) setState(() => _fotoUrl = photo);
+    } on PhotoException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    } finally {
+      if (mounted) setState(() => _takingPhoto = false);
+    }
   }
 
   @override
@@ -274,6 +298,17 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _StatsCard(vm: vm),
+                  if (_fotoUrl != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Chip(
+                        avatar: CircleAvatar(
+                          backgroundImage: proveedorDeFoto(_fotoUrl),
+                        ),
+                        label: const Text('Foto del paseo'),
+                        onDeleted: () => setState(() => _fotoUrl = null),
+                      ),
+                    ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
