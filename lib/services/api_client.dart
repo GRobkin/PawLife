@@ -85,8 +85,11 @@ class ApiClient {
     return items.whereType<Map<String, dynamic>>().toList(growable: false);
   }
 
-  Future<Map<String, dynamic>> getOne(String path) async {
-    return _expectObject(await _send('GET', path));
+  Future<Map<String, dynamic>> getOne(
+    String path, {
+    Map<String, String>? query,
+  }) async {
+    return _expectObject(await _send('GET', path, query: query));
   }
 
   Future<Map<String, dynamic>> post(

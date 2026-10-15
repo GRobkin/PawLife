@@ -15,6 +15,7 @@ import '../services/walk_repository.dart';
 import 'pets_screen.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
+import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 import 'widgets/selector_mascota.dart';
 
@@ -205,6 +206,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
             _buildActivitySummary(),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const WalkHistoryScreen()),
+                ),
+                icon: const Icon(Icons.history),
+                label: const Text('Ver historial de paseos'),
+              ),
+            ),
             const SizedBox(height: 24),
             const Text(
               'Hoy',

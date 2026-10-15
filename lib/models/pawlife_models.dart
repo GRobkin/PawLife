@@ -337,6 +337,7 @@ class Paseo {
     required this.distanciaMetros,
     required this.velocidadMaximaKmh,
     required this.ruta,
+    this.fotoUrl,
   });
 
   final String id;
@@ -352,6 +353,7 @@ class Paseo {
   /// partido en dos campos de Firestore (`ruta` con GeoPoint y sin tiempos, y
   /// `rutaDetallada` con ellos); el backend los unificó en uno solo.
   final List<RoutePoint> ruta;
+  final String? fotoUrl;
 
   factory Paseo.fromJson(Map<String, dynamic> json) {
     final fechaInicio = _fecha(json, 'fechaInicio');
@@ -363,6 +365,7 @@ class Paseo {
       duracionSegundos: _entero(json, 'duracionSegundos'),
       distanciaMetros: _decimal(json, 'distanciaMetros'),
       velocidadMaximaKmh: _decimal(json, 'velocidadMaximaKmh'),
+      fotoUrl: json['fotoUrl'] as String?,
       ruta: (json['ruta'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           // Los paseos guardados antes de tener backend no traen la hora de
@@ -378,6 +381,7 @@ class Paseo {
     'duracionSegundos': duracionSegundos,
     'distanciaMetros': distanciaMetros,
     'velocidadMaximaKmh': velocidadMaximaKmh,
+    'fotoUrl': fotoUrl,
     'ruta': ruta.map((p) => p.toJson()).toList(growable: false),
   };
 
