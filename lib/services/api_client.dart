@@ -178,9 +178,12 @@ class ApiClient {
     }
 
     try {
-      final streamed = await _http.send(request).timeout(timeout);
-
-      return await http.Response.fromStream(streamed);
+      // El límite incluye el cuerpo: recibir las cabeceras no garantiza que
+      // el servidor termine de transmitir la respuesta.
+      return await _http
+          .send(request)
+          .then(http.Response.fromStream)
+          .timeout(timeout);
     } on TimeoutException {
       throw ApiException(
         'El servidor tardó demasiado en responder (${timeout.inSeconds} s).',

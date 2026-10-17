@@ -255,11 +255,9 @@ class RouteViewModel extends ChangeNotifier {
 
   String get formattedSpeed => '${averageSpeedKmh.toStringAsFixed(1)} km/h';
 
-  /// NOTA: estimación aproximada, no un cálculo real basado en peso/edad
-  /// (ver US27 en el backlog, marcada "Won't have for now").
-  double get estimatedCalories => (distanceMeters / 1000) * 60;
-
-  String get formattedCalories => '${estimatedCalories.round()} kcal';
+  // US27 sigue pendiente: no presentar una constante por km como un cálculo
+  // metabólico de la mascota sin un modelo validado para su especie y peso.
+  String get formattedCalories => 'Calorías: no disponible';
 
   @override
   void dispose() {
