@@ -49,3 +49,12 @@ app.*.map.json
 # se cuele si alguna vez se crea uno aquí dentro.
 CLAUDE.md
 .claude/
+
+# Credenciales locales y firma de distribución.
+.env
+.env.*
+!.env.example
+android/key.properties
+*.jks
+*.keystore
+*service-account*.json

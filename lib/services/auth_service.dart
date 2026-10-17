@@ -134,6 +134,25 @@ class AuthService {
   // ----------------------------------------------------------------- Google
 
   Future<User> signInWithGoogle() async {
+    if (kIsWeb) {
+      try {
+        final result = await _auth.signInWithPopup(GoogleAuthProvider());
+        final user = result.user;
+        if (user == null) {
+          throw const AuthException('No se pudo iniciar sesión con Google.');
+        }
+        return user;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'popup-closed-by-user' ||
+            e.code == 'cancelled-popup-request') {
+          throw const AuthException(
+            'Acceso con Google cancelado.',
+            code: 'cancelado',
+          );
+        }
+        throw _traducir(e);
+      }
+    }
     final google = GoogleSignIn.instance;
 
     if (!google.supportsAuthenticate()) {

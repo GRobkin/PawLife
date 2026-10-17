@@ -6,6 +6,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -22,7 +23,11 @@ Future<void> main() async {
   // Necesario para poder recibir datos del foreground service (ver
   // services/walk_task_handler.dart) en el isolate principal de la UI.
   // Sin esto, los puntos GPS del servicio nunca llegan al ViewModel.
-  FlutterForegroundTask.initCommunicationPort();
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS)) {
+    FlutterForegroundTask.initCommunicationPort();
+  }
 
   // Firebase se inicializa solo por Auth: los datos viven detrás de la API PHP
   // (../apipaw) y la app ya no habla con Firestore. Lo que sale de aquí es el
