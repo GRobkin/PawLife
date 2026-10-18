@@ -48,6 +48,13 @@ dependencies:
   image_picker: ^1.1.2
   share_plus: ^13.3.1
 
+  # Codificar a JPEG la captura del mapa del paseo. Flutter solo exporta PNG
+  # (`ui.Image.toByteData`) y el backend acepta únicamente
+  # `data:image/jpeg;base64,` en la foto del paseo (CareValidator.php), así que
+  # una captura en PNG haría fallar el guardado del paseo entero. Es Dart puro:
+  # no toca la parte nativa y se puede probar en un test unitario.
+  image: ^4.5.0
+
   # Iconos de gato y perro: Material Icons no tiene ninguno de los dos. Lo más
   # parecido es `cruelty_free`, que es un conejo. Flutter recorta las fuentes de
   # iconos sin usar al compilar en release, así que el peso real es mínimo.

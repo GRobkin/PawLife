@@ -16,6 +16,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/route_point.dart';
+import '../services/gps_point_filter.dart';
 import '../services/location_service.dart';
 import '../services/walk_task_handler.dart';
 
@@ -42,8 +43,12 @@ class RouteViewModel extends ChangeNotifier {
   /// Velocidad puntual más alta del paseo, calculada tramo a tramo.
   double maxSpeedKmh = 0;
 
+  /// Lecturas del GPS que el filtro dejó fuera del recorrido en este paseo.
+  int descartadas = 0;
+
   Timer? _ticker;
   DateTime? _startedAt;
+  GpsPointFilter? _filtro;
 
   /// Callback opcional que la View puede usar para recentrar/mover el mapa
   /// cada vez que llega un punto nuevo.
@@ -102,7 +107,11 @@ class RouteViewModel extends ChangeNotifier {
     distanceMeters = 0;
     maxSpeedKmh = 0;
     elapsed = Duration.zero;
+    descartadas = 0;
     _startedAt = DateTime.now();
+    // Uno nuevo por paseo: arrastrar la última lectura del paseo anterior
+    // haría que la primera del nuevo pareciera un salto.
+    _filtro = GpsPointFilter(inicio: _startedAt!);
     isTracking = true;
     notifyListeners();
 
@@ -153,19 +162,34 @@ class RouteViewModel extends ChangeNotifier {
   void _onTaskData(Object data) {
     if (data is! Map) return;
 
-    final lat = data['lat'] as double?;
-    final lng = data['lng'] as double?;
+    final lat = (data['lat'] as num?)?.toDouble();
+    final lng = (data['lng'] as num?)?.toDouble();
     if (lat == null || lng == null) return;
 
-    final newPoint = LatLng(lat, lng);
-
-    // El TaskHandler manda el momento exacto de la lectura. Lo usamos en
-    // vez de DateTime.now() porque el dato puede llegar con retraso desde
-    // el isolate del servicio, y eso falsearía la velocidad del tramo.
+    // El TaskHandler manda la hora en que el GPS tomó la posición. Se usa en
+    // vez de DateTime.now() porque el dato puede llegar con retraso desde el
+    // isolate del servicio, y eso falsearía la velocidad del tramo.
     final millis = data['timestampMillis'] as int?;
     final timestamp = millis != null
         ? DateTime.fromMillisecondsSinceEpoch(millis)
         : DateTime.now();
+
+    // Las lecturas malas no entran en el recorrido ni suman distancia: eran
+    // las que dibujaban líneas atravesando cuadras.
+    final motivo = _filtro?.evaluar(
+      LecturaGps(
+        latitud: lat,
+        longitud: lng,
+        momento: timestamp,
+        precisionMetros: (data['accuracy'] as num?)?.toDouble(),
+      ),
+    );
+    if (motivo != null) {
+      descartadas++;
+      return;
+    }
+
+    final newPoint = LatLng(lat, lng);
 
     if (routePoints.isNotEmpty) {
       final last = routePoints.last;
