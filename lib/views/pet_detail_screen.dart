@@ -430,7 +430,10 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     final paseos = _paseos;
 
     if (recordatorios == null || paseos == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const _CuerpoPestana(
+        clave: "resumen",
+        child: CircularProgressIndicator(),
+      );
     }
 
     final proximaVacuna = _proximaVacuna();
@@ -485,7 +488,10 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   Widget _buildVacunas() {
     final vacunas = _vacunas;
     if (vacunas == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const _CuerpoPestana(
+        clave: "vacunas",
+        child: CircularProgressIndicator(),
+      );
     }
 
     final ordenadas = [...vacunas]
@@ -524,7 +530,10 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   Widget _buildMedicamentos() {
     final medicamentos = _medicamentos;
     if (medicamentos == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const _CuerpoPestana(
+        clave: "medicamentos",
+        child: CircularProgressIndicator(),
+      );
     }
 
     return ListView(
@@ -560,7 +569,10 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   Widget _buildAlimentaciones() {
     final alimentaciones = _alimentaciones;
     if (alimentaciones == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const _CuerpoPestana(
+        clave: "alimentaciones",
+        child: CircularProgressIndicator(),
+      );
     }
 
     final ordenadas = [...alimentaciones]
@@ -596,15 +608,24 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   Widget _buildPaseos() {
     final paseos = _paseos;
     if (paseos == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const _CuerpoPestana(
+        clave: "paseos",
+        child: CircularProgressIndicator(),
+      );
     }
 
     if (paseos.isEmpty) {
-      return const _Vacio(
-        icono: Icons.directions_walk,
-        texto:
-            'Todavía no hay paseos.\nUsá el botón verde de abajo para '
-            'registrar uno.',
+      // Era el único estado vacío que quedaba como cuerpo directo de una
+      // pestaña: las demás lo tienen dentro de su ListView, junto al botón
+      // de añadir, y por eso solo esta se desbordaba.
+      return const _CuerpoPestana(
+        clave: "paseos",
+        child: _Vacio(
+          icono: Icons.directions_walk,
+          texto:
+              'Todavía no hay paseos.\nUsá el botón verde de abajo para '
+              'registrar uno.',
+        ),
       );
     }
 
@@ -1158,6 +1179,36 @@ class _BotonAgregar extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
   );
+}
+
+/// Cuerpo de pestaña para contenido que no scrollea solo: el indicador de
+/// carga o un estado vacío.
+///
+/// Dentro del NestedScrollView el cuerpo de cada pestaña TIENE que ser
+/// scrollable. Un Center suelto recibe la altura que queda bajo la cabecera,
+/// que con la portada desplegada es muy poca: el contenido se desbordaba
+/// ("BOTTOM OVERFLOWED BY 95 PIXELS") y además no se podía arrastrar para
+/// plegar la cabecera y ganar espacio.
+///
+/// SliverFillRemaining con hasScrollBody: false centra el contenido cuando
+/// sobra sitio y, cuando no, lo deja scrollear en vez de desbordarse.
+class _CuerpoPestana extends StatelessWidget {
+  const _CuerpoPestana({required this.clave, required this.child});
+
+  /// La misma clave que usa la lista de esa pestaña, para que la posición de
+  /// scroll se guarde en un único sitio pase por el estado que pase.
+  final String clave;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      key: PageStorageKey(clave),
+      slivers: [
+        SliverFillRemaining(hasScrollBody: false, child: Center(child: child)),
+      ],
+    );
+  }
 }
 
 class _Vacio extends StatelessWidget {

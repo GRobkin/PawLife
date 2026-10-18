@@ -15,11 +15,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 import '../models/route_point.dart';
-import '../services/photo_service.dart';
+import '../services/map_capture_service.dart';
 import 'widgets/foto_mascota.dart';
 import '../viewmodels/route_view_model.dart';
 import 'walk_summary_screen.dart';
@@ -56,6 +57,10 @@ class _RouteScreenBody extends StatefulWidget {
 
 class _RouteScreenBodyState extends State<_RouteScreenBody> {
   final MapController _mapController = MapController();
+
+  /// Marca el RepaintBoundary que envuelve solo el mapa, para capturarlo sin
+  /// los botones ni la tarjeta de datos que van encima.
+  final GlobalKey _mapaKey = GlobalKey();
 
   /// Rotación actual del mapa en grados. 0 = norte arriba.
   double _rotation = 0;
@@ -103,18 +108,49 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
     );
   }
 
+  /// Captura el mapa con el recorrido y la guarda como imagen del paseo.
+  ///
+  /// Antes este botón abría la cámara del teléfono; lo que interesa guardar
+  /// del paseo es el recorrido, no lo que tenía delante el teléfono.
   Future<void> _onCameraPressed(BuildContext context) async {
     if (_takingPhoto || _finishing) return;
+
+    final densidad = MediaQuery.devicePixelRatioOf(context);
+    final avisos = ScaffoldMessenger.of(context);
+
     setState(() => _takingPhoto = true);
     try {
-      final photo = await PhotoService().elegirFoto(OrigenFoto.camara);
-      if (mounted && photo != null) setState(() => _fotoUrl = photo);
-    } on PhotoException catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+      // El setState de arriba reconstruye la pantalla, y toImage exige que el
+      // RepaintBoundary ya esté pintado: se espera a que termine ese frame.
+      await WidgetsBinding.instance.endOfFrame;
+
+      final limite =
+          _mapaKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (limite == null) {
+        throw const MapCaptureException('El mapa todavía no está listo.');
       }
+
+      final captura = await const MapCaptureService().capturar(
+        limite,
+        devicePixelRatio: densidad,
+      );
+      if (!mounted) return;
+
+      setState(() => _fotoUrl = captura);
+      avisos.showSnackBar(
+        const SnackBar(
+          content: Text('Mapa capturado'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } on MapCaptureException catch (e) {
+      avisos.showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (_) {
+      // toImage puede fallar por motivos del motor gráfico que no son culpa
+      // del usuario. Que no tumbe el paseo en curso: se avisa y se sigue.
+      avisos.showSnackBar(
+        const SnackBar(content: Text('No se pudo capturar el mapa.')),
+      );
     } finally {
       if (mounted) setState(() => _takingPhoto = false);
     }
@@ -217,56 +253,62 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
         return Stack(
           children: [
             Positioned.fill(
-              child: FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: vm.currentPosition!,
-                  initialZoom: 16,
-                  // Nos avisa de cualquier cambio de cámara (incluida la
-                  // rotación con dos dedos) para actualizar la brújula.
-                  onMapEvent: (event) {
-                    final rotation = event.camera.rotation;
-                    if (rotation != _rotation) {
-                      setState(() => _rotation = rotation);
-                    }
-                  },
-                ),
-                children: [
-                  TileLayer(
-                    // Tiles raster oficiales de OpenStreetMap. OpenFreeMap
-                    // (que usamos antes) sirve mapas VECTORIALES, no PNG por
-                    // tile, así que no es compatible con este TileLayer.
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.example.pawlife',
+              child: RepaintBoundary(
+                key: _mapaKey,
+                child: FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: vm.currentPosition!,
+                    initialZoom: 16,
+                    // Nos avisa de cualquier cambio de cámara (incluida la
+                    // rotación con dos dedos) para actualizar la brújula.
+                    onMapEvent: (event) {
+                      final rotation = event.camera.rotation;
+                      if (rotation != _rotation) {
+                        setState(() => _rotation = rotation);
+                      }
+                    },
                   ),
-                  if (vm.routePoints.length > 1)
-                    PolylineLayer(
-                      polylines: [
-                        Polyline(
-                          points: vm.routePoints,
-                          strokeWidth: 5,
-                          color: _kAccentGreen,
+                  children: [
+                    TileLayer(
+                      // Tiles raster oficiales de OpenStreetMap. OpenFreeMap
+                      // (que usamos antes) sirve mapas VECTORIALES, no PNG por
+                      // tile, así que no es compatible con este TileLayer.
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.pawlife',
+                    ),
+                    if (vm.routePoints.length > 1)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: vm.routePoints,
+                            strokeWidth: 5,
+                            color: _kAccentGreen,
+                          ),
+                        ],
+                      ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: vm.currentPosition!,
+                          width: 22,
+                          height: 22,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(
+                                color: _kAccentGreen,
+                                width: 4,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: vm.currentPosition!,
-                        width: 22,
-                        height: 22,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: _kAccentGreen, width: 4),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -305,7 +347,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                         avatar: CircleAvatar(
                           backgroundImage: proveedorDeFoto(_fotoUrl),
                         ),
-                        label: const Text('Foto del paseo'),
+                        label: const Text('Captura del mapa'),
                         onDeleted: () => setState(() => _fotoUrl = null),
                       ),
                     ),
