@@ -19,7 +19,39 @@ class PawLifeRepository {
 
   Future<Map<String, dynamic>> fetchPerfil() => client.getOne('/api/me');
 
-  Future<void> eliminarCuenta() => client.delete('/api/me');
+  /// `true` si la cuenta ya quedó eliminada; `false` si el servidor sigue
+  /// terminando el borrado (la cuenta ya está bloqueada y se completa sola).
+  Future<bool> eliminarCuenta() async {
+    final status = await client.deleteWithStatus('/api/me');
+    return status == null || status['estado'] == 'completa';
+  }
+
+  Future<Map<String, dynamic>> fetchPrivacy() =>
+      client.getOne('/api/me/privacy');
+  Future<List<Map<String, dynamic>>> fetchPrivacyRequests() =>
+      client.getList('/api/me/privacy-requests');
+  Future<Map<String, dynamic>> updatePreferences(Map<String, bool> values) =>
+      client.patch('/api/me/preferences', values);
+  Future<Map<String, dynamic>> startExport() =>
+      client.post('/api/me/exports', {});
+  Future<Map<String, dynamic>> exportPage(String id, String cursor) =>
+      client.getOne(
+        '/api/me/exports/${Uri.encodeComponent(id)}',
+        query: {'cursor': cursor},
+      );
+  Future<void> cancelExport(String id) =>
+      client.delete('/api/me/exports/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> createPrivacyRequest({
+    required String tipo,
+    required String detalle,
+    required String solicitudId,
+  }) => client.post('/api/me/privacy-requests', {
+    'tipo': tipo,
+    'detalle': detalle,
+    'solicitudId': solicitudId,
+  });
+  Future<Map<String, dynamic>> privacyRequestStatus(String id) =>
+      client.getOne('/api/me/privacy-requests/${Uri.encodeComponent(id)}');
 
   Future<Map<String, dynamic>> updatePerfil({
     String? nombre,
@@ -31,23 +63,22 @@ class PawLifeRepository {
     required String plataforma,
   }) async {
     final data = {'token': token, 'plataforma': plataforma};
-    try {
-      await client.post('/api/dispositivos', {'id': token, ...data});
-    } on ApiException catch (e) {
-      if (e.statusCode != 409) rethrow;
-      await client.patch(
-        '/api/dispositivos/${Uri.encodeComponent(token)}',
-        data,
-      );
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        await client.post('/api/me/devices', data);
+        return;
+      } on ApiException catch (error) {
+        if (error.statusCode != 409 ||
+            error.code == 'DEVICE_OWNERSHIP_CONFLICT' ||
+            attempt == 2) {
+          rethrow;
+        }
+      }
     }
   }
 
   Future<void> eliminarDispositivo(String token) async {
-    try {
-      await client.delete('/api/dispositivos/${Uri.encodeComponent(token)}');
-    } on ApiException catch (e) {
-      if (!e.isNotFound) rethrow;
-    }
+    await client.post('/api/me/devices/revoke', {'token': token});
   }
 
   // ---------------------------------------------------------------- mascotas
@@ -246,20 +277,48 @@ class PawLifeRepository {
   Future<List<RegistroPeso>> fetchPesos(String mascotaId) async {
     final items = await client.getList(_sub(mascotaId, 'pesos'));
 
-    return items.map(RegistroPeso.fromJson).toList(growable: false);
+    final registros = items.map(RegistroPeso.fromJson).toList();
+    registros.sort((a, b) {
+      final fecha = b.fecha.compareTo(a.fecha);
+      return fecha != 0 ? fecha : b.id.compareTo(a.id);
+    });
+    return registros;
   }
 
   Future<RegistroPeso> createPeso(
     String mascotaId, {
     required double valorKg,
     DateTime? fecha,
+    String? id,
   }) async {
-    final creado = await client.post(_sub(mascotaId, 'pesos'), {
-      'fecha': (fecha ?? DateTime.now()).toUtc().toIso8601String(),
+    // La API devuelve milisegundos; normalizar antes de enviar permite reconocer
+    // la misma escritura tras una respuesta perdida.
+    final instante = DateTime.fromMillisecondsSinceEpoch(
+      (fecha ?? DateTime.now()).millisecondsSinceEpoch,
+      isUtc: true,
+    );
+    final body = {
+      'id': ?id,
+      'fecha': instante.toUtc().toIso8601String(),
       'valorKg': valorKg,
-    });
-
-    return RegistroPeso.fromJson(creado);
+    };
+    try {
+      return RegistroPeso.fromJson(
+        await client.post(_sub(mascotaId, 'pesos'), body),
+      );
+    } on ApiException catch (error) {
+      if (error.statusCode != 409 || id == null) rethrow;
+      final existente = RegistroPeso.fromJson(
+        await client.getOne(
+          '${_sub(mascotaId, 'pesos')}/${Uri.encodeComponent(id)}',
+        ),
+      );
+      if (existente.valorKg != valorKg ||
+          !existente.fecha.isAtSameMomentAs(instante)) {
+        rethrow;
+      }
+      return existente;
+    }
   }
 
   Future<void> deletePeso(String mascotaId, String id) =>

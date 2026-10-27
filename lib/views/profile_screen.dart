@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
+import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../theme/app_colors.dart';
+import 'change_email_screen.dart';
+import 'change_password_screen.dart';
+import 'privacy_screen.dart';
+import 'widgets/reauthentication_dialog.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
@@ -14,7 +19,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _repo = PawLifeRepository();
+  final _auth = AuthService();
+  late final _repo = PawLifeRepository(
+    client: ApiClient(auth: _auth, expectedUid: _auth.currentUser?.uid ?? ''),
+  );
   final _nombre = TextEditingController();
   Map<String, dynamic>? _perfil;
   String? _error;
@@ -28,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void dispose() {
+    _repo.client.close();
     _nombre.dispose();
     super.dispose();
   }
@@ -68,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _signOut() async {
     setState(() => _saving = true);
     try {
-      await AuthService().signOut();
+      await _auth.signOut();
       if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (mounted) setState(() => _error = 'No se pudo cerrar sesión: $e');
@@ -100,8 +109,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _saving = true);
     try {
-      await _repo.eliminarCuenta();
-      await AuthService().signOut(revokePush: false);
+      if (!await confirmIdentity(context, _auth) || !mounted) return;
+      final completed = await _repo.eliminarCuenta();
+      if (!completed && mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Eliminación en curso'),
+            content: const Text(
+              'Tu cuenta ya está bloqueada y estamos terminando de borrar tus datos. '
+              'Se completará automáticamente en unos minutos.',
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Entendido'),
+              ),
+            ],
+          ),
+        );
+      }
+      if (_auth.currentUser?.uid == _repo.client.expectedUid) {
+        await _auth.signOut(revokePush: false);
+      }
       if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (mounted) setState(() => _error = 'No se pudo eliminar la cuenta: $e');
@@ -110,9 +140,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _changeEmail() async {
+    final changed = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => ChangeEmailScreen(auth: _auth)),
+    );
+    if (changed != null && mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Correo actualizado: $changed')));
+    }
+  }
+  Future<void> _changePassword() async {
+    final changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => ChangePasswordScreen(auth: _auth)),
+    );
+    if (changed == true && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Contraseña actualizada.')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final email = AuthService().currentUser?.email ?? '';
+    final email = _auth.currentUser?.email ?? '';
     return Scaffold(
       backgroundColor: AppColors.fondo,
       appBar: AppBar(
@@ -159,6 +213,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: const Text('Guardar cambios'),
                   ),
                   const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: _saving
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PrivacyScreen(auth: _auth),
+                            ),
+                          ),
+                    icon: const Icon(Icons.privacy_tip_outlined),
+                    label: const Text('Privacidad y mis datos'),
+                  ),
+                  const SizedBox(height: 12),
+                  if (_auth.supportsPasswordChange) ...[
+                    OutlinedButton(
+                      onPressed: _saving ? null : _changeEmail,
+                      child: const Text('Cambiar correo'),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _saving ? null : _changePassword,
+                      child: const Text('Cambiar contraseña'),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   OutlinedButton(
                     onPressed: _saving ? null : _signOut,
                     child: const Text('Cerrar sesión'),
