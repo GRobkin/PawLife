@@ -64,6 +64,146 @@ class AuthService {
 
   User? get currentUser => _auth.currentUser;
 
+  bool get supportsPasswordChange =>
+      currentUser?.providerData.any(
+        (provider) => provider.providerId == 'password',
+      ) ??
+      false;
+
+  bool get supportsGoogleReauthentication =>
+      currentUser?.providerData.any(
+        (provider) => provider.providerId == 'google.com',
+      ) ??
+      false;
+
+  User _requireCurrentUser() =>
+      currentUser ??
+      (throw const AuthException(
+        'No hay sesión iniciada.',
+        code: 'sin-sesion',
+      ));
+
+  void _requireSameUser(User user) {
+    if (currentUser?.uid != user.uid) {
+      throw const AuthException(
+        'La sesión cambió. Volvé a intentar desde tu cuenta.',
+        code: 'sesion-cambio',
+      );
+    }
+  }
+
+  Future<void> reauthenticateForSensitiveAction({String? password}) async {
+    final user = _requireCurrentUser();
+    try {
+      if (password != null && supportsPasswordChange && user.email != null) {
+        await user.reauthenticateWithCredential(
+          EmailAuthProvider.credential(email: user.email!, password: password),
+        );
+      } else if (supportsGoogleReauthentication) {
+        if (kIsWeb) {
+          await user.reauthenticateWithPopup(GoogleAuthProvider());
+        } else {
+          final credential = await _googleCredential();
+          _requireSameUser(user);
+          // Reautenticar no reemplaza la sesión por la cuenta elegida en Google.
+          await user.reauthenticateWithCredential(credential);
+        }
+      } else {
+        throw const AuthException(
+          'Ingresá tu contraseña actual para confirmar tu identidad.',
+          code: 'password-required',
+        );
+      }
+      _requireSameUser(user);
+      await user.getIdToken(true);
+      _requireSameUser(user);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'popup-closed-by-user' ||
+          e.code == 'cancelled-popup-request') {
+        throw const AuthException('Verificación cancelada.', code: 'cancelado');
+      }
+      throw _traducir(e);
+    } on GoogleSignInException catch (e) {
+      throw _traducirGoogle(e);
+    }
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = _requireCurrentUser();
+    if (!supportsPasswordChange) {
+      throw const AuthException(
+        'Tu cuenta utiliza Google para iniciar sesión.',
+      );
+    }
+    if (currentPassword.isEmpty || newPassword.length < 6) {
+      throw const AuthException(
+        'Completá la contraseña actual y una nueva de al menos 6 caracteres.',
+      );
+    }
+    await reauthenticateForSensitiveAction(password: currentPassword);
+    _requireSameUser(user);
+    try {
+      await user.updatePassword(newPassword);
+      _requireSameUser(user);
+      await user.getIdToken(true);
+      _requireSameUser(user);
+    } on FirebaseAuthException catch (e) {
+      throw _traducir(e);
+    }
+  }
+
+  static final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
+
+  /// Pide el cambio de correo: Firebase envía un enlace de verificación al
+  /// correo NUEVO y el cambio solo ocurre cuando la persona lo abre. Mientras
+  /// tanto la cuenta conserva el correo actual. Exige la contraseña actual.
+  Future<void> requestEmailChange({
+    required String currentPassword,
+    required String newEmail,
+  }) async {
+    final user = _requireCurrentUser();
+    if (!supportsPasswordChange) {
+      throw const AuthException(
+        'Tu cuenta utiliza Google: el correo se gestiona desde tu cuenta de Google.',
+      );
+    }
+    final email = newEmail.trim().toLowerCase();
+    if (!_emailPattern.hasMatch(email) || email.length > 254) {
+      throw const AuthException('Ingresá un correo válido.');
+    }
+    if (email == user.email?.toLowerCase()) {
+      throw const AuthException('Ese ya es el correo de tu cuenta.');
+    }
+    if (currentPassword.isEmpty) {
+      throw const AuthException('Ingresá tu contraseña actual.');
+    }
+    await reauthenticateForSensitiveAction(password: currentPassword);
+    _requireSameUser(user);
+    try {
+      await user.verifyBeforeUpdateEmail(email);
+    } on FirebaseAuthException catch (e) {
+      throw _traducir(e);
+    }
+  }
+
+  /// Vuelve a leer la cuenta y el token: tras abrir el enlace de verificación
+  /// el correo nuevo aparece aquí y el servidor lo sincroniza con el perfil.
+  Future<String?> refreshAccount() async {
+    final user = _requireCurrentUser();
+    try {
+      await user.reload();
+      _requireSameUser(user);
+      await user.getIdToken(true);
+      _requireSameUser(user);
+    } on FirebaseAuthException catch (e) {
+      throw _traducir(e);
+    }
+    return currentUser?.email;
+  }
+
   /// Lo escucha el AuthGate de main.dart para decidir qué pantalla mostrar.
   /// Emite al entrar, al salir y al restaurar la sesión guardada al arrancar.
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -153,36 +293,8 @@ class AuthService {
         throw _traducir(e);
       }
     }
-    final google = GoogleSignIn.instance;
-
-    if (!google.supportsAuthenticate()) {
-      // Pasa en Flutter Web, donde Google obliga a usar su propio botón
-      // (renderButton) en vez de un flujo lanzado desde código.
-      throw const AuthException(
-        'El acceso con Google no está disponible en esta plataforma.',
-      );
-    }
-
     try {
-      _googleInit ??= google.initialize(
-        serverClientId: _serverClientId.isEmpty ? null : _serverClientId,
-      );
-      await _googleInit;
-
-      final cuenta = await google.authenticate();
-      final idToken = cuenta.authentication.idToken;
-
-      if (idToken == null) {
-        // Señal inequívoca de que falta el cliente web de OAuth: Google
-        // autenticó al usuario pero no emitió un ID token, y sin él Firebase
-        // no puede abrir la sesión.
-        throw const AuthException(
-          'Google no devolvió un token de identidad. Falta registrar la huella '
-          'SHA-1 en Firebase y volver a descargar google-services.json.',
-        );
-      }
-
-      final credential = GoogleAuthProvider.credential(idToken: idToken);
+      final credential = await _googleCredential();
       final resultado = await _auth.signInWithCredential(credential);
 
       final user = resultado.user;
@@ -196,6 +308,27 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       throw _traducir(e);
     }
+  }
+
+  Future<AuthCredential> _googleCredential() async {
+    final google = GoogleSignIn.instance;
+    if (!google.supportsAuthenticate()) {
+      throw const AuthException(
+        'El acceso con Google no está disponible en esta plataforma.',
+      );
+    }
+    _googleInit ??= google.initialize(
+      serverClientId: _serverClientId.isEmpty ? null : _serverClientId,
+    );
+    await _googleInit;
+    final cuenta = await google.authenticate();
+    final idToken = cuenta.authentication.idToken;
+    if (idToken == null) {
+      throw const AuthException(
+        'Google no devolvió un token de identidad. Revisá la configuración OAuth de la app.',
+      );
+    }
+    return GoogleAuthProvider.credential(idToken: idToken);
   }
 
   // ---------------------------------------------------------------- sesión
@@ -273,6 +406,7 @@ class AuthService {
         'Ya hay una cuenta con ese correo creada con otro método de acceso.',
       'requires-recent-login' =>
         'Por seguridad, volvé a iniciar sesión para hacer este cambio.',
+      'user-mismatch' => 'La cuenta elegida no coincide con la sesión actual.',
       'too-many-requests' =>
         'Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo.',
       'network-request-failed' => 'No hay conexión a internet.',
