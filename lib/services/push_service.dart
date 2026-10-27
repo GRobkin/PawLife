@@ -14,6 +14,8 @@ class PushService {
 
   Future<void> revokeToken() => _messaging.deleteToken();
 
+  Future<RemoteMessage?> getInitialMessage() => _messaging.getInitialMessage();
+
   Future<String?> init() async {
     try {
       final settings = await _messaging.requestPermission();
@@ -26,8 +28,8 @@ class PushService {
       final token = await _messaging.getToken();
 
       return token;
-    } catch (e) {
-      debugPrint('FCM ERROR: $e');
+    } catch (_) {
+      debugPrint('No se pudieron inicializar las notificaciones.');
       return null;
     }
   }

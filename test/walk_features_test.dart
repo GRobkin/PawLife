@@ -67,6 +67,8 @@ class WalksStub implements WalkRepository {
 
 class AuthStub implements AuthService {
   @override
+  Null get currentUser => null;
+  @override
   Future<String> idToken({bool forceRefresh = false}) async => 'test-token';
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

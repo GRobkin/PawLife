@@ -96,6 +96,9 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
       startedAt: stopped.startedAt,
       maxSpeedKmh: stopped.maxSpeedKmh,
       fotoUrl: _fotoUrl,
+      imagenTipo: _fotoUrl == null
+          ? TipoImagenPaseo.desconocida
+          : TipoImagenPaseo.mapa,
     );
     // El guardado lo hace la pantalla de resumen, que es la
     // que puede mostrar el estado ("Guardando…", error, reintentar) sin
@@ -110,8 +113,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
 
   /// Captura el mapa con el recorrido y la guarda como imagen del paseo.
   ///
-  /// Antes este botón abría la cámara del teléfono; lo que interesa guardar
-  /// del paseo es el recorrido, no lo que tenía delante el teléfono.
+  /// Es el encuadre visible al pulsar, no una captura del paseo completo.
   Future<void> _onCameraPressed(BuildContext context) async {
     if (_takingPhoto || _finishing) return;
 
@@ -307,6 +309,16 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                         ),
                       ],
                     ),
+                    const Align(
+                      alignment: Alignment.bottomLeft,
+                      child: ColoredBox(
+                        color: Colors.white,
+                        child: Text(
+                          '© OpenStreetMap contributors · openstreetmap.org/copyright',
+                          style: TextStyle(fontSize: 10, color: Colors.black87),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -355,7 +367,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                   Row(
                     children: [
                       _CircleIconButton(
-                        icon: Icons.camera_alt_outlined,
+                        icon: Icons.map_outlined,
                         backgroundColor: Colors.white,
                         onPressed: () => _onCameraPressed(context),
                       ),

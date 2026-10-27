@@ -7,6 +7,18 @@
 // Es también el formato en el que la API (../apipaw) devuelve la ruta de un
 // paseo: una lista de {lat, lng, timestamp} con las fechas en ISO 8601.
 
+enum TipoImagenPaseo {
+  foto,
+  mapa,
+  desconocida;
+
+  static TipoImagenPaseo desde(Object? valor) => switch (valor) {
+    'foto' => foto,
+    'mapa' => mapa,
+    _ => desconocida,
+  };
+}
+
 class RoutePoint {
   final double latitude;
   final double longitude;
@@ -66,6 +78,7 @@ class WalkSession {
   /// Se calcula tramo a tramo en el ViewModel; no es la velocidad media.
   final double maxSpeedKmh;
   final String? fotoUrl;
+  final TipoImagenPaseo imagenTipo;
 
   const WalkSession({
     required this.points,
@@ -74,6 +87,7 @@ class WalkSession {
     required this.startedAt,
     this.maxSpeedKmh = 0,
     this.fotoUrl,
+    this.imagenTipo = TipoImagenPaseo.desconocida,
   });
 
   DateTime get endedAt => startedAt.add(duration);

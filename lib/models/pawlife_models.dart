@@ -338,6 +338,7 @@ class Paseo {
     required this.velocidadMaximaKmh,
     required this.ruta,
     this.fotoUrl,
+    this.imagenTipo = TipoImagenPaseo.desconocida,
   });
 
   final String id;
@@ -354,6 +355,14 @@ class Paseo {
   /// `rutaDetallada` con ellos); el backend los unificó en uno solo.
   final List<RoutePoint> ruta;
   final String? fotoUrl;
+  final TipoImagenPaseo imagenTipo;
+
+  // Los registros antiguos pueden contener un mapa en fotoUrl. No compartirlos
+  // como fotografía sin conocer su origen.
+  String? fotoParaCompartir(Mascota mascota) =>
+      imagenTipo == TipoImagenPaseo.foto
+      ? fotoUrl ?? mascota.fotoUrl
+      : mascota.fotoUrl;
 
   factory Paseo.fromJson(Map<String, dynamic> json) {
     final fechaInicio = _fecha(json, 'fechaInicio');
@@ -366,6 +375,7 @@ class Paseo {
       distanciaMetros: _decimal(json, 'distanciaMetros'),
       velocidadMaximaKmh: _decimal(json, 'velocidadMaximaKmh'),
       fotoUrl: json['fotoUrl'] as String?,
+      imagenTipo: TipoImagenPaseo.desde(json['imagenTipo']),
       ruta: (json['ruta'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           // Los paseos guardados antes de tener backend no traen la hora de
@@ -382,6 +392,7 @@ class Paseo {
     'distanciaMetros': distanciaMetros,
     'velocidadMaximaKmh': velocidadMaximaKmh,
     'fotoUrl': fotoUrl,
+    'imagenTipo': imagenTipo.name,
     'ruta': ruta.map((p) => p.toJson()).toList(growable: false),
   };
 
