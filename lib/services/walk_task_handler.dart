@@ -38,12 +38,9 @@ class WalkTaskHandler extends TaskHandler {
 
     _positionSub = Geolocator.getPositionStream(locationSettings: settings)
         .listen((position) {
-          // Actualiza el texto de la notificación (opcional, pero le da
-          // feedback al usuario de que sigue registrando el paseo).
+          // No mostrar coordenadas en la pantalla bloqueada.
           FlutterForegroundTask.updateService(
-            notificationText:
-                'Lat: ${position.latitude.toStringAsFixed(4)}, '
-                'Lng: ${position.longitude.toStringAsFixed(4)}',
+            notificationText: 'Registrando el recorrido del paseo',
           );
 
           FlutterForegroundTask.sendDataToMain({

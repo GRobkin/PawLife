@@ -42,7 +42,7 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
     });
     try {
       final photo = proveedorDeFoto(
-        widget.paseo.fotoUrl ?? widget.mascota.fotoUrl,
+        widget.paseo.fotoParaCompartir(widget.mascota),
       );
       if (photo != null) {
         await precacheImage(photo, context, onError: (_, _) {});
@@ -117,7 +117,7 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
               ),
               const SizedBox(height: 18),
               const Text(
-                'Se comparte esta imagen con la forma del recorrido, la foto y las estadísticas. No incluye calles ni coordenadas.',
+                'Compartís la traza y las estadísticas, sin el mapa de calles. La forma del recorrido puede revelar lugares que visitaste.',
               ),
               const SizedBox(height: 14),
               if (_error != null) ...[
@@ -153,7 +153,7 @@ class WalkShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = paseo.fechaInicio;
-    final photo = proveedorDeFoto(paseo.fotoUrl ?? mascota.fotoUrl);
+    final photo = proveedorDeFoto(paseo.fotoParaCompartir(mascota));
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),

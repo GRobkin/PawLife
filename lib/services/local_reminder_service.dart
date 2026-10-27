@@ -107,6 +107,15 @@ class LocalReminderService {
   Future<void> _sync(PawLifeRepository repository) async {
     if (!_supported) return;
     await _init();
+    final privacy = await repository.fetchPrivacy();
+    final preferences = privacy['preferencias'];
+    if (preferences is! Map<String, dynamic>) {
+      throw const FormatException('Preferencias inválidas.');
+    }
+    if (preferences['recordatoriosCuidados'] == false) {
+      await _notifications.cancelAllPendingNotifications();
+      return;
+    }
     final pets = await repository.fetchMascotas();
     final reminders = await repository.fetchRecordatorios();
     final now = DateTime.now();

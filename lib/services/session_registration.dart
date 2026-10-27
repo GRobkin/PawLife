@@ -11,6 +11,17 @@ import 'local_reminder_service.dart';
 
 /// Mantiene el perfil y el dispositivo asociados a una sola sesion.
 class SessionRegistration {
+  SessionRegistration({
+    PushService Function()? pushFactory,
+    ApiClient Function(String uid)? clientFactory,
+    LocalReminderService? reminders,
+  }) : _pushFactory = pushFactory ?? (() => PushService()),
+       _clientFactory = clientFactory ?? ((uid) => ApiClient(expectedUid: uid)),
+       _reminders = reminders ?? LocalReminderService.instance;
+
+  final PushService Function() _pushFactory;
+  final ApiClient Function(String uid) _clientFactory;
+  final LocalReminderService _reminders;
   StreamSubscription<String>? _tokens;
   StreamSubscription<RemoteMessage>? _messages;
   StreamSubscription<RemoteMessage>? _opened;
@@ -18,20 +29,19 @@ class SessionRegistration {
   ApiClient? _client;
   int _generation = 0;
   String? _lastToken;
+  bool _initialMessageConsumed = false;
 
   Future<void> refreshReminders() async {
     final client = _client;
     if (client == null) return;
-    await LocalReminderService.instance.syncBestEffort(
-      PawLifeRepository(client: client),
-    );
+    await _reminders.syncBestEffort(PawLifeRepository(client: client));
   }
 
   void start(User? user) {
     dispose();
     if (user == null) return;
     final generation = _generation;
-    final client = ApiClient(expectedUid: user.uid);
+    final client = _clientFactory(user.uid);
     _client = client;
     final repository = PawLifeRepository(client: client);
     final mobile =
@@ -41,7 +51,7 @@ class SessionRegistration {
     final platform = defaultTargetPlatform == TargetPlatform.iOS
         ? 'ios'
         : 'android';
-    final push = mobile ? PushService() : null;
+    final push = mobile ? _pushFactory() : null;
     Future<void> queue = Future.value();
 
     Future<void> register(String token) {
@@ -65,8 +75,19 @@ class SessionRegistration {
     Future<void> sync(int attempt) async {
       try {
         await repository.fetchPerfil();
-        await LocalReminderService.instance.syncBestEffort(repository);
+        if (generation != _generation) return;
+        await _reminders.syncBestEffort(repository);
         if (generation != _generation || push == null) return;
+        if (!_initialMessageConsumed) {
+          _initialMessageConsumed = true;
+          final initialMessage = await push.getInitialMessage();
+          if (generation != _generation) return;
+          if (initialMessage != null) {
+            // Solo refrescar datos de la sesión actual mediante su API; no abrir
+            // recursos ni mostrar contenido privado del payload de una sesión anterior.
+            await refreshReminders();
+          }
+        }
         final token = await push.init();
         if (generation != _generation) return;
         if (token != null) await register(token);
@@ -83,22 +104,36 @@ class SessionRegistration {
     }
 
     if (push != null) {
+      Future<void> displayIncoming(RemoteMessage message) async {
+        try {
+          final privacy = await repository.fetchPrivacy();
+          if (generation != _generation) return;
+          final preferences = privacy['preferencias'];
+          final key = message.data['tipo'] == 'manual'
+              ? 'avisosEquipo'
+              : 'recordatoriosCuidados';
+          if (preferences is! Map<String, dynamic> || preferences[key] != true) {
+            return;
+          }
+          await _reminders.showIncoming(
+            reminderId:
+                message.data['recordatorioId'] ?? message.messageId ?? '',
+            title: message.notification?.title ?? 'PawLife',
+            body: message.notification?.body ?? 'Tenes un cuidado pendiente.',
+          );
+        } catch (_) {
+          /* No mostrar contenido privado si no se pudo comprobar la sesión/preferencia. */
+        }
+      }
+
       _messages = push.onMessage.listen((message) {
         if (generation != _generation) return;
-        unawaited(
-          LocalReminderService.instance
-              .showIncoming(
-                reminderId:
-                    message.data['recordatorioId'] ?? message.messageId ?? '',
-                title: message.notification?.title ?? 'PawLife',
-                body:
-                    message.notification?.body ?? 'Tenes un cuidado pendiente.',
-              )
-              .catchError((Object _) {}),
-        );
+        unawaited(displayIncoming(message));
       });
       _opened = push.onMessageOpenedApp.listen((_) {
-        if (generation == _generation) unawaited(refreshReminders());
+        if (generation == _generation) {
+          unawaited(refreshReminders().catchError((Object _) {}));
+        }
       });
       _tokens = push.onTokenRefresh.listen(
         (token) {
@@ -124,7 +159,7 @@ class SessionRegistration {
 
   void dispose() {
     _generation++;
-    unawaited(LocalReminderService.instance.clear().catchError((Object _) {}));
+    unawaited(_reminders.clear().catchError((Object _) {}));
     _tokens?.cancel();
     _tokens = null;
     _messages?.cancel();

@@ -39,6 +39,9 @@ class LecturaGps {
 
 /// Por qué se descartó una lectura. Útil para depurar en el teléfono.
 enum MotivoDescarte {
+  /// Coordenadas o precisión que no representan una lectura GPS válida.
+  invalida,
+
   /// El error estimado es demasiado grande para fiarse de la posición.
   precision,
 
@@ -94,6 +97,14 @@ class GpsPointFilter {
   /// aparente hacia las lecturas buenas baja a medida que pasa el tiempo, y en
   /// unos segundos vuelven a entrar.
   MotivoDescarte? evaluar(LecturaGps lectura) {
+    final precision = lectura.precisionMetros;
+    if (!lectura.latitud.isFinite ||
+        !lectura.longitud.isFinite ||
+        lectura.latitud.abs() > 90 ||
+        lectura.longitud.abs() > 180 ||
+        (precision != null && (!precision.isFinite || precision < 0))) {
+      return MotivoDescarte.invalida;
+    }
     // Margen de unos segundos por el desfase entre el reloj del sistema y el
     // del GPS.
     if (lectura.momento.isBefore(inicio.subtract(const Duration(seconds: 5)))) {
@@ -102,7 +113,6 @@ class GpsPointFilter {
 
     final anterior = _ultima;
 
-    final precision = lectura.precisionMetros;
     if (precision != null && precision > precisionMaxima) {
       final desde = anterior?.momento ?? inicio;
       final sinPuntos = lectura.momento.difference(desde);

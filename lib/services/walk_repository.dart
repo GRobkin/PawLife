@@ -60,6 +60,7 @@ class WalkRepository {
       'distanciaMetros': session.distanceMeters,
       'velocidadMaximaKmh': session.maxSpeedKmh,
       'fotoUrl': session.fotoUrl,
+      'imagenTipo': session.imagenTipo.name,
       'ruta': session.points.map((p) => p.toJson()).toList(growable: false),
     };
   }

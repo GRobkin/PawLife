@@ -16,6 +16,8 @@
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 class PhotoException implements Exception {
@@ -63,16 +65,20 @@ class PhotoService {
         // el tamaño frente a PNG, que para una foto es enorme.
         imageQuality: 78,
       );
-    } on Exception catch (e) {
-      throw PhotoException('No se pudo abrir la imagen: $e');
+    } on Exception {
+      throw const PhotoException('No se pudo abrir la imagen. Probá otra vez.');
     }
 
     if (elegida == null) return null;
 
+    if (await elegida.length() > 10 * 1024 * 1024) {
+      throw const PhotoException(
+        'La imagen es demasiado grande. Probá con otra.',
+      );
+    }
     final bytes = await elegida.readAsBytes();
-    // El picker respeta imageQuality convirtiendo a JPEG, así que el tipo es
-    // ese independientemente del formato original.
-    final dataUri = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+    final jpeg = await compute(prepararFotoJpeg, bytes);
+    final dataUri = 'data:image/jpeg;base64,${base64Encode(jpeg)}';
 
     if (dataUri.length > _topeBytes) {
       throw const PhotoException(
@@ -82,5 +88,57 @@ class PhotoService {
     }
 
     return dataUri;
+  }
+}
+
+/// Normaliza también en web: el selector no garantiza JPEG ni elimina EXIF.
+Uint8List prepararFotoJpeg(Uint8List bytes) {
+  try {
+    if (bytes.length > 10 * 1024 * 1024) {
+      throw const PhotoException(
+        'La imagen es demasiado grande. Probá con otra.',
+      );
+    }
+    final decoder = img.findDecoderForData(bytes);
+    if (decoder is! img.JpegDecoder && decoder is! img.PngDecoder) {
+      throw const PhotoException('Elegí una imagen JPEG o PNG.');
+    }
+    final info = decoder!.startDecode(bytes);
+    if (info == null ||
+        info.width < 1 ||
+        info.height < 1 ||
+        info.width > 4096 ||
+        info.height > 4096 ||
+        info.width * info.height > 16 * 1024 * 1024 ||
+        info.numFrames != 1) {
+      throw const PhotoException(
+        'La imagen no es válida o es demasiado grande.',
+      );
+    }
+    final decoded = decoder.decodeFrame(0);
+    if (decoded == null) {
+      throw const PhotoException('No se pudo leer la imagen.');
+    }
+    var oriented = img.bakeOrientation(decoded);
+    if (oriented.width > 256 || oriented.height > 256) {
+      oriented = img.copyResize(
+        oriented,
+        width: oriented.width >= oriented.height ? 256 : null,
+        height: oriented.height > oriented.width ? 256 : null,
+      );
+    }
+    // Copiar solo los píxeles evita heredar EXIF, GPS, comentarios y perfiles.
+    final clean = img.Image(
+      width: oriented.width,
+      height: oriented.height,
+      numChannels: 3,
+    );
+    img.fill(clean, color: img.ColorRgb8(255, 255, 255));
+    img.compositeImage(clean, oriented);
+    return img.encodeJpg(clean, quality: 78, chroma: img.JpegChroma.yuv420);
+  } on PhotoException {
+    rethrow;
+  } catch (_) {
+    throw const PhotoException('No se pudo leer la imagen. Probá con otra.');
   }
 }

@@ -174,6 +174,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
             velocidadMaximaKmh: session.maxSpeedKmh,
             ruta: session.points,
             fotoUrl: session.fotoUrl,
+            imagenTipo: session.imagenTipo,
           ),
         ),
       ),

@@ -5,7 +5,6 @@
 // Aquí se consultan y se editan los cuidados de la mascota.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
@@ -18,6 +17,8 @@ import 'pet_form_screen.dart';
 import 'route_screen.dart';
 import 'walk_detail_screen.dart';
 import 'walk_history_screen.dart';
+import 'weight_history_screen.dart';
+import 'widgets/weight_entry_dialog.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
@@ -129,22 +130,24 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   }
 
   Future<void> _registrarPeso() async {
-    final valor = await showDialog<double>(
+    final saved = await showDialog<bool>(
       context: context,
-      builder: (_) => const _DialogoPeso(),
+      barrierDismissible: false,
+      builder: (_) =>
+          WeightEntryDialog(repository: _repositorio, mascotaId: _mascota.id),
     );
+    if (saved == true && mounted) await _cargar();
+  }
 
-    if (valor == null || !mounted) return;
-
-    try {
-      await _repositorio.createPeso(_mascota.id, valorKg: valor);
-      await _cargar();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('No se pudo guardar el peso: $e')));
-    }
+  Future<void> _abrirPesos() async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            WeightHistoryScreen(mascota: _mascota, repository: _repositorio),
+      ),
+    );
+    if (mounted) await _cargar();
   }
 
   Future<void> _abrirVacuna([Vacuna? vacuna]) async {
@@ -418,6 +421,14 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             const SizedBox(width: 12),
             Expanded(child: _BotonMetrica(onTap: _registrarPeso)),
           ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: _abrirPesos,
+            icon: const Icon(Icons.monitor_weight_outlined),
+            label: const Text('Historial de peso'),
+          ),
         ),
       ],
     );
@@ -738,80 +749,6 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       '${f.day} ${_meses[f.month - 1]}, '
       '${f.hour.toString().padLeft(2, '0')}:'
       '${f.minute.toString().padLeft(2, '0')}';
-}
-
-/// Diálogo para anotar un peso. Devuelve los kg, o null si se canceló.
-///
-/// Es un StatefulWidget y no un AlertDialog suelto porque así el controlador
-/// del campo lo crea y lo libera el propio diálogo, en su dispose().
-///
-/// Creándolo fuera y liberándolo justo después de `await showDialog` se
-/// rompía: showDialog devuelve en cuanto se hace pop, pero el TextField sigue
-/// vivo durante la animación de salida, así que se quedaba apuntando a un
-/// controlador ya destruido y Flutter lanzaba
-/// "'_dependents.isEmpty': is not true".
-class _DialogoPeso extends StatefulWidget {
-  const _DialogoPeso();
-
-  @override
-  State<_DialogoPeso> createState() => _DialogoPesoState();
-}
-
-class _DialogoPesoState extends State<_DialogoPeso> {
-  final _controlador = TextEditingController();
-  String? _error;
-
-  @override
-  void dispose() {
-    _controlador.dispose();
-    super.dispose();
-  }
-
-  void _guardar() {
-    final texto = _controlador.text.trim().replaceAll(',', '.');
-    final kg = double.tryParse(texto);
-
-    // Antes, con un valor inválido el botón simplemente no hacía nada y no
-    // había forma de saber por qué.
-    if (kg == null) {
-      setState(() => _error = 'Escribí un número.');
-      return;
-    }
-    if (kg <= 0 || kg > 200) {
-      setState(() => _error = 'Tiene que estar entre 0 y 200 kg.');
-      return;
-    }
-
-    Navigator.of(context).pop(kg);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Registrar peso'),
-      content: TextField(
-        controller: _controlador,
-        autofocus: true,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-        ],
-        onSubmitted: (_) => _guardar(),
-        decoration: InputDecoration(
-          suffixText: 'kg',
-          hintText: '0.0',
-          errorText: _error,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
-        ),
-        TextButton(onPressed: _guardar, child: const Text('Guardar')),
-      ],
-    );
-  }
 }
 
 /// Deja el TabBar fijo arriba mientras se scrollea el contenido de la pestaña.
