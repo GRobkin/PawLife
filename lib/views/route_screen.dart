@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/route_point.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import '../services/map_capture_service.dart';
 import 'widgets/foto_mascota.dart';
@@ -28,7 +29,6 @@ import '../viewmodels/route_view_model.dart';
 import 'walk_summary_screen.dart';
 
 // Paleta acorde al diseño (verde bosque oscuro para acciones principales)
-const _kAccentGreen = Color(0xFF3FB77E);
 
 class RouteScreen extends StatelessWidget {
   const RouteScreen({super.key, required this.mascotaId});
@@ -283,7 +283,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                           Polyline(
                             points: vm.routePoints,
                             strokeWidth: 5,
-                            color: _kAccentGreen,
+                            color: AppColors.verdeAcento,
                           ),
                         ],
                       ),
@@ -298,7 +298,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                               shape: BoxShape.circle,
                               color: Colors.white,
                               border: Border.all(
-                                color: _kAccentGreen,
+                                color: AppColors.verdeAcento,
                                 width: 4,
                               ),
                             ),
@@ -424,11 +424,7 @@ class _CircleIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: elevated
-          ? context.superficie
-          : (context.esOscuro
-                ? const Color(0xFF1D2D25)
-                : const Color(0xFFEFF1F3)),
+      color: elevated ? context.superficie : context.relleno,
       shape: const CircleBorder(),
       elevation: elevated ? 3 : 0,
       child: InkWell(
@@ -505,7 +501,7 @@ class _GpsActiveBadge extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: active ? _kAccentGreen : context.textoTenue,
+              color: active ? AppColors.verdeAcento : context.textoTenue,
             ),
           ),
           const SizedBox(width: 8),
@@ -571,7 +567,7 @@ class _StatsCard extends StatelessWidget {
                   const Icon(
                     Icons.local_fire_department,
                     size: 16,
-                    color: _kAccentGreen,
+                    color: AppColors.verdeAcento,
                   ),
                   const SizedBox(width: 6),
                   Text(

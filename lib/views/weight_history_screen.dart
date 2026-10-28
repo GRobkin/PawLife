@@ -54,7 +54,11 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
       final items = await _repo.fetchPesos(widget.mascota.id);
       if (mounted) setState(() => _items = items);
     } on ApiException catch (error) {
-      if (mounted) setState(() => _error = apiErrorText(AppLocalizations.of(context), error));
+      if (mounted) {
+        setState(
+          () => _error = apiErrorText(AppLocalizations.of(context), error),
+        );
+      }
     } catch (_) {
       if (mounted) setState(() => _error = t.weightLoadError);
     } finally {
@@ -101,7 +105,11 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
       await _repo.deletePeso(widget.mascota.id, item.id);
       if (mounted) await _load();
     } on ApiException catch (error) {
-      if (mounted) setState(() => _error = apiErrorText(AppLocalizations.of(context), error));
+      if (mounted) {
+        setState(
+          () => _error = apiErrorText(AppLocalizations.of(context), error),
+        );
+      }
     } catch (_) {
       if (mounted) setState(() => _error = t.weightDeleteError);
     } finally {

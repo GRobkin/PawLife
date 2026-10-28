@@ -11,10 +11,9 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'register_screen.dart';
-
-const _kAccentGreen = Color(0xFF5CC58F);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -60,7 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
     } on AuthException catch (e) {
       if (!mounted) return;
       // Cancelar el diálogo de Google no es un error que haya que enseñar.
-      setState(() => _error = e.isCancelled ? null : authErrorText(AppLocalizations.of(context), e));
+      setState(
+        () => _error = e.isCancelled
+            ? null
+            : authErrorText(AppLocalizations.of(context), e),
+      );
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -201,9 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 t.forgotPassword,
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: context.esOscuro
-                                      ? _kAccentGreen
-                                      : const Color(0xFF2E8B5E),
+                                  color: context.enlace,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -243,10 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: ElevatedButton(
                             onPressed: _cargando ? null : _onLoginPressed,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _kAccentGreen,
-                              foregroundColor: context.esOscuro
-                                  ? const Color(0xFF12352A)
-                                  : Colors.white,
+                              backgroundColor: AppColors.verdeAcento,
+                              foregroundColor: context.sobreAcento,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -254,12 +253,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             child: _cargando
-                                ? const SizedBox(
+                                ? SizedBox(
                                     height: 20,
                                     width: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.2,
-                                      color: Colors.white,
+                                      color: context.sobreAcento,
                                     ),
                                   )
                                 : Text(

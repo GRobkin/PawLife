@@ -37,6 +37,16 @@ abstract final class AppColors {
   /// Fondo del aviso de error.
   static const Color alertaSuave = Color(0xFFFDECEC);
 
+  /// Menta del insignia "¡Buen paseo!" (fijo en ambos temas).
+  static const Color verdeBadge = Color(0xFF8DE8B0);
+
+  /// Escala de superficies del modo oscuro, de menor a mayor elevación.
+  static const Color oscuroNivel0 = fondoOscuro;
+  static const Color oscuroNivel1 = Color(0xFF16241D);
+  static const Color oscuroNivel2 = Color(0xFF1E2F26);
+  static const Color oscuroNivel3 = Color(0xFF283B31);
+  static const Color oscuroBorde = Color(0xFF33463C);
+
   /// Naranja de "próximo" / pendiente.
   static const Color aviso = Color(0xFFE08D2F);
 }

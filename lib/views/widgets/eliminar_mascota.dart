@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/pawlife_models.dart';
 import '../../services/pawlife_repository.dart';
-import '../../theme/app_colors.dart';
+import '../../theme/app_palette.dart';
 
 /// Pide confirmación y borra. Devuelve true solo si se borró de verdad.
 ///
@@ -34,7 +34,7 @@ Future<bool> confirmarYEliminarMascota(
         ),
         TextButton(
           onPressed: () => Navigator.of(contexto).pop(true),
-          style: TextButton.styleFrom(foregroundColor: AppColors.alerta),
+          style: TextButton.styleFrom(foregroundColor: context.alertaTexto),
           child: Text(t.delete),
         ),
       ],

@@ -224,7 +224,7 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
                 child: Center(child: CircularProgressIndicator()),
               ),
             if (_error != null) ...[
-              Text(_error!, style: const TextStyle(color: AppColors.alerta)),
+              Text(_error!, style: TextStyle(color: context.alertaTexto)),
               TextButton(
                 onPressed: _mascotas == null
                     ? _initialize

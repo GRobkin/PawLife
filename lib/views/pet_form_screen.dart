@@ -101,13 +101,10 @@ class _PetFormScreenState extends State<PetFormScreen> {
             ),
             if (_foto != null)
               ListTile(
-                leading: const Icon(
-                  Icons.delete_outline,
-                  color: AppColors.alerta,
-                ),
+                leading: Icon(Icons.delete_outline, color: context.alertaTexto),
                 title: Text(
                   t.removePhoto,
-                  style: const TextStyle(color: AppColors.alerta),
+                  style: TextStyle(color: context.alertaTexto),
                 ),
                 onTap: () => Navigator.of(contexto).pop(_AccionFoto.quitar),
               ),
@@ -291,9 +288,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                 onPressed: _guardando ? null : _guardar,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.verdeAcento,
-                  foregroundColor: context.esOscuro
-                      ? AppColors.verdeOscuro
-                      : Colors.white,
+                  foregroundColor: context.sobreAcento,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -306,9 +301,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.2,
-                          color: context.esOscuro
-                              ? AppColors.verdeOscuro
-                              : Colors.white,
+                          color: context.sobreAcento,
                         ),
                       )
                     : Text(
@@ -364,9 +357,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
             height: 104,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: context.esOscuro
-                  ? const Color(0xFF1D2D25)
-                  : const Color(0xFFE6EBF2),
+              color: context.relleno,
               image: imagen == null
                   ? null
                   : DecorationImage(image: imagen, fit: BoxFit.cover),
@@ -477,9 +468,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: context.esOscuro
-            ? const Color(0xFF1D2D25)
-            : const Color(0xFFEFF3F8),
+        color: context.relleno,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

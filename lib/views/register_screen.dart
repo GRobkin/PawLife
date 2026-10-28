@@ -115,9 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: context.esOscuro
-          ? context.fondoPantalla
-          : const Color(0xFFE8F5EE),
+      backgroundColor: context.fondoMenta,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(

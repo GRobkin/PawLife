@@ -47,12 +47,14 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       );
       if (mounted) setState(() => _sentTo = target);
     } on AuthException catch (error) {
-      if (mounted) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
-    } catch (_) {
       if (mounted) {
         setState(
-          () => _error = t.emailLinkError,
+          () => _error = authErrorText(AppLocalizations.of(context), error),
         );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = t.emailLinkError);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -71,12 +73,14 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       if (current?.toLowerCase() == _sentTo) {
         Navigator.pop(context, current);
       } else {
-        setState(
-          () => _error = t.notConfirmedYet('$_sentTo'),
-        );
+        setState(() => _error = t.notConfirmedYet('$_sentTo'));
       }
     } on AuthException catch (error) {
-      if (mounted) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
+      if (mounted) {
+        setState(
+          () => _error = authErrorText(AppLocalizations.of(context), error),
+        );
+      }
     } catch (_) {
       if (mounted) {
         setState(() => _error = t.emailCheckError);
