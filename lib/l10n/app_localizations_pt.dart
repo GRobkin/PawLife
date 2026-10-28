@@ -1380,4 +1380,72 @@ class AppLocalizationsPt extends AppLocalizations {
   String noticeMedicationBody(String medication, String dose) {
     return '$medication: $dose.';
   }
+
+  @override
+  String get photoOpenFailed =>
+      'Não foi possível abrir a imagem. Tente novamente.';
+
+  @override
+  String get photoTooLarge => 'A imagem é grande demais. Tente outra.';
+
+  @override
+  String get photoTooLargeAfter =>
+      'A foto é grande demais mesmo depois de reduzida. Tente outra.';
+
+  @override
+  String get photoInvalidType => 'Escolha uma imagem JPEG ou PNG.';
+
+  @override
+  String get photoInvalidOrLarge => 'A imagem não é válida ou é grande demais.';
+
+  @override
+  String get photoUnreadable => 'Não foi possível ler a imagem. Tente outra.';
+
+  @override
+  String get exportCancelled => 'Exportação cancelada.';
+
+  @override
+  String get exportSessionChanged =>
+      'A sessão mudou. O arquivo não foi preparado.';
+
+  @override
+  String get exportTooBig =>
+      'O arquivo precisa de assistência por causa do tamanho.';
+
+  @override
+  String get exportStartFailed =>
+      'Não foi possível iniciar uma exportação válida.';
+
+  @override
+  String get exportInvalidResponse =>
+      'A exportação retornou uma resposta inválida. Inicie outra.';
+
+  @override
+  String get exportIncompleteService =>
+      'A exportação não foi concluída. Inicie outra.';
+
+  @override
+  String get captureNotReady => 'O mapa ainda não está pronto.';
+
+  @override
+  String get captureUnreadable => 'Não foi possível ler a imagem do mapa.';
+
+  @override
+  String get captureTooLarge =>
+      'A captura do mapa ficou grande demais. Tente com menos zoom.';
+
+  @override
+  String get locGpsOff => 'O GPS está desativado. Ative-o para continuar.';
+
+  @override
+  String get locDenied => 'Permissão de localização negada.';
+
+  @override
+  String get locDeniedForever =>
+      'Permissão negada permanentemente. Ative-a nas configurações do sistema.';
+
+  @override
+  String locFailed(String error) {
+    return 'Não foi possível obter a localização: $error';
+  }
 }

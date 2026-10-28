@@ -23,18 +23,23 @@ import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
-import 'widgets/foto_mascota.dart';
+import 'widgets/motion.dart';
 import 'widgets/pawlife_bottom_nav.dart';
+import 'widgets/portada_mascota.dart';
 
 class PetsScreen extends StatefulWidget {
-  const PetsScreen({super.key});
+  const PetsScreen({super.key, this.repository, this.userPhotoUrl});
+
+  /// Para pruebas: repositorio y foto de usuario inyectados.
+  final PawLifeRepository? repository;
+  final String? userPhotoUrl;
 
   @override
   State<PetsScreen> createState() => _PetsScreenState();
 }
 
 class _PetsScreenState extends State<PetsScreen> {
-  final _repositorio = PawLifeRepository();
+  late final _repositorio = widget.repository ?? PawLifeRepository();
 
   List<_ResumenMascota>? _mascotas;
   String? _error;
@@ -159,7 +164,10 @@ class _PetsScreenState extends State<PetsScreen> {
   }
 
   Widget _buildTopBar() {
-    final fotoUrl = AuthService().currentUser?.photoURL;
+    final inyectada = widget.userPhotoUrl;
+    final fotoUrl = inyectada != null
+        ? (inyectada.isEmpty ? null : inyectada)
+        : AuthService().currentUser?.photoURL;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -201,7 +209,16 @@ class _PetsScreenState extends State<PetsScreen> {
 
     final mascotas = _mascotas;
     if (mascotas == null) {
-      return const Center(child: CircularProgressIndicator());
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 90),
+        children: const [
+          Esqueleto(alto: 32, ancho: 180),
+          SizedBox(height: 20),
+          Esqueleto(alto: 230, radio: 20),
+          SizedBox(height: 14),
+          Esqueleto(alto: 230, radio: 20),
+        ],
+      );
     }
 
     if (mascotas.isEmpty) {
@@ -219,19 +236,19 @@ class _PetsScreenState extends State<PetsScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 90),
         children: [
-          Text(
-            t.myPets,
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-          ),
+          Text(t.myPets, style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 4),
           Text(t.myPetsSubtitle, style: TextStyle(color: context.textoSuave)),
           const SizedBox(height: 20),
-          for (final resumen in mascotas) ...[
-            _TarjetaMascota(
-              resumen: resumen,
-              onTap: () => _abrirDetalle(resumen.mascota),
-              onEditar: () => _abrirFormulario(mascota: resumen.mascota),
-              onEliminar: () => _confirmarBorrado(resumen.mascota),
+          for (final (indice, resumen) in mascotas.indexed) ...[
+            AparecerAlEntrar(
+              indice: indice,
+              child: _TarjetaMascota(
+                resumen: resumen,
+                onTap: () => _abrirDetalle(resumen.mascota),
+                onEditar: () => _abrirFormulario(mascota: resumen.mascota),
+                onEliminar: () => _confirmarBorrado(resumen.mascota),
+              ),
             ),
             const SizedBox(height: 14),
           ],
@@ -288,12 +305,12 @@ class _Estado {
       ),
       _EstadoSalud.vencida => _Estado(
         t.statusOverdue,
-        Icons.warning_amber_rounded,
+        Icons.error_outline,
         context.alertaTexto,
       ),
       _EstadoSalud.proxima => _Estado(
         t.statusDueSoon,
-        Icons.warning_amber_rounded,
+        Icons.schedule,
         AppColors.aviso,
       ),
       _EstadoSalud.sano => _Estado(
@@ -327,62 +344,77 @@ class _TarjetaMascota extends StatelessWidget {
 
     return Material(
       color: context.superficie,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  AvatarMascota(mascota: mascota, radio: 28),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          mascota.nombre,
-                          style: const TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                          ),
+        child: Column(
+          children: [
+            PortadaMascota(
+              mascota: mascota,
+              height: 156,
+              heroTag: 'foto-mascota-${mascota.id}',
+              children: [
+                Positioned(
+                  left: 16,
+                  right: 56,
+                  bottom: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mascota.nombre,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(color: Colors.white),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        mascota.subtituloLocalizado(t),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.white70,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          mascota.subtituloLocalizado(t),
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: context.textoSuave,
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      shape: BoxShape.circle,
+                    ),
+                    child: PopupMenuButton<String>(
+                      tooltip: t.options,
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      onSelected: (valor) {
+                        if (valor == 'editar') onEditar();
+                        if (valor == 'eliminar') onEliminar();
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem(value: 'editar', child: Text(t.edit)),
+                        PopupMenuItem(
+                          value: 'eliminar',
+                          child: Text(
+                            t.delete,
+                            style: TextStyle(color: context.alertaTexto),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  PopupMenuButton<String>(
-                    tooltip: t.options,
-                    icon: Icon(Icons.more_vert, color: context.textoTenue),
-                    onSelected: (valor) {
-                      if (valor == 'editar') onEditar();
-                      if (valor == 'eliminar') onEliminar();
-                    },
-                    itemBuilder: (_) => [
-                      PopupMenuItem(value: 'editar', child: Text(t.edit)),
-                      PopupMenuItem(
-                        value: 'eliminar',
-                        child: Text(
-                          t.delete,
-                          style: TextStyle(color: context.alertaTexto),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
                 children: [
                   Expanded(
                     child: _Celda(
@@ -405,8 +437,8 @@ class _TarjetaMascota extends StatelessWidget {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

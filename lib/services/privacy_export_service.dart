@@ -5,8 +5,11 @@ import 'auth_service.dart';
 import 'pawlife_repository.dart';
 
 class PrivacyExportException implements Exception {
-  const PrivacyExportException(this.message);
+  const PrivacyExportException(this.message, {this.code});
   final String message;
+
+  /// Código estable para traducir el mensaje en la interfaz.
+  final String? code;
   @override
   String toString() => message;
 }
@@ -25,11 +28,15 @@ class PrivacyExportService {
 
   void _check() {
     if (_cancelled) {
-      throw const PrivacyExportException('Exportación cancelada.');
+      throw const PrivacyExportException(
+        'Exportación cancelada.',
+        code: 'cancelled',
+      );
     }
     if (auth.currentUser?.uid != uid) {
       throw const PrivacyExportException(
         'La sesión cambió. No se preparó el archivo.',
+        code: 'session-changed',
       );
     }
   }
@@ -54,6 +61,7 @@ class PrivacyExportService {
       if (buffer.length + bytes.length > 64 * 1024 * 1024) {
         throw const PrivacyExportException(
           'El archivo necesita asistencia por su tamaño.',
+          code: 'too-big',
         );
       }
       buffer.add(bytes);
@@ -70,6 +78,7 @@ class PrivacyExportService {
           session['manifest'] is! Map<String, dynamic>) {
         throw const PrivacyExportException(
           'No se pudo iniciar una exportación válida.',
+          code: 'start-failed',
         );
       }
       _session = id;
@@ -83,6 +92,7 @@ class PrivacyExportService {
         if (!seen.add(cursor)) {
           throw const PrivacyExportException(
             'La exportación devolvió un cursor repetido.',
+            code: 'invalid-response',
           );
         }
         final response = await repository.exportPage(id, cursor);
@@ -92,6 +102,7 @@ class PrivacyExportService {
             items.any((item) => item is! Map<String, dynamic>)) {
           throw const PrivacyExportException(
             'La exportación devolvió una página inválida.',
+            code: 'invalid-response',
           );
         }
         for (final item in items) {
@@ -103,6 +114,7 @@ class PrivacyExportService {
         if (next != null && (next is! String || next.isEmpty)) {
           throw const PrivacyExportException(
             'La exportación devolvió un cursor inválido.',
+            code: 'invalid-response',
           );
         }
         cursor = next as String?;
@@ -110,6 +122,7 @@ class PrivacyExportService {
           if (response['finalizadoEn'] is! String) {
             throw const PrivacyExportException(
               'No se confirmó el final de la exportación.',
+              code: 'incomplete',
             );
           }
           append(
@@ -121,6 +134,7 @@ class PrivacyExportService {
       }
       throw const PrivacyExportException(
         'No se completó la exportación. Iniciá otra.',
+        code: 'incomplete',
       );
     } catch (_) {
       await cancel();

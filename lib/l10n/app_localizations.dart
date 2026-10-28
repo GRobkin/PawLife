@@ -2427,6 +2427,120 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{medication}: {dose}.'**
   String noticeMedicationBody(String medication, String dose);
+
+  /// No description provided for @photoOpenFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir la imagen. Probá otra vez.'**
+  String get photoOpenFailed;
+
+  /// No description provided for @photoTooLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'La imagen es demasiado grande. Probá con otra.'**
+  String get photoTooLarge;
+
+  /// No description provided for @photoTooLargeAfter.
+  ///
+  /// In es, this message translates to:
+  /// **'La foto es demasiado grande incluso después de reducirla. Probá con otra.'**
+  String get photoTooLargeAfter;
+
+  /// No description provided for @photoInvalidType.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegí una imagen JPEG o PNG.'**
+  String get photoInvalidType;
+
+  /// No description provided for @photoInvalidOrLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'La imagen no es válida o es demasiado grande.'**
+  String get photoInvalidOrLarge;
+
+  /// No description provided for @photoUnreadable.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo leer la imagen. Probá con otra.'**
+  String get photoUnreadable;
+
+  /// No description provided for @exportCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportación cancelada.'**
+  String get exportCancelled;
+
+  /// No description provided for @exportSessionChanged.
+  ///
+  /// In es, this message translates to:
+  /// **'La sesión cambió. No se preparó el archivo.'**
+  String get exportSessionChanged;
+
+  /// No description provided for @exportTooBig.
+  ///
+  /// In es, this message translates to:
+  /// **'El archivo necesita asistencia por su tamaño.'**
+  String get exportTooBig;
+
+  /// No description provided for @exportStartFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo iniciar una exportación válida.'**
+  String get exportStartFailed;
+
+  /// No description provided for @exportInvalidResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'La exportación devolvió una respuesta inválida. Iniciá otra.'**
+  String get exportInvalidResponse;
+
+  /// No description provided for @exportIncompleteService.
+  ///
+  /// In es, this message translates to:
+  /// **'No se completó la exportación. Iniciá otra.'**
+  String get exportIncompleteService;
+
+  /// No description provided for @captureNotReady.
+  ///
+  /// In es, this message translates to:
+  /// **'El mapa todavía no está listo.'**
+  String get captureNotReady;
+
+  /// No description provided for @captureUnreadable.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo leer la imagen del mapa.'**
+  String get captureUnreadable;
+
+  /// No description provided for @captureTooLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'La captura del mapa salió demasiado grande. Probá con menos zoom.'**
+  String get captureTooLarge;
+
+  /// No description provided for @locGpsOff.
+  ///
+  /// In es, this message translates to:
+  /// **'El GPS está desactivado. Activalo para continuar.'**
+  String get locGpsOff;
+
+  /// No description provided for @locDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'Permiso de ubicación denegado.'**
+  String get locDenied;
+
+  /// No description provided for @locDeniedForever.
+  ///
+  /// In es, this message translates to:
+  /// **'Permiso denegado permanentemente. Habilitalo desde ajustes del sistema.'**
+  String get locDeniedForever;
+
+  /// No description provided for @locFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo obtener la ubicación: {error}'**
+  String locFailed(String error);
 }
 
 class _AppLocalizationsDelegate

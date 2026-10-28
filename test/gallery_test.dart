@@ -5,6 +5,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,8 @@ import 'package:pawlife/services/pawlife_repository.dart';
 import 'package:pawlife/services/walk_repository.dart';
 import 'package:pawlife/theme/app_theme.dart';
 import 'package:pawlife/views/change_password_screen.dart';
+import 'package:pawlife/views/home_screen.dart';
+import 'package:pawlife/views/pets_screen.dart';
 import 'package:pawlife/views/walk_history_screen.dart';
 import 'package:pawlife/views/walk_share_screen.dart';
 import 'package:pawlife/views/weight_history_screen.dart';
@@ -52,7 +55,20 @@ Paseo walk(String id) => Paseo(
   ruta: route,
 );
 
+class FakeUser implements User {
+  @override
+  String? get displayName => 'Juana Pérez';
+  @override
+  String? get email => 'juana@example.com';
+  @override
+  String? get photoURL => null;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class AuthFixture implements AuthService {
+  @override
+  User? get currentUser => FakeUser();
   @override
   bool get supportsPasswordChange => true;
   @override
@@ -63,6 +79,35 @@ class PetsFixture implements PawLifeRepository {
   @override
   Future<List<Mascota>> fetchMascotas() async => [pet];
   @override
+  Future<List<Vacuna>> fetchVacunas(String mascotaId) async => [
+    Vacuna(
+      id: 'v',
+      nombre: 'Rabia',
+      fechaAplicacion: DateTime.now().subtract(const Duration(days: 300)),
+      proximaFecha: DateTime.now().add(const Duration(days: 2)),
+    ),
+  ];
+  @override
+  Future<List<Recordatorio>> fetchRecordatorios({
+    bool soloPendientes = false,
+  }) async => [
+    Recordatorio(
+      id: 'r1',
+      tipo: 'vacuna',
+      mascotaId: 'luna',
+      fecha: DateTime.now(),
+      mensaje: 'Vacuna antirrábica',
+    ),
+    Recordatorio(
+      id: 'r2',
+      tipo: 'tarea',
+      mascotaId: 'luna',
+      fecha: DateTime.now(),
+      mensaje: 'Cepillar el pelo',
+      completado: true,
+    ),
+  ];
+  @override
   Future<List<RegistroPeso>> fetchPesos(String mascotaId) async => [
     RegistroPeso(id: 'a', fecha: DateTime(2026, 10, 19, 10, 30), valorKg: 12.5),
     RegistroPeso(id: 'b', fecha: DateTime(2026, 9, 19, 10, 30), valorKg: 12.1),
@@ -72,6 +117,18 @@ class PetsFixture implements PawLifeRepository {
 }
 
 class WalksFixture implements WalkRepository {
+  @override
+  Future<List<Paseo>> fetchPaseos(String mascotaId, {int? limite}) async => [
+    Paseo(
+      id: 'h',
+      fechaInicio: DateTime.now().subtract(const Duration(hours: 3)),
+      fechaFin: DateTime.now().subtract(const Duration(hours: 2)),
+      duracionSegundos: 2520,
+      distanciaMetros: 2400,
+      velocidadMaximaKmh: 6.1,
+      ruta: route,
+    ),
+  ];
   @override
   Future<WalkPage> fetchHistory(String mascotaId, {String? cursor}) async =>
       WalkPage([walk('1'), walk('2')], null);
@@ -110,6 +167,12 @@ void main() {
 
   final screens = <String, Widget Function()>{
     'welcome': () => const WelcomeScreen(),
+    'home': () => HomeScreen(
+      repository: PetsFixture(),
+      walkRepository: WalksFixture(),
+      auth: AuthFixture(),
+    ),
+    'pets': () => PetsScreen(repository: PetsFixture(), userPhotoUrl: ''),
     'weight': () =>
         WeightHistoryScreen(mascota: pet, repository: PetsFixture()),
     'password': () => ChangePasswordScreen(auth: AuthFixture()),

@@ -21,9 +21,12 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 class PhotoException implements Exception {
-  const PhotoException(this.message);
+  const PhotoException(this.message, {this.code});
 
   final String message;
+
+  /// Código estable para traducir el mensaje en la interfaz.
+  final String? code;
 
   @override
   String toString() => message;
@@ -66,7 +69,10 @@ class PhotoService {
         imageQuality: 78,
       );
     } on Exception {
-      throw const PhotoException('No se pudo abrir la imagen. Probá otra vez.');
+      throw const PhotoException(
+        'No se pudo abrir la imagen. Probá otra vez.',
+        code: 'open-failed',
+      );
     }
 
     if (elegida == null) return null;
@@ -74,6 +80,7 @@ class PhotoService {
     if (await elegida.length() > 10 * 1024 * 1024) {
       throw const PhotoException(
         'La imagen es demasiado grande. Probá con otra.',
+        code: 'too-large',
       );
     }
     final bytes = await elegida.readAsBytes();
@@ -84,6 +91,7 @@ class PhotoService {
       throw const PhotoException(
         'La foto es demasiado grande incluso después de reducirla. '
         'Probá con otra.',
+        code: 'too-large-after',
       );
     }
 
@@ -97,11 +105,15 @@ Uint8List prepararFotoJpeg(Uint8List bytes) {
     if (bytes.length > 10 * 1024 * 1024) {
       throw const PhotoException(
         'La imagen es demasiado grande. Probá con otra.',
+        code: 'too-large',
       );
     }
     final decoder = img.findDecoderForData(bytes);
     if (decoder is! img.JpegDecoder && decoder is! img.PngDecoder) {
-      throw const PhotoException('Elegí una imagen JPEG o PNG.');
+      throw const PhotoException(
+        'Elegí una imagen JPEG o PNG.',
+        code: 'invalid-type',
+      );
     }
     final info = decoder!.startDecode(bytes);
     if (info == null ||
@@ -113,11 +125,15 @@ Uint8List prepararFotoJpeg(Uint8List bytes) {
         info.numFrames != 1) {
       throw const PhotoException(
         'La imagen no es válida o es demasiado grande.',
+        code: 'invalid-or-large',
       );
     }
     final decoded = decoder.decodeFrame(0);
     if (decoded == null) {
-      throw const PhotoException('No se pudo leer la imagen.');
+      throw const PhotoException(
+        'No se pudo leer la imagen.',
+        code: 'unreadable',
+      );
     }
     var oriented = img.bakeOrientation(decoded);
     if (oriented.width > 256 || oriented.height > 256) {
@@ -139,6 +155,9 @@ Uint8List prepararFotoJpeg(Uint8List bytes) {
   } on PhotoException {
     rethrow;
   } catch (_) {
-    throw const PhotoException('No se pudo leer la imagen. Probá con otra.');
+    throw const PhotoException(
+      'No se pudo leer la imagen. Probá con otra.',
+      code: 'unreadable',
+    );
   }
 }

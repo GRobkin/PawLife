@@ -1368,4 +1368,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String noticeMedicationBody(String medication, String dose) {
     return '$medication: $dose.';
   }
+
+  @override
+  String get photoOpenFailed => 'Couldn\'t open the image. Try again.';
+
+  @override
+  String get photoTooLarge => 'The image is too large. Try another one.';
+
+  @override
+  String get photoTooLargeAfter =>
+      'The photo is too large even after shrinking it. Try another one.';
+
+  @override
+  String get photoInvalidType => 'Choose a JPEG or PNG image.';
+
+  @override
+  String get photoInvalidOrLarge => 'The image isn\'t valid or is too large.';
+
+  @override
+  String get photoUnreadable => 'Couldn\'t read the image. Try another one.';
+
+  @override
+  String get exportCancelled => 'Export cancelled.';
+
+  @override
+  String get exportSessionChanged =>
+      'The session changed. The file wasn\'t prepared.';
+
+  @override
+  String get exportTooBig => 'The file is too large and needs assistance.';
+
+  @override
+  String get exportStartFailed => 'Couldn\'t start a valid export.';
+
+  @override
+  String get exportInvalidResponse =>
+      'The export returned an invalid response. Start another one.';
+
+  @override
+  String get exportIncompleteService =>
+      'The export wasn\'t completed. Start another one.';
+
+  @override
+  String get captureNotReady => 'The map isn\'t ready yet.';
+
+  @override
+  String get captureUnreadable => 'Couldn\'t read the map image.';
+
+  @override
+  String get captureTooLarge =>
+      'The map capture is too large. Try zooming out less.';
+
+  @override
+  String get locGpsOff => 'GPS is off. Turn it on to continue.';
+
+  @override
+  String get locDenied => 'Location permission denied.';
+
+  @override
+  String get locDeniedForever =>
+      'Permission permanently denied. Enable it in system settings.';
+
+  @override
+  String locFailed(String error) {
+    return 'Couldn\'t get the location: $error';
+  }
 }

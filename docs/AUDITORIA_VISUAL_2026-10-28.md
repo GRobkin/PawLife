@@ -71,3 +71,9 @@ Impacto: A alto / M medio / B bajo. Dificultad: 1 baja (horas) / 2 media (1–2 
 - Rendimiento de animaciones propuestas en gama baja.
 - Pantallas Home, Mascotas, detalle, ruta, resumen y Privacidad renderizadas.
 - Cualquier cosa en dispositivo físico.
+
+## Estado de implementación (actualizado)
+
+Hechas (rama `feature/us28-us29-idiomas-tema`, sin probar en dispositivo): 1, 2 (definida; aplicada en Home y Mascotas), 3, 4, 5 (transición compartida con la foto; sin transiciones de ruta propias), 6 (tareas del Home), 7 (esqueletos en Home, Mascotas y Tareas), 9 (distancia del resumen cuenta hacia arriba; la traza no se dibuja animada), 11, 12, 13, 15 (entrada animada; sin zoom lento de la foto), 16, 17, y cifras grandes en el cronómetro del paseo (parte visual de la 8).
+
+No hechas: 8 (finalizar manteniendo pulsado: cambia comportamiento), 10 (variantes de la tarjeta PNG), 14 (estados vacíos con ilustración), aplicar la escala tipográfica en el resto de pantallas, transiciones de ruta propias.
