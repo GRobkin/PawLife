@@ -202,12 +202,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, caja) {
-            _alturaPortada = (caja.maxHeight - 640).clamp(184.0, 360.0);
+            _alturaPortada = (caja.maxHeight - 600).clamp(160.0, 360.0);
             return ListView(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               children: [
                 _buildTopBar(context),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 Text(
                   _saludo(),
                   style: Theme.of(context).textTheme.headlineMedium,
@@ -221,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildPetCard(),
                 const SizedBox(height: 16),
                 _buildStartWalkCard(context),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     Expanded(
@@ -252,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 _buildActivitySummary(),
-                const SizedBox(height: 22),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     Expanded(
@@ -454,7 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Escucha `SeleccionMascota.id` en vez de guardarse la elegida en el estado:
   /// así cambiarla desde cualquier otro sitio también repinta esta tarjeta.
   /// La foto crece cuando la pantalla es alta, para no dejar un hueco abajo.
-  double _alturaPortada = 184;
+  double _alturaPortada = 160;
 
   Widget _buildPetCard() {
     return ValueListenableBuilder<String?>(
