@@ -106,6 +106,13 @@ class PetsFixture implements PawLifeRepository {
       mensaje: 'Cepillar el pelo',
       completado: true,
     ),
+    Recordatorio(
+      id: 'r3',
+      tipo: 'medicamento',
+      mascotaId: 'luna',
+      fecha: DateTime.now().add(const Duration(hours: 3)),
+      mensaje: 'Antiparasitario',
+    ),
   ];
   @override
   Future<List<RegistroPeso>> fetchPesos(String mascotaId) async => [
@@ -136,9 +143,14 @@ class WalksFixture implements WalkRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Widget cell(Widget home, Locale locale, ThemeMode mode) => SizedBox(
+Widget cell(
+  Widget home,
+  Locale locale,
+  ThemeMode mode, [
+  double height = 760,
+]) => SizedBox(
   width: 390,
-  height: 760,
+  height: height,
   child: ChangeNotifierProvider(
     create: (_) => AppPreferences.memory(),
     child: MaterialApp(
@@ -195,7 +207,8 @@ void main() {
 
   for (final entry in screens.entries) {
     testWidgets('galería ${entry.key}', (tester) async {
-      tester.view.physicalSize = const Size(1170, 1520);
+      final cellHeight = entry.key == 'home' ? 1250.0 : 760.0;
+      tester.view.physicalSize = Size(1170, cellHeight * 2);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -211,7 +224,7 @@ void main() {
                   Row(
                     children: [
                       for (final lang in ['es', 'en', 'pt'])
-                        cell(entry.value(), Locale(lang), mode),
+                        cell(entry.value(), Locale(lang), mode, cellHeight),
                     ],
                   ),
               ],
