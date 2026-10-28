@@ -174,11 +174,11 @@ class _PetsScreenState extends State<PetsScreen> {
       child: Row(
         children: [
           const Icon(Icons.menu),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 'PawLife',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
           ),
@@ -535,7 +535,7 @@ class _EstadoVacio extends StatelessWidget {
             Text(
               titulo,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(

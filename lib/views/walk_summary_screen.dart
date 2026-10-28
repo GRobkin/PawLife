@@ -341,7 +341,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
                 : failed
                 ? t.retry
                 : t.walkSaved,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
         ),
       ],

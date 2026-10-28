@@ -32,7 +32,7 @@ Future<Mascota?> elegirMascota(
             padding: const EdgeInsets.all(16),
             child: Text(
               titulo ?? t.choosePet,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           // Una lista scrollable y acotada: con muchas mascotas, una Column
