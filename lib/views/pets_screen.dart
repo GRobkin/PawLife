@@ -24,6 +24,7 @@ import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/motion.dart';
+import 'widgets/estado_vacio.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
@@ -198,7 +199,7 @@ class _PetsScreenState extends State<PetsScreen> {
   Widget _buildContenido() {
     final t = AppLocalizations.of(context);
     if (_error != null) {
-      return _EstadoVacio(
+      return EstadoVacio(
         icono: Icons.cloud_off,
         titulo: t.petsLoadError,
         detalle: _error!,
@@ -222,7 +223,7 @@ class _PetsScreenState extends State<PetsScreen> {
     }
 
     if (mascotas.isEmpty) {
-      return _EstadoVacio(
+      return EstadoVacio(
         icono: Icons.pets,
         titulo: t.petsEmptyTitle,
         detalle: t.petsEmptyBody,
@@ -624,65 +625,6 @@ class _Celda extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EstadoVacio extends StatelessWidget {
-  const _EstadoVacio({
-    required this.icono,
-    required this.titulo,
-    required this.detalle,
-    required this.accion,
-    required this.onAccion,
-  });
-
-  final IconData icono;
-  final String titulo;
-  final String detalle;
-  final String accion;
-  final VoidCallback onAccion;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icono, size: 56, color: context.textoTenue),
-            const SizedBox(height: 18),
-            Text(
-              titulo,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              detalle,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: context.textoSuave),
-            ),
-            const SizedBox(height: 22),
-            ElevatedButton(
-              onPressed: onAccion,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.botonFondo,
-                foregroundColor: context.botonTexto,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(accion),
-            ),
-          ],
-        ),
       ),
     );
   }

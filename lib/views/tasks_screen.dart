@@ -6,6 +6,7 @@ import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../theme/app_palette.dart';
+import 'widgets/estado_vacio.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/motion.dart';
 import 'widgets/pawlife_bottom_nav.dart';
@@ -227,8 +228,11 @@ class _TasksScreenState extends State<TasksScreen> {
               child: items.isEmpty
                   ? ListView(
                       children: [
-                        const SizedBox(height: 120),
-                        Center(child: Text(t.noTasks)),
+                        const SizedBox(height: 60),
+                        EstadoVacio(
+                          icono: Icons.assignment_outlined,
+                          titulo: t.noTasks,
+                        ),
                       ],
                     )
                   : ListView.builder(

@@ -8,6 +8,7 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'walk_detail_screen.dart';
+import 'widgets/estado_vacio.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/walk_route_trace.dart';
 
@@ -242,18 +243,6 @@ class _HistoryEmpty extends StatelessWidget {
   const _HistoryEmpty({required this.text});
   final String text;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 45),
-    child: Column(
-      children: [
-        const Icon(
-          Icons.directions_walk,
-          size: 54,
-          color: AppColors.verdeAcento,
-        ),
-        const SizedBox(height: 16),
-        Text(text, textAlign: TextAlign.center),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) =>
+      EstadoVacio(icono: Icons.directions_walk, titulo: text);
 }
