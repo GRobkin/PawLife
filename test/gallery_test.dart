@@ -207,7 +207,7 @@ void main() {
 
   for (final entry in screens.entries) {
     testWidgets('galería ${entry.key}', (tester) async {
-      final cellHeight = entry.key == 'home' ? 1250.0 : 760.0;
+      final cellHeight = entry.key == 'home' ? 860.0 : 760.0;
       tester.view.physicalSize = Size(1170, cellHeight * 2);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);

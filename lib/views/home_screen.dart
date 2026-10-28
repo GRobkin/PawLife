@@ -200,130 +200,141 @@ class _HomeScreenState extends State<HomeScreen> {
           ? context.fondoPantalla
           : AppColors.fondoAlterno,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          children: [
-            _buildTopBar(context),
-            const SizedBox(height: 20),
-            Text(_saludo(), style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 4),
-            Text(t.todayAgenda, style: TextStyle(color: context.textoSuave)),
-            const SizedBox(height: 20),
-            _buildPetCard(),
-            const SizedBox(height: 16),
-            _buildStartWalkCard(context),
-            const SizedBox(height: 24),
-            Row(
+        child: LayoutBuilder(
+          builder: (context, caja) {
+            _alturaPortada = (caja.maxHeight - 640).clamp(184.0, 360.0);
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
               children: [
-                Expanded(
-                  child: Text(
-                    t.activitySummary,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                _buildTopBar(context),
+                const SizedBox(height: 20),
+                Text(
+                  _saludo(),
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.only(left: 10),
-                  ),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const WalkHistoryScreen(),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(t.viewWalkHistory),
-                      const Icon(Icons.chevron_right, size: 18),
-                    ],
-                  ),
+                const SizedBox(height: 4),
+                Text(
+                  t.todayAgenda,
+                  style: TextStyle(color: context.textoSuave),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _buildActivitySummary(),
-            const SizedBox(height: 22),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    t.todayTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                if (_recordatorios != null && hoy!.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.mentaSuave,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${hoy.where((r) => r.completado).length}/${hoy.length}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: context.marca,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (_recordatorios == null)
-              const Column(
-                children: [
-                  Esqueleto(alto: 64, radio: 14),
-                  SizedBox(height: 10),
-                  Esqueleto(alto: 64, radio: 14),
-                ],
-              )
-            else if (hoy!.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: context.tarjetaMenta,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Row(
+                const SizedBox(height: 20),
+                _buildPetCard(),
+                const SizedBox(height: 16),
+                _buildStartWalkCard(context),
+                const SizedBox(height: 24),
+                Row(
                   children: [
-                    Icon(Icons.check_circle, color: context.marca),
-                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        t.noTasksToday,
-                        style: TextStyle(color: context.texto),
+                        t.activitySummary,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.only(left: 10),
+                      ),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const WalkHistoryScreen(),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(t.viewWalkHistory),
+                          const Icon(Icons.chevron_right, size: 18),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              )
-            else
-              CarruselHoy(
-                textoMarcar: t.markDone,
-                textoPendiente: t.markPending,
-                tareas: [
-                  for (final r in hoy)
-                    TareaVista(
-                      icono: switch (r.tipo) {
-                        'vacuna' => Icons.vaccines_outlined,
-                        'medicamento' => Icons.medication_outlined,
-                        _ => Icons.assignment_outlined,
-                      },
-                      titulo: r.mensaje,
-                      detalle: r.completado
-                          ? t.completedLabel
-                          : formatTime(context, r.fecha),
-                      hecha: r.completado,
-                      alTocar: () => _marcarRecordatorio(r),
+                const SizedBox(height: 8),
+                _buildActivitySummary(),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.todayTitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
-                ],
-              ),
-          ],
+                    if (_recordatorios != null && hoy!.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.mentaSuave,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${hoy.where((r) => r.completado).length}/${hoy.length}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: context.marca,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (_recordatorios == null)
+                  const Column(
+                    children: [
+                      Esqueleto(alto: 64, radio: 14),
+                      SizedBox(height: 10),
+                      Esqueleto(alto: 64, radio: 14),
+                    ],
+                  )
+                else if (hoy!.isEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: context.tarjetaMenta,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: context.marca),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            t.noTasksToday,
+                            style: TextStyle(color: context.texto),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  CarruselHoy(
+                    textoMarcar: t.markDone,
+                    textoPendiente: t.markPending,
+                    tareas: [
+                      for (final r in hoy)
+                        TareaVista(
+                          icono: switch (r.tipo) {
+                            'vacuna' => Icons.vaccines_outlined,
+                            'medicamento' => Icons.medication_outlined,
+                            _ => Icons.assignment_outlined,
+                          },
+                          titulo: r.mensaje,
+                          detalle: r.completado
+                              ? t.completedLabel
+                              : formatTime(context, r.fecha),
+                          hecha: r.completado,
+                          alTocar: () => _marcarRecordatorio(r),
+                        ),
+                    ],
+                  ),
+              ],
+            );
+          },
         ),
       ),
       bottomNavigationBar: PawLifeBottomNav(
@@ -442,6 +453,9 @@ class _HomeScreenState extends State<HomeScreen> {
   ///
   /// Escucha `SeleccionMascota.id` en vez de guardarse la elegida en el estado:
   /// así cambiarla desde cualquier otro sitio también repinta esta tarjeta.
+  /// La foto crece cuando la pantalla es alta, para no dejar un hueco abajo.
+  double _alturaPortada = 184;
+
   Widget _buildPetCard() {
     return ValueListenableBuilder<String?>(
       valueListenable: SeleccionMascota.id,
@@ -461,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: _cambiarMascota,
               child: PortadaMascota(
                 mascota: activa,
-                height: 184,
+                height: _alturaPortada,
                 children: [
                   if (_recordatorios != null)
                     Positioned(

@@ -67,8 +67,7 @@ void main() {
                 debugShowCheckedModeBanner: false,
                 locale: const Locale('es'),
                 supportedLocales: AppLocalizations.supportedLocales,
-                localizationsDelegates:
-                    AppLocalizations.localizationsDelegates,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
                 theme: ThemeData(
                   useMaterial3: true,
                   fontFamily: 'NunitoSans',
