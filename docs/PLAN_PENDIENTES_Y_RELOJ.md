@@ -124,3 +124,39 @@ Revisión externa de seguridad (paquete listo en `apipaw/docs/SEGURIDAD_REVISION
 3. **Terminar**: ¿pedir confirmación? *(por defecto: no; un segundo toque en «TERMINAR» desde Pausado ya es la confirmación)*
 4. **Idioma**: textos del reloj en los tres idiomas de la app *(por defecto: sí)*.
 5. **Sonido/vibración** al iniciar/terminar: *(por defecto: vibración corta; sin sonido)*.
+
+## 6. Verificación e integración de git (revisado el 28/10/2026)
+
+### Estado encontrado
+| Repo | Rama actual | Commits sobre `master` | `master` vs remoto | Cambios sin commit |
+|---|---|---|---|---|
+| `PawLife` | `feature/us28-us29-idiomas-tema` | 14 (lineales) | igual al remoto (`d9d1b08`), 0 atrás | ninguno |
+| `apipaw` | `feature/t11-premium-manual` | 11 (lineales) | igual al remoto (`e475895`), 0 atrás | `docs/IMPLEMENTATION_PROGRESS.md` (+36 líneas, del 27/10) |
+
+- Las ramas de cada repo forman **una cadena sin divergencias**: se puede integrar con *fast-forward* sin conflictos (en `apipaw`: `respaldo/…` → `t04` → `t09` → `t11`; en `PawLife`: `respaldo/…` → `feature/us28-us29…`).
+- Nada se publicó: ninguna rama existe en el remoto.
+
+### Revisión del contenido
+- Sin archivos grandes nuevos (>300 KB), sin claves privadas ni tokens en el diff. `.env.example` solo trae marcadores.
+- Líneas finales: `apipaw` tiene `.gitattributes` (`eol=lf`); `PawLife` no, pero el índice está en LF y el árbol de trabajo en CRLF por `autocrlf`. Coherente, aunque conviene un `.gitattributes` en `PawLife`.
+- `docs/IMPLEMENTATION_PROGRESS.md`: el cambio sin commit documenta T07 y el cambio de correo (27/10); **está desactualizado** (no menciona T04, T09, T11, idiomas, modo oscuro, ni el reloj) y todavía dice «sin smartwatch».
+- Pruebas en la punta de cada rama: `apipaw` 16 scripts PHP + 13 Node verdes; `PawLife` `flutter analyze` limpio y 103 tests verdes.
+
+### Pasos propuestos
+1. **Actualizar y commitear** `IMPLEMENTATION_PROGRESS.md` (T04, T09, T11, idiomas/tema, reloj, decisiones, cuentas pendientes) y quitar «sin smartwatch».
+2. Agregar `.gitattributes` a `PawLife` (`* text=auto eol=lf`) si lo aprobás.
+3. **Integrar**: elegir estrategia (ver pregunta): fast-forward a `master`, o PRs separados por tarea.
+4. **No publicar** sin tu autorización: push y despliegue son un paso aparte.
+5. Después de integrar, volver a correr ambas suites sobre `master`.
+
+## 7. Revisión de interfaz «antes y después» (contigo)
+Objetivo: que **vos decidas** qué UI queda, con evidencia visual, antes de seguir.
+
+1. Genero la galería con lo actual (`build/test-artifacts/gallery-*.png`, ya existe: bienvenida, Home, Mascotas, historial, peso, contraseña, compartir, selector) **y** las capturas «antes» guardadas del estado previo a la base visual (`before/`).
+2. Preparo para cada pantalla un par **antes / después**, en claro y oscuro, es/en/pt.
+3. Por cada cambio te pregunto: **conservar / ajustar / revertir**, y qué ajustar.
+4. Lo que marques como «revertir» o «ajustar» lo hago en commits separados para poder deshacerlo.
+5. Las propuestas **no implementadas** de la auditoría (finalizar manteniendo pulsado, variantes de la tarjeta PNG, estados vacíos con ilustración, fuente de titulares) se muestran como maqueta y **solo se implementan si las aprobás**.
+6. Lo mismo para el reloj: después de W1 te muestro las capturas por estado y decidís antes de conectar al paseo real (W3).
+
+Orden: **(1) integración de git → (2) revisión UI antes/después → (3) reloj W1 → revisión → W2–W5**.
