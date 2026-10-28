@@ -6,6 +6,7 @@ import '../services/pawlife_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'change_email_screen.dart';
 import 'change_password_screen.dart';
+import 'premium_screen.dart';
 import 'privacy_screen.dart';
 import 'widgets/reauthentication_dialog.dart';
 import 'widgets/iniciar_paseo.dart';
@@ -217,6 +218,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   FilledButton(
                     onPressed: _saving ? null : _save,
                     child: Text(t.profileSave),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: _saving
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PremiumScreen(repository: _repo),
+                            ),
+                          ),
+                    icon: const Icon(Icons.workspace_premium_outlined),
+                    label: Text(t.premiumTitle),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(

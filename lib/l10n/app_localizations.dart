@@ -2571,6 +2571,114 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin paseos'**
   String get kindInactivity;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Premium'**
+  String get premiumTitle;
+
+  /// No description provided for @premiumActiveUntil.
+  ///
+  /// In es, this message translates to:
+  /// **'Premium activo hasta {date}'**
+  String premiumActiveUntil(String date);
+
+  /// No description provided for @premiumInactive.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin Premium activo'**
+  String get premiumInactive;
+
+  /// No description provided for @premiumSourceManual.
+  ///
+  /// In es, this message translates to:
+  /// **'Concedido por el equipo de PawLife'**
+  String get premiumSourceManual;
+
+  /// No description provided for @premiumSourcePaid.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscripción'**
+  String get premiumSourcePaid;
+
+  /// No description provided for @premiumNoPurchases.
+  ///
+  /// In es, this message translates to:
+  /// **'Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app.'**
+  String get premiumNoPurchases;
+
+  /// No description provided for @premiumLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo consultar tu estado de Premium.'**
+  String get premiumLoadError;
+
+  /// No description provided for @apiAccountDeleting.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu cuenta se está eliminando.'**
+  String get apiAccountDeleting;
+
+  /// No description provided for @apiAccountUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La cuenta no está disponible.'**
+  String get apiAccountUnavailable;
+
+  /// No description provided for @apiRateLimited.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste demasiados cambios seguidos. Esperá un rato y probá de nuevo.'**
+  String get apiRateLimited;
+
+  /// No description provided for @apiPhotoProcessor.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo procesar la foto ahora. Reintentá más tarde.'**
+  String get apiPhotoProcessor;
+
+  /// No description provided for @apiInvalidPhoto.
+  ///
+  /// In es, this message translates to:
+  /// **'La foto no es válida.'**
+  String get apiInvalidPhoto;
+
+  /// No description provided for @apiTooLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos son demasiado grandes para guardarse.'**
+  String get apiTooLarge;
+
+  /// No description provided for @apiExportExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'La exportación venció. Iniciá otra.'**
+  String get apiExportExpired;
+
+  /// No description provided for @apiBillingReview.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu cuenta tiene una suscripción o compra que debe revisarse antes de eliminarla.'**
+  String get apiBillingReview;
+
+  /// No description provided for @apiPrivacyUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'El canal de privacidad todavía no está disponible.'**
+  String get apiPrivacyUnavailable;
+
+  /// No description provided for @apiServiceBusy.
+  ///
+  /// In es, this message translates to:
+  /// **'El servicio no está disponible en este momento. Reintentá en unos minutos.'**
+  String get apiServiceBusy;
+
+  /// No description provided for @apiDeviceConflict.
+  ///
+  /// In es, this message translates to:
+  /// **'Este dispositivo ya está asociado a otra cuenta.'**
+  String get apiDeviceConflict;
 }
 
 class _AppLocalizationsDelegate

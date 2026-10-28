@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../l10n/active_locale.dart';
 import '../../preferences/app_preferences.dart';
 import '../../services/local_reminder_service.dart';
 import '../../services/pawlife_repository.dart';
@@ -12,7 +13,12 @@ import '../../services/pawlife_repository.dart';
 Future<void> _rescheduleReminders() async {
   try {
     if (FirebaseAuth.instance.currentUser == null) return;
-    await LocalReminderService.instance.syncBestEffort(PawLifeRepository());
+    final repository = PawLifeRepository();
+    await LocalReminderService.instance.syncBestEffort(repository);
+    // El servidor genera algunos avisos (p. ej. falta de paseos): usa este idioma.
+    await repository.updatePreferences({
+      'idioma': ActiveLocale.current.languageCode,
+    });
   } catch (_) {
     // Best effort: se reprogramarán al volver a abrir la app.
   }

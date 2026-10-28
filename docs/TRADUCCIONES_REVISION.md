@@ -2,7 +2,7 @@
 
 Fecha: 28/10/2026. Fuente: `lib/l10n/app_{es,en,pt}.arb` (rama `feature/us28-us29-idiomas-tema`). El español es el original; el inglés y el portugués los redacté yo y **nadie los revisó**.
 
-Total: 406 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecución y no se deben traducir ni quitar; `⏎` es un salto de línea. Los plurales usan sintaxis ICU (`{count, plural, one{...} other{...}}`): hay que revisar ambas formas.
+Total: 430 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecución y no se deben traducir ni quitar; `⏎` es un salto de línea. Los plurales usan sintaxis ICU (`{count, plural, one{...} other{...}}`): hay que revisar ambas formas.
 
 ## Qué revisar
 
@@ -420,3 +420,27 @@ Total: 406 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecuci
 | 404 | `locDenied` | Permiso de ubicación denegado. | Location permission denied. | Permissão de localização negada. | |
 | 405 | `locDeniedForever` | Permiso denegado permanentemente. Habilitalo desde ajustes del sistema. | Permission permanently denied. Enable it in system settings. | Permissão negada permanentemente. Ative-a nas configurações do sistema. | |
 | 406 | `locFailed` | No se pudo obtener la ubicación: {error} | Couldn't get the location: {error} | Não foi possível obter a localização: {error} | |
+| 407 | `inactivityTitle` | Aviso por falta de paseos | No-walk reminder | Aviso por falta de passeios | |
+| 408 | `inactivityHint` | Te avisamos si pasa el plazo que elegís sin registrar un paseo. | We'll remind you if the period you choose passes without a recorded walk. | Avisamos se o prazo escolhido passar sem um passeio registrado. | |
+| 409 | `inactivityAfter` | Avisar tras | Remind after | Avisar após | |
+| 410 | `inactivityDays` | {count, plural, one{{count} día} other{{count} días}} | {count, plural, one{{count} day} other{{count} days}} | {count, plural, one{{count} dia} other{{count} dias}} | |
+| 411 | `inactivityIncludeNew` | Incluir mascotas sin paseos registrados | Include pets with no recorded walks | Incluir pets sem passeios registrados | |
+| 412 | `kindInactivity` | Sin paseos | No walks | Sem passeios | |
+| 413 | `premiumTitle` | Premium | Premium | Premium | |
+| 414 | `premiumActiveUntil` | Premium activo hasta {date} | Premium active until {date} | Premium ativo até {date} | |
+| 415 | `premiumInactive` | Sin Premium activo | No active Premium | Sem Premium ativo | |
+| 416 | `premiumSourceManual` | Concedido por el equipo de PawLife | Granted by the PawLife team | Concedido pela equipe PawLife | |
+| 417 | `premiumSourcePaid` | Suscripción | Subscription | Assinatura | |
+| 418 | `premiumNoPurchases` | Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app. | For now Premium is granted by the PawLife team. There are no in-app purchases yet. | Por enquanto o Premium é concedido pela equipe PawLife. Ainda não há compras dentro do app. | |
+| 419 | `premiumLoadError` | No se pudo consultar tu estado de Premium. | Couldn't check your Premium status. | Não foi possível consultar seu status Premium. | |
+| 420 | `apiAccountDeleting` | Tu cuenta se está eliminando. | Your account is being deleted. | Sua conta está sendo excluída. | |
+| 421 | `apiAccountUnavailable` | La cuenta no está disponible. | The account isn't available. | A conta não está disponível. | |
+| 422 | `apiRateLimited` | Hiciste demasiados cambios seguidos. Esperá un rato y probá de nuevo. | Too many changes in a row. Wait a while and try again. | Muitas alterações seguidas. Aguarde um pouco e tente novamente. | |
+| 423 | `apiPhotoProcessor` | No se pudo procesar la foto ahora. Reintentá más tarde. | The photo can't be processed right now. Try again later. | Não foi possível processar a foto agora. Tente mais tarde. | |
+| 424 | `apiInvalidPhoto` | La foto no es válida. | The photo isn't valid. | A foto não é válida. | |
+| 425 | `apiTooLarge` | Los datos son demasiado grandes para guardarse. | The data is too large to save. | Os dados são grandes demais para salvar. | |
+| 426 | `apiExportExpired` | La exportación venció. Iniciá otra. | The export expired. Start another one. | A exportação expirou. Inicie outra. | |
+| 427 | `apiBillingReview` | Tu cuenta tiene una suscripción o compra que debe revisarse antes de eliminarla. | Your account has a subscription or purchase that must be reviewed before it can be deleted. | Sua conta tem uma assinatura ou compra que precisa ser revisada antes de ser excluída. | |
+| 428 | `apiPrivacyUnavailable` | El canal de privacidad todavía no está disponible. | The privacy channel isn't available yet. | O canal de privacidade ainda não está disponível. | |
+| 429 | `apiServiceBusy` | El servicio no está disponible en este momento. Reintentá en unos minutos. | The service isn't available right now. Try again in a few minutes. | O serviço não está disponível no momento. Tente novamente em alguns minutos. | |
+| 430 | `apiDeviceConflict` | Este dispositivo ya está asociado a otra cuenta. | This device is already linked to another account. | Este dispositivo já está associado a outra conta. | |
