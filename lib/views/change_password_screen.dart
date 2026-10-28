@@ -45,12 +45,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       );
       if (mounted) Navigator.pop(context, true);
     } on AuthException catch (error) {
-      if (mounted) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
-    } catch (_) {
       if (mounted) {
         setState(
-          () => _error = t.passwordChangeError,
+          () => _error = authErrorText(AppLocalizations.of(context), error),
         );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = t.passwordChangeError);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -103,9 +105,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     autocorrect: false,
                     enableSuggestions: false,
                     decoration: InputDecoration(labelText: t.repeatNewPassword),
-                    validator: (value) => value != _next.text
-                        ? t.errPasswordMismatch
-                        : null,
+                    validator: (value) =>
+                        value != _next.text ? t.errPasswordMismatch : null,
                     onFieldSubmitted: (_) => _save(),
                   ),
                   const SizedBox(height: 24),

@@ -69,6 +69,7 @@ class PawLifeApp extends StatelessWidget {
       themeMode: prefs.themeMode,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
+      builder: (context, child) => _MaxWidth(child: child!),
       home: const AuthGate(),
     );
   }
@@ -159,6 +160,31 @@ class _SplashScreen extends StatelessWidget {
               child: CircularProgressIndicator(strokeWidth: 2.5),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Limita el ancho de la interfaz en tablet y web: sin esto las listas y los
+/// formularios se estiran a todo el ancho de la ventana. En teléfono (menos de
+/// [maxWidth]) no cambia nada.
+class _MaxWidth extends StatelessWidget {
+  const _MaxWidth({required this.child});
+
+  static const double maxWidth = 720;
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: maxWidth),
+          child: child,
         ),
       ),
     );

@@ -14,6 +14,7 @@ import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../services/seleccion_mascota.dart';
 import '../services/walk_repository.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'pets_screen.dart';
 import 'widgets/foto_mascota.dart';
@@ -21,8 +22,6 @@ import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 import 'widgets/selector_mascota.dart';
-
-const _kBackgroundLight = Color(0xFFF4F5F7);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -186,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: context.esOscuro
           ? context.fondoPantalla
-          : _kBackgroundLight,
+          : AppColors.fondoAlterno,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),

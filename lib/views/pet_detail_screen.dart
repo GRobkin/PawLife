@@ -14,7 +14,6 @@ import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../services/walk_repository.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'care_form_screen.dart';
 import 'pet_form_screen.dart';
@@ -944,13 +943,7 @@ class _Metrica extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: atenuada
-                    ? (context.esOscuro
-                          ? const Color(0xFF222E28)
-                          : const Color(0xFFF0F1F3))
-                    : (context.esOscuro
-                          ? const Color(0xFF1D3328)
-                          : AppColors.verdeSuave),
+                color: atenuada ? context.rellenoNeutro : context.mentaSuave,
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Text(
@@ -1058,11 +1051,7 @@ class _FilaCuidado extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: alerta
-                    ? context.errorFondo
-                    : (context.esOscuro
-                          ? const Color(0xFF1D2D25)
-                          : const Color(0xFFEDF2F7)),
+                color: alerta ? context.errorFondo : context.relleno,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

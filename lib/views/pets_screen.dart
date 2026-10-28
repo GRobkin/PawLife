@@ -289,7 +289,7 @@ class _Estado {
       _EstadoSalud.vencida => _Estado(
         t.statusOverdue,
         Icons.warning_amber_rounded,
-        AppColors.alerta,
+        context.alertaTexto,
       ),
       _EstadoSalud.proxima => _Estado(
         t.statusDueSoon,
@@ -374,7 +374,7 @@ class _TarjetaMascota extends StatelessWidget {
                         value: 'eliminar',
                         child: Text(
                           t.delete,
-                          style: const TextStyle(color: AppColors.alerta),
+                          style: TextStyle(color: context.alertaTexto),
                         ),
                       ),
                     ],

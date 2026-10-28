@@ -113,9 +113,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
         }
       } catch (_) {
         if (mounted) {
-          setState(
-            () => _error = t.prefSavedRemindersFailed,
-          );
+          setState(() => _error = t.prefSavedRemindersFailed);
         }
       }
     } catch (_) {
@@ -203,9 +201,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       );
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = t.exportShareFailed,
-        );
+        setState(() => _error = t.exportShareFailed);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -234,9 +230,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       await _load();
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = t.requestNotRegistered,
-        );
+        setState(() => _error = t.requestNotRegistered);
       }
     } finally {
       if (mounted) setState(() => _saving = false);

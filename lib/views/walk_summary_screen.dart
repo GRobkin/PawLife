@@ -16,18 +16,13 @@ import 'dart:math';
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
 import '../models/route_point.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import '../models/pawlife_models.dart';
 import 'walk_share_screen.dart';
 import 'widgets/foto_mascota.dart';
 import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
-
-const _kDarkGreen = Color(0xFF12352A); // sobre el badge menta, fijo
-const _kAccentGreen = Color(0xFF3FB77E);
-const _kBadgeGreen = Color(0xFF8DE8B0);
-const _kCardGreenLight = Color(0xFFF1F8F4);
-const _kCardGreenDark = Color(0xFF16241D);
 
 /// Estado del guardado del paseo en el backend.
 enum _SaveStatus { saving, saved, error }
@@ -360,19 +355,19 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: _kBadgeGreen,
+          color: AppColors.verdeBadge,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.verified, size: 18, color: _kDarkGreen),
+            const Icon(Icons.verified, size: 18, color: AppColors.verdeOscuro),
             const SizedBox(width: 8),
             Text(
               AppLocalizations.of(context).goodWalk,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: _kDarkGreen,
+                color: AppColors.verdeOscuro,
                 fontSize: 15,
               ),
             ),
@@ -539,7 +534,7 @@ class _MapHeader extends StatelessWidget {
                   Polyline(
                     points: points,
                     strokeWidth: 5,
-                    color: _kAccentGreen,
+                    color: AppColors.verdeAcento,
                   ),
                 ],
               ),
@@ -555,7 +550,10 @@ class _MapHeader extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
-                        border: Border.all(color: _kAccentGreen, width: 4),
+                        border: Border.all(
+                          color: AppColors.verdeAcento,
+                          width: 4,
+                        ),
                       ),
                     ),
                   ),
@@ -582,7 +580,7 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: context.esOscuro ? _kCardGreenDark : _kCardGreenLight,
+        color: context.tarjetaMenta,
         borderRadius: BorderRadius.circular(18),
       ),
       child: child,

@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/walk_route_trace.dart';
 
@@ -119,10 +120,7 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
                 Text(t.sharePrivacyNote),
                 const SizedBox(height: 14),
                 if (_error != null) ...[
-                  Text(
-                    _error!,
-                    style: const TextStyle(color: AppColors.alerta),
-                  ),
+                  Text(_error!, style: TextStyle(color: context.alertaTexto)),
                   TextButton(onPressed: _prepare, child: Text(t.retry)),
                 ] else if (_png == null)
                   const LinearProgressIndicator(),

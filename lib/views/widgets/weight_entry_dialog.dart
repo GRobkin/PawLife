@@ -74,9 +74,7 @@ class _WeightEntryDialogState extends State<WeightEntryDialog> {
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = t.weightSaveRetry,
-        );
+        setState(() => _error = t.weightSaveRetry);
       }
     } finally {
       if (mounted) setState(() => _saving = false);

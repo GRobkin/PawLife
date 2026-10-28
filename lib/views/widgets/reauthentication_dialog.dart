@@ -50,12 +50,14 @@ class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
       );
       if (mounted) Navigator.pop(context, true);
     } on AuthException catch (error) {
-      if (mounted && !error.isCancelled) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
+      if (mounted && !error.isCancelled) {
+        setState(
+          () => _error = authErrorText(AppLocalizations.of(context), error),
+        );
+      }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = t.identityVerifyError,
-        );
+        setState(() => _error = t.identityVerifyError);
       }
     } finally {
       if (mounted) setState(() => _busy = false);

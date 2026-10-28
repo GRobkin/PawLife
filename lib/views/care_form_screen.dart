@@ -77,9 +77,11 @@ class _VaccineFormScreenState extends State<VaccineFormScreen> {
       }
     } on ApiException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(apiErrorText(AppLocalizations.of(context), e))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(apiErrorText(AppLocalizations.of(context), e)),
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -222,9 +224,11 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
       if (mounted) Navigator.pop(context, true);
     } on ApiException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(apiErrorText(AppLocalizations.of(context), e))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(apiErrorText(AppLocalizations.of(context), e)),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _guardando = false);
@@ -368,9 +372,11 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
       }
     } on ApiException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(apiErrorText(AppLocalizations.of(context), e))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(apiErrorText(AppLocalizations.of(context), e)),
+          ),
+        );
       }
     } finally {
       if (mounted) {
