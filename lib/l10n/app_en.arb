@@ -405,5 +405,11 @@
   "locGpsOff": "GPS is off. Turn it on to continue.",
   "locDenied": "Location permission denied.",
   "locDeniedForever": "Permission permanently denied. Enable it in system settings.",
-  "locFailed": "Couldn't get the location: {error}"
+  "locFailed": "Couldn't get the location: {error}",
+  "inactivityTitle": "No-walk reminder",
+  "inactivityHint": "We'll remind you if the period you choose passes without a recorded walk.",
+  "inactivityAfter": "Remind after",
+  "inactivityDays": "{count, plural, one{{count} day} other{{count} days}}",
+  "inactivityIncludeNew": "Include pets with no recorded walks",
+  "kindInactivity": "No walks"
 }

@@ -1430,4 +1430,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String locFailed(String error) {
     return 'Couldn\'t get the location: $error';
   }
+
+  @override
+  String get inactivityTitle => 'No-walk reminder';
+
+  @override
+  String get inactivityHint =>
+      'We\'ll remind you if the period you choose passes without a recorded walk.';
+
+  @override
+  String get inactivityAfter => 'Remind after';
+
+  @override
+  String inactivityDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '$count day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get inactivityIncludeNew => 'Include pets with no recorded walks';
+
+  @override
+  String get kindInactivity => 'No walks';
 }

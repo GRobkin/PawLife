@@ -66,10 +66,10 @@ class PrivacyRepoFixture implements PawLifeRepository {
   Future<List<Map<String, dynamic>>> fetchPrivacyRequests() async => [];
   @override
   Future<Map<String, dynamic>> updatePreferences(
-    Map<String, bool> values,
+    Map<String, Object> values,
   ) async {
-    care = values['recordatoriosCuidados'] ?? care;
-    team = values['avisosEquipo'] ?? team;
+    care = values['recordatoriosCuidados'] as bool? ?? care;
+    team = values['avisosEquipo'] as bool? ?? team;
     return {
       'preferencias': {'recordatoriosCuidados': care, 'avisosEquipo': team},
     };

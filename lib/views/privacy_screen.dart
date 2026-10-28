@@ -95,6 +95,30 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
     }
   }
 
+  Map<String, dynamic> get _inactivity {
+    final preferences = _info?['preferencias'];
+    final value = preferences is Map ? preferences['inactividad'] : null;
+    return value is Map<String, dynamic> ? value : const {};
+  }
+
+  /// Aviso por falta de paseos: lo genera el servidor, no hace falta
+  /// reprogramar nada en este dispositivo.
+  Future<void> _setInactivity(Map<String, Object> change) async {
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final response = await _repo.updatePreferences({'inactividad': change});
+      if (!mounted || !_sameUser) return;
+      setState(() => _info!['preferencias'] = response['preferencias']);
+    } catch (_) {
+      if (mounted) setState(() => _error = t.prefNotSaved);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   Future<void> _preference(String key, bool value) async {
     setState(() {
       _saving = true;
@@ -294,6 +318,67 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                         ? null
                         : (value) => _preference('avisosEquipo', value),
                   ),
+                  SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(t.inactivityTitle),
+                    subtitle: Text(t.inactivityHint),
+                    value: _inactivity['habilitada'] == true,
+                    onChanged: _saving
+                        ? null
+                        : (value) => _setInactivity({'habilitada': value}),
+                  ),
+                  if (_inactivity['habilitada'] == true) ...[
+                    Row(
+                      children: [
+                        Expanded(child: Text(t.inactivityAfter)),
+                        DropdownButton<int>(
+                          value:
+                              const [
+                                24,
+                                48,
+                                72,
+                                120,
+                                168,
+                                336,
+                                720,
+                              ].contains(_inactivity['intervaloHoras'])
+                              ? _inactivity['intervaloHoras'] as int
+                              : 72,
+                          items: [
+                            for (final hours in const [
+                              24,
+                              48,
+                              72,
+                              120,
+                              168,
+                              336,
+                              720,
+                            ])
+                              DropdownMenuItem(
+                                value: hours,
+                                child: Text(t.inactivityDays(hours ~/ 24)),
+                              ),
+                          ],
+                          onChanged: _saving
+                              ? null
+                              : (hours) {
+                                  if (hours != null) {
+                                    _setInactivity({'intervaloHoras': hours});
+                                  }
+                                },
+                        ),
+                      ],
+                    ),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(t.inactivityIncludeNew),
+                      value: _inactivity['incluirSinPaseos'] == true,
+                      onChanged: _saving
+                          ? null
+                          : (value) =>
+                                _setInactivity({'incluirSinPaseos': value}),
+                    ),
+                  ],
                   const Divider(height: 32),
                   Text(
                     t.yourData,
