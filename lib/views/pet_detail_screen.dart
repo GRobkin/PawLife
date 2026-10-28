@@ -267,10 +267,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         backgroundColor: context.fondoPantalla,
         elevation: 0,
         foregroundColor: context.marca,
-        title: const Text(
-          'PawLife',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        title: Text('PawLife', style: Theme.of(context).textTheme.titleLarge),
         actions: [
           IconButton(
             tooltip: t.edit,
@@ -836,11 +833,9 @@ class _Portada extends StatelessWidget {
               children: [
                 Text(
                   mascota.nombre,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1012,10 +1007,7 @@ class _TituloSeccion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      texto,
-      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-    );
+    return Text(texto, style: Theme.of(context).textTheme.titleMedium);
   }
 }
 

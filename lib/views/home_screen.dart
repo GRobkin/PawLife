@@ -306,11 +306,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       children: [
         const Icon(Icons.menu),
-        const Expanded(
+        Expanded(
           child: Center(
             child: Text(
               'PawLife',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
         ),

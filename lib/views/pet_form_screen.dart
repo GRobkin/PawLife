@@ -253,10 +253,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
         backgroundColor: context.fondoPantalla,
         elevation: 0,
         foregroundColor: context.marca,
-        title: const Text(
-          'PawLife',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        title: Text('PawLife', style: Theme.of(context).textTheme.titleLarge),
       ),
       body: SafeArea(
         top: false,
