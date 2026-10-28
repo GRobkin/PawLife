@@ -436,5 +436,17 @@
   "shareStyleForest": "Forest",
   "shareStyleMint": "Mint",
   "shareStyleStats": "Stats",
-  "shareStyleLabel": "Card style"
+  "shareStyleLabel": "Card style",
+  "wearableStart": "START",
+  "wearablePause": "PAUSE",
+  "wearableResume": "RESUME",
+  "wearableStop": "FINISH",
+  "wearableSaving": "SAVING",
+  "wearableSaved": "SAVED",
+  "wearableDone": "DONE",
+  "wearableRetry": "RETRY",
+  "wearableNoGps": "NO GPS",
+  "wearableNoPet": "NO PET",
+  "wearableNotSaved": "NOT SAVED",
+  "wearableOpen": "Watch mode"
 }

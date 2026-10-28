@@ -436,5 +436,17 @@
   "shareStyleForest": "Floresta",
   "shareStyleMint": "Menta",
   "shareStyleStats": "Números",
-  "shareStyleLabel": "Estilo do cartão"
+  "shareStyleLabel": "Estilo do cartão",
+  "wearableStart": "INICIAR",
+  "wearablePause": "PAUSAR",
+  "wearableResume": "SEGUIR",
+  "wearableStop": "TERMINAR",
+  "wearableSaving": "SALVANDO",
+  "wearableSaved": "SALVO",
+  "wearableDone": "PRONTO",
+  "wearableRetry": "TENTAR",
+  "wearableNoGps": "SEM GPS",
+  "wearableNoPet": "SEM PET",
+  "wearableNotSaved": "NÃO SALVO",
+  "wearableOpen": "Modo relógio"
 }

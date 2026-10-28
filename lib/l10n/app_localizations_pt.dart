@@ -1565,4 +1565,40 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get shareStyleLabel => 'Estilo do cartão';
+
+  @override
+  String get wearableStart => 'INICIAR';
+
+  @override
+  String get wearablePause => 'PAUSAR';
+
+  @override
+  String get wearableResume => 'SEGUIR';
+
+  @override
+  String get wearableStop => 'TERMINAR';
+
+  @override
+  String get wearableSaving => 'SALVANDO';
+
+  @override
+  String get wearableSaved => 'SALVO';
+
+  @override
+  String get wearableDone => 'PRONTO';
+
+  @override
+  String get wearableRetry => 'TENTAR';
+
+  @override
+  String get wearableNoGps => 'SEM GPS';
+
+  @override
+  String get wearableNoPet => 'SEM PET';
+
+  @override
+  String get wearableNotSaved => 'NÃO SALVO';
+
+  @override
+  String get wearableOpen => 'Modo relógio';
 }

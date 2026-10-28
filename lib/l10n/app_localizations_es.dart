@@ -1562,4 +1562,40 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shareStyleLabel => 'Estilo de la tarjeta';
+
+  @override
+  String get wearableStart => 'INICIAR';
+
+  @override
+  String get wearablePause => 'PAUSAR';
+
+  @override
+  String get wearableResume => 'SEGUIR';
+
+  @override
+  String get wearableStop => 'TERMINAR';
+
+  @override
+  String get wearableSaving => 'GUARDANDO';
+
+  @override
+  String get wearableSaved => 'GUARDADO';
+
+  @override
+  String get wearableDone => 'LISTO';
+
+  @override
+  String get wearableRetry => 'REINTENTAR';
+
+  @override
+  String get wearableNoGps => 'SIN GPS';
+
+  @override
+  String get wearableNoPet => 'SIN MASCOTA';
+
+  @override
+  String get wearableNotSaved => 'NO GUARDÓ';
+
+  @override
+  String get wearableOpen => 'Modo reloj';
 }

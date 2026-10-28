@@ -23,10 +23,12 @@ import '../services/walk_task_handler.dart';
 enum RouteScreenStatus { loading, error, ready }
 
 class RouteViewModel extends ChangeNotifier {
-  RouteViewModel({LocationService? locationService})
-    : _locationService = locationService ?? LocationService();
+  RouteViewModel({LocationService? locationService, DateTime Function()? reloj})
+    : _locationService = locationService ?? LocationService(),
+      _ahora = reloj ?? DateTime.now;
 
   final LocationService _locationService;
+  final DateTime Function() _ahora;
 
   // ---- Estado expuesto a la View ----
   RouteScreenStatus status = RouteScreenStatus.loading;
@@ -41,6 +43,9 @@ class RouteViewModel extends ChangeNotifier {
   final List<RoutePoint> _rawPoints = [];
 
   bool isTracking = false;
+
+  /// Paseo en pausa: no corre el tiempo ni se suma distancia.
+  bool isPaused = false;
   double distanceMeters = 0;
   Duration elapsed = Duration.zero;
 
@@ -53,6 +58,12 @@ class RouteViewModel extends ChangeNotifier {
   Timer? _ticker;
   DateTime? _startedAt;
   GpsPointFilter? _filtro;
+  DateTime? _pausaDesde;
+  Duration _pausado = Duration.zero;
+
+  /// Tras reanudar, el primer punto no se une con el último anterior: el
+  /// salto durante la pausa no es distancia caminada.
+  bool _romperEnlace = false;
 
   /// Callback opcional que la View puede usar para recentrar/mover el mapa
   /// cada vez que llega un punto nuevo.
@@ -109,26 +120,7 @@ class RouteViewModel extends ChangeNotifier {
   // Iniciar / detener paseo (ahora vía foreground service)
   // -----------------------------------------------------------------
   Future<void> startWalk() async {
-    routePoints.clear();
-    _rawPoints.clear();
-    distanceMeters = 0;
-    maxSpeedKmh = 0;
-    elapsed = Duration.zero;
-    descartadas = 0;
-    _startedAt = DateTime.now();
-    // Uno nuevo por paseo: arrastrar la última lectura del paseo anterior
-    // haría que la primera del nuevo pareciera un salto.
-    _filtro = GpsPointFilter(inicio: _startedAt!);
-    isTracking = true;
-    notifyListeners();
-
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_startedAt != null) {
-        elapsed = DateTime.now().difference(_startedAt!);
-        notifyListeners();
-      }
-    });
-
+    _comenzarSesion();
     await _requestForegroundServicePermissions();
     _initForegroundService();
 
@@ -146,11 +138,77 @@ class RouteViewModel extends ChangeNotifier {
     }
   }
 
+  /// Reinicia el estado del paseo y arranca el cronómetro (sin tocar el
+  /// servicio en segundo plano).
+  void _comenzarSesion() {
+    routePoints.clear();
+    _rawPoints.clear();
+    distanceMeters = 0;
+    maxSpeedKmh = 0;
+    elapsed = Duration.zero;
+    descartadas = 0;
+    isPaused = false;
+    _pausaDesde = null;
+    _pausado = Duration.zero;
+    _romperEnlace = false;
+    _startedAt = _ahora();
+    // Uno nuevo por paseo: arrastrar la última lectura del paseo anterior
+    // haría que la primera del nuevo pareciera un salto.
+    _filtro = GpsPointFilter(inicio: _startedAt!);
+    isTracking = true;
+    notifyListeners();
+
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_startedAt != null && !isPaused) {
+        _actualizarTiempo();
+        notifyListeners();
+      }
+    });
+  }
+
+  void _actualizarTiempo() {
+    elapsed = _ahora().difference(_startedAt!) - _pausado;
+  }
+
+  @visibleForTesting
+  void comenzarSesionParaPruebas() => _comenzarSesion();
+
+  @visibleForTesting
+  void recibirPuntoParaPruebas(Map<String, Object?> datos) =>
+      _onTaskData(datos);
+
+  /// Pausa el paseo. El servicio de ubicación sigue vivo (si no, Android
+  /// podría cerrar la sesión), pero lo que llega se descarta.
+  void pauseWalk() {
+    if (!isTracking || isPaused) return;
+    _actualizarTiempo();
+    isPaused = true;
+    _pausaDesde = _ahora();
+    notifyListeners();
+  }
+
+  void resumeWalk() {
+    if (!isTracking || !isPaused) return;
+    _pausado += _ahora().difference(_pausaDesde!);
+    _pausaDesde = null;
+    isPaused = false;
+    _romperEnlace = true;
+    _actualizarTiempo();
+    notifyListeners();
+  }
+
   /// Detiene el paseo y devuelve la sesión lista para enviar al backend.
   WalkSession stopWalk() {
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     FlutterForegroundTask.stopService();
     _ticker?.cancel();
+    if (isPaused) {
+      // El tiempo ya quedó congelado al pausar.
+      isPaused = false;
+    } else if (_startedAt != null) {
+      _actualizarTiempo();
+    }
     isTracking = false;
     notifyListeners();
 
@@ -168,6 +226,7 @@ class RouteViewModel extends ChangeNotifier {
   // -----------------------------------------------------------------
   void _onTaskData(Object data) {
     if (data is! Map) return;
+    if (isPaused) return;
 
     final lat = (data['lat'] as num?)?.toDouble();
     final lng = (data['lng'] as num?)?.toDouble();
@@ -198,7 +257,7 @@ class RouteViewModel extends ChangeNotifier {
 
     final newPoint = LatLng(lat, lng);
 
-    if (routePoints.isNotEmpty) {
+    if (routePoints.isNotEmpty && !_romperEnlace) {
       final last = routePoints.last;
       final segmentMeters = _locationService.distanceBetween(
         last.latitude,
@@ -210,6 +269,7 @@ class RouteViewModel extends ChangeNotifier {
       _updateMaxSpeed(segmentMeters, timestamp);
     }
 
+    _romperEnlace = false;
     routePoints.add(newPoint);
     _rawPoints.add(
       RoutePoint(latitude: lat, longitude: lng, timestamp: timestamp),

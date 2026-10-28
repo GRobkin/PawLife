@@ -2721,6 +2721,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Estilo de la tarjeta'**
   String get shareStyleLabel;
+
+  /// No description provided for @wearableStart.
+  ///
+  /// In es, this message translates to:
+  /// **'INICIAR'**
+  String get wearableStart;
+
+  /// No description provided for @wearablePause.
+  ///
+  /// In es, this message translates to:
+  /// **'PAUSAR'**
+  String get wearablePause;
+
+  /// No description provided for @wearableResume.
+  ///
+  /// In es, this message translates to:
+  /// **'SEGUIR'**
+  String get wearableResume;
+
+  /// No description provided for @wearableStop.
+  ///
+  /// In es, this message translates to:
+  /// **'TERMINAR'**
+  String get wearableStop;
+
+  /// No description provided for @wearableSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'GUARDANDO'**
+  String get wearableSaving;
+
+  /// No description provided for @wearableSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'GUARDADO'**
+  String get wearableSaved;
+
+  /// No description provided for @wearableDone.
+  ///
+  /// In es, this message translates to:
+  /// **'LISTO'**
+  String get wearableDone;
+
+  /// No description provided for @wearableRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'REINTENTAR'**
+  String get wearableRetry;
+
+  /// No description provided for @wearableNoGps.
+  ///
+  /// In es, this message translates to:
+  /// **'SIN GPS'**
+  String get wearableNoGps;
+
+  /// No description provided for @wearableNoPet.
+  ///
+  /// In es, this message translates to:
+  /// **'SIN MASCOTA'**
+  String get wearableNoPet;
+
+  /// No description provided for @wearableNotSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'NO GUARDÓ'**
+  String get wearableNotSaved;
+
+  /// No description provided for @wearableOpen.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo reloj'**
+  String get wearableOpen;
 }
 
 class _AppLocalizationsDelegate

@@ -855,5 +855,17 @@
   "shareStyleForest": "Bosque",
   "shareStyleMint": "Menta",
   "shareStyleStats": "Cifras",
-  "shareStyleLabel": "Estilo de la tarjeta"
+  "shareStyleLabel": "Estilo de la tarjeta",
+  "wearableStart": "INICIAR",
+  "wearablePause": "PAUSAR",
+  "wearableResume": "SEGUIR",
+  "wearableStop": "TERMINAR",
+  "wearableSaving": "GUARDANDO",
+  "wearableSaved": "GUARDADO",
+  "wearableDone": "LISTO",
+  "wearableRetry": "REINTENTAR",
+  "wearableNoGps": "SIN GPS",
+  "wearableNoPet": "SIN MASCOTA",
+  "wearableNotSaved": "NO GUARDÓ",
+  "wearableOpen": "Modo reloj"
 }

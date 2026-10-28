@@ -1549,4 +1549,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareStyleLabel => 'Card style';
+
+  @override
+  String get wearableStart => 'START';
+
+  @override
+  String get wearablePause => 'PAUSE';
+
+  @override
+  String get wearableResume => 'RESUME';
+
+  @override
+  String get wearableStop => 'FINISH';
+
+  @override
+  String get wearableSaving => 'SAVING';
+
+  @override
+  String get wearableSaved => 'SAVED';
+
+  @override
+  String get wearableDone => 'DONE';
+
+  @override
+  String get wearableRetry => 'RETRY';
+
+  @override
+  String get wearableNoGps => 'NO GPS';
+
+  @override
+  String get wearableNoPet => 'NO PET';
+
+  @override
+  String get wearableNotSaved => 'NOT SAVED';
+
+  @override
+  String get wearableOpen => 'Watch mode';
 }
