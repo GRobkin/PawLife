@@ -288,7 +288,6 @@ class RouteViewModel extends ChangeNotifier {
 
   // US27 sigue pendiente: no presentar una constante por km como un cálculo
   // metabólico de la mascota sin un modelo validado para su especie y peso.
-  String get formattedCalories => 'Calorías: no disponible';
 
   @override
   void dispose() {

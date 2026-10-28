@@ -986,9 +986,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get durationCaps => 'DURAÇÃO';
 
   @override
-  String get caloriesUnavailable => 'Calorias: indisponível';
-
-  @override
   String get weightLoadError => 'Não foi possível carregar o histórico.';
 
   @override

@@ -2,7 +2,7 @@
 
 Fecha: 28/10/2026. Fuente: `lib/l10n/app_{es,en,pt}.arb` (rama `feature/us28-us29-idiomas-tema`). El español es el original; el inglés y el portugués los redacté yo y **nadie los revisó**.
 
-Total: 430 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecución y no se deben traducir ni quitar; `⏎` es un salto de línea. Los plurales usan sintaxis ICU (`{count, plural, one{...} other{...}}`): hay que revisar ambas formas.
+Total: 429 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecución y no se deben traducir ni quitar; `⏎` es un salto de línea. Los plurales usan sintaxis ICU (`{count, plural, one{...} other{...}}`): hay que revisar ambas formas.
 
 ## Qué revisar
 
@@ -289,158 +289,157 @@ Total: 430 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecuci
 | 273 | `gpsActive` | GPS activo | GPS active | GPS ativo | |
 | 274 | `gpsInactive` | GPS inactivo | GPS inactive | GPS inativo | |
 | 275 | `durationCaps` | DURACIÓN | DURATION | DURAÇÃO | |
-| 276 | `caloriesUnavailable` | Calorías: no disponible | Calories: not available | Calorias: indisponível | |
-| 277 | `weightLoadError` | No se pudo cargar el historial. | Couldn't load the history. | Não foi possível carregar o histórico. | |
-| 278 | `weightDeleteError` | No se pudo eliminar el registro. | Couldn't delete the record. | Não foi possível excluir o registro. | |
-| 279 | `deleteWeightTitle` | Eliminar registro de peso | Delete weight record | Excluir registro de peso | |
-| 280 | `noWeightRecords` | Todavía no hay registros de peso. | No weight records yet. | Ainda não há registros de peso. | |
-| 281 | `logWeight` | Registrar peso | Log weight | Registrar peso | |
-| 282 | `errWeightPositive` | Ingresá un peso mayor que cero. | Enter a weight greater than zero. | Digite um peso maior que zero. | |
-| 283 | `weightSaveRetry` | No se pudo guardar el peso. Podés reintentar el mismo registro. | Couldn't save the weight. You can retry the same record. | Não foi possível salvar o peso. Você pode tentar o mesmo registro novamente. | |
-| 284 | `confirmIdentity` | Confirmar identidad | Confirm identity | Confirmar identidade | |
-| 285 | `currentPassword` | Contraseña actual | Current password | Senha atual | |
-| 286 | `confirmGoogleAccount` | Confirmá tu cuenta de Google para continuar. | Confirm your Google account to continue. | Confirme sua conta do Google para continuar. | |
-| 287 | `verifyingEllipsis` | Verificando… | Verifying… | Verificando… | |
-| 288 | `confirm` | Confirmar | Confirm | Confirmar | |
-| 289 | `errEnterCurrentPassword` | Ingresá tu contraseña actual. | Enter your current password. | Digite sua senha atual. | |
-| 290 | `identityVerifyError` | No se pudo verificar tu identidad. Intentá otra vez. | Couldn't verify your identity. Try again. | Não foi possível verificar sua identidade. Tente novamente. | |
-| 291 | `passwordChangeError` | No se pudo cambiar la contraseña. Intentá otra vez. | Couldn't change the password. Try again. | Não foi possível alterar a senha. Tente novamente. | |
-| 292 | `googlePasswordNote` | Tu cuenta utiliza Google. Gestioná su contraseña desde tu cuenta de Google. | Your account uses Google. Manage its password from your Google account. | Sua conta usa o Google. Gerencie a senha pela sua conta do Google. | |
-| 293 | `newPassword` | Nueva contraseña | New password | Nova senha | |
-| 294 | `repeatNewPassword` | Repetir nueva contraseña | Repeat new password | Repetir nova senha | |
-| 295 | `errMin6Chars` | Usá al menos 6 caracteres. | Use at least 6 characters. | Use pelo menos 6 caracteres. | |
-| 296 | `newEmail` | Correo nuevo | New email | Novo e-mail | |
-| 297 | `sendLink` | Enviar enlace | Send link | Enviar link | |
-| 298 | `sendingEllipsis` | Enviando… | Sending… | Enviando… | |
-| 299 | `checkingEllipsis` | Comprobando… | Checking… | Verificando… | |
-| 300 | `alreadyOpenedLink` | Ya abrí el enlace | I've opened the link | Já abri o link | |
-| 301 | `linkSentTo` | Te enviamos un enlace a {email}. Tu correo actual no cambia hasta que lo abras. | We sent a link to {email}. Your current email won't change until you open it. | Enviamos um link para {email}. Seu e-mail atual não muda até você abri-lo. | |
-| 302 | `notConfirmedYet` | Todavía no confirmaste el enlace. Abrí el correo que enviamos a {email}. | You haven't confirmed the link yet. Open the email we sent to {email}. | Você ainda não confirmou o link. Abra o e-mail que enviamos para {email}. | |
-| 303 | `errEnterNewEmail` | Ingresá el correo nuevo. | Enter the new email. | Digite o novo e-mail. | |
-| 304 | `errValidEmail` | Ingresá un correo válido. | Enter a valid email. | Digite um e-mail válido. | |
-| 305 | `emailLinkError` | No se pudo enviar el enlace. Intentá otra vez. | Couldn't send the link. Try again. | Não foi possível enviar o link. Tente novamente. | |
-| 306 | `emailCheckError` | No se pudo comprobar. Intentá otra vez. | Couldn't check. Try again. | Não foi possível verificar. Tente novamente. | |
-| 307 | `googleEmailNote` | Tu cuenta utiliza Google. Gestioná tu correo desde tu cuenta de Google. | Your account uses Google. Manage your email from your Google account. | Sua conta usa o Google. Gerencie seu e-mail pela sua conta do Google. | |
-| 308 | `emailUpdated` | Correo actualizado: {email} | Email updated: {email} | E-mail atualizado: {email} | |
-| 309 | `passwordUpdated` | Contraseña actualizada. | Password updated. | Senha atualizada. | |
-| 310 | `deleteAccountTitle` | Eliminar cuenta | Delete account | Excluir conta | |
-| 311 | `deleteAccountBody` | Se borrarán tu cuenta, tus mascotas y sus registros. Esta acción no se puede deshacer. | Your account, your pets and their records will be deleted. This action can't be undone. | Sua conta, seus pets e os registros deles serão apagados. Esta ação não pode ser desfeita. | |
-| 312 | `deleteForever` | Eliminar definitivamente | Delete permanently | Excluir definitivamente | |
-| 313 | `deletionInProgress` | Eliminación en curso | Deletion in progress | Exclusão em andamento | |
-| 314 | `deletionInProgressBody` | Tu cuenta ya está bloqueada y estamos terminando de borrar tus datos. Se completará automáticamente en unos minutos. | Your account is already locked and we're finishing deleting your data. It will complete automatically in a few minutes. | Sua conta já está bloqueada e estamos terminando de apagar seus dados. Será concluído automaticamente em alguns minutos. | |
-| 315 | `understood` | Entendido | Got it | Entendi | |
-| 316 | `signOutError` | No se pudo cerrar sesión: {error} | Couldn't sign out: {error} | Não foi possível sair: {error} | |
-| 317 | `deleteAccountError` | No se pudo eliminar la cuenta: {error} | Couldn't delete the account: {error} | Não foi possível excluir a conta: {error} | |
-| 318 | `privacyTitle` | Privacidad | Privacy | Privacidade | |
-| 319 | `privacySessionChanged` | La sesión cambió. Volvé a entrar desde tu perfil. | The session changed. Sign in again from your profile. | A sessão mudou. Entre novamente pelo seu perfil. | |
-| 320 | `privacyLoadError` | No se pudo cargar la privacidad. | Couldn't load privacy settings. | Não foi possível carregar a privacidade. | |
-| 321 | `prefSavedRemindersFailed` | Preferencia guardada. No se pudieron actualizar los avisos de este dispositivo; reintentá antes de cerrarlo. | Preference saved. This device's notifications couldn't be updated; retry before closing. | Preferência salva. Não foi possível atualizar os avisos deste dispositivo; tente novamente antes de fechar. | |
-| 322 | `prefNotSaved` | No se guardó la preferencia. Reintentá. | The preference wasn't saved. Try again. | A preferência não foi salva. Tente novamente. | |
-| 323 | `downloadMyData` | Descargar mis datos | Download my data | Baixar meus dados | |
-| 324 | `downloadMyDataBody` | El archivo incluye tus fotos y recorridos GPS. Elegí un destino privado cuando lo guardes o compartas. | The file includes your photos and GPS routes. Choose a private destination when you save or share it. | O arquivo inclui suas fotos e trajetos de GPS. Escolha um destino privado ao salvar ou compartilhar. | |
-| 325 | `continueLabel` | Continuar | Continue | Continuar | |
-| 326 | `exportIncomplete` | No se completó el archivo. Podés iniciar otra exportación. | The file wasn't completed. You can start another export. | O arquivo não foi concluído. Você pode iniciar outra exportação. | |
-| 327 | `exportShareFailed` | No se pudo guardar o compartir. El archivo sigue preparado para reintentar. | Couldn't save or share. The file is still ready to retry. | Não foi possível salvar ou compartilhar. O arquivo continua pronto para tentar novamente. | |
-| 328 | `requestNotRegistered` | No se pudo registrar la solicitud. Conservamos el texto para reintentar. | Couldn't register the request. We kept your text so you can retry. | Não foi possível registrar a solicitação. Mantivemos o texto para você tentar novamente. | |
-| 329 | `yourNotices` | Tus avisos | Your notifications | Seus avisos | |
-| 330 | `careReminders` | Recordatorios de cuidados | Care reminders | Lembretes de cuidados | |
-| 331 | `careRemindersHint` | Vacunas, medicamentos y tareas | Vaccines, medications and tasks | Vacinas, medicamentos e tarefas | |
-| 332 | `teamNotices` | Avisos del equipo | Team notices | Avisos da equipe | |
-| 333 | `yourData` | Tus datos | Your data | Seus dados | |
-| 334 | `yourDataBody` | Descargá tu perfil, mascotas, cuidados, fotos y recorridos en un archivo JSON. | Download your profile, pets, care records, photos and routes as a JSON file. | Baixe seu perfil, pets, cuidados, fotos e trajetos em um arquivo JSON. | |
-| 335 | `prepareFile` | Preparar archivo | Prepare file | Preparar arquivo | |
-| 336 | `recordsPrepared` | {count} registros preparados | {count} records prepared | {count} registros preparados | |
-| 337 | `cancelExport` | Cancelar exportación | Cancel export | Cancelar exportação | |
-| 338 | `saveOrShareJson` | Guardar o compartir JSON | Save or share JSON | Salvar ou compartilhar JSON | |
-| 339 | `requestsTitle` | Solicitudes | Requests | Solicitações | |
-| 340 | `requestType` | Tipo de solicitud | Request type | Tipo de solicitação | |
-| 341 | `reqConsulta` | Consulta | Inquiry | Consulta | |
-| 342 | `reqAcceso` | Acceso a información | Access to information | Acesso à informação | |
-| 343 | `reqCorreccion` | Corrección | Correction | Correção | |
-| 344 | `reqOposicion` | Oposición | Objection | Oposição | |
-| 345 | `reqBloqueo` | Bloqueo | Blocking | Bloqueio | |
-| 346 | `reqAnonimizacion` | Anonimización | Anonymization | Anonimização | |
-| 347 | `detailLabel` | Detalle | Details | Detalhes | |
-| 348 | `registerRequest` | Registrar solicitud | Submit request | Registrar solicitação | |
-| 349 | `requestsByEmail` | Por ahora podés enviar tus solicitudes al correo de soporte. | For now you can send your requests to the support email. | Por enquanto você pode enviar suas solicitações ao e-mail de suporte. | |
-| 350 | `requestChannelMissing` | El canal de consultas todavía no está configurado. | The inquiries channel isn't set up yet. | O canal de consultas ainda não foi configurado. | |
-| 351 | `refreshRequests` | Actualizar solicitudes | Refresh requests | Atualizar solicitações | |
-| 352 | `authUserDisabled` | Esta cuenta está deshabilitada. | This account is disabled. | Esta conta está desativada. | |
-| 353 | `authBadCredentials` | Correo o contraseña incorrectos. | Incorrect email or password. | E-mail ou senha incorretos. | |
-| 354 | `authEmailInUse` | Ya existe una cuenta con ese correo. | An account with that email already exists. | Já existe uma conta com esse e-mail. | |
-| 355 | `authWeakPassword` | La contraseña es demasiado débil (mínimo 6 caracteres). | The password is too weak (minimum 6 characters). | A senha é muito fraca (mínimo de 6 caracteres). | |
-| 356 | `authAccountExists` | Ya hay una cuenta con ese correo creada con otro método de acceso. | An account with that email already exists using a different sign-in method. | Já existe uma conta com esse e-mail criada com outro método de acesso. | |
-| 357 | `authRecentLogin` | Por seguridad, volvé a iniciar sesión para hacer este cambio. | For security, sign in again to make this change. | Por segurança, entre novamente para fazer esta alteração. | |
-| 358 | `authUserMismatch` | La cuenta elegida no coincide con la sesión actual. | The chosen account doesn't match the current session. | A conta escolhida não corresponde à sessão atual. | |
-| 359 | `authTooMany` | Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo. | Too many failed attempts. Wait a few minutes and try again. | Muitas tentativas falhas. Aguarde alguns minutos e tente novamente. | |
-| 360 | `authNoInternet` | No hay conexión a internet. | No internet connection. | Sem conexão com a internet. | |
-| 361 | `authNotEnabled` | Este método de acceso no está habilitado. | This sign-in method isn't enabled. | Este método de acesso não está ativado. | |
-| 362 | `authNoSession` | No hay sesión iniciada. | You're not signed in. | Não há sessão iniciada. | |
-| 363 | `authSessionChanged` | La sesión cambió. Volvé a intentar desde tu cuenta. | The session changed. Try again from your account. | A sessão mudou. Tente novamente pela sua conta. | |
-| 364 | `authCancelled` | Operación cancelada. | Operation cancelled. | Operação cancelada. | |
-| 365 | `authGoogleAccount` | Tu cuenta utiliza Google para iniciar sesión. | Your account signs in with Google. | Sua conta entra com o Google. | |
-| 366 | `authPasswordFields` | Completá la contraseña actual y una nueva de al menos 6 caracteres. | Fill in the current password and a new one of at least 6 characters. | Preencha a senha atual e uma nova com pelo menos 6 caracteres. | |
-| 367 | `authSameEmail` | Ese ya es el correo de tu cuenta. | That's already your account's email. | Esse já é o e-mail da sua conta. | |
-| 368 | `authSignupFailed` | No se pudo crear la cuenta. | Couldn't create the account. | Não foi possível criar a conta. | |
-| 369 | `authSigninFailed` | No se pudo iniciar sesión. | Couldn't sign in. | Não foi possível entrar. | |
-| 370 | `authGoogleSigninFailed` | No se pudo iniciar sesión con Google. | Couldn't sign in with Google. | Não foi possível entrar com o Google. | |
-| 371 | `authGoogleUnavailable` | El acceso con Google no está disponible en esta plataforma. | Google sign-in isn't available on this platform. | O acesso com o Google não está disponível nesta plataforma. | |
-| 372 | `authPushDisconnect` | No se pudieron desconectar las notificaciones. Reintentá cerrar sesión. | Couldn't disconnect notifications. Try signing out again. | Não foi possível desconectar as notificações. Tente sair novamente. | |
-| 373 | `authGeneric` | No se pudo completar la operación. Intentá otra vez. | Couldn't complete the operation. Try again. | Não foi possível concluir a operação. Tente novamente. | |
-| 374 | `googleInterrupted` | El acceso con Google se interrumpió. Probá de nuevo. | Google sign-in was interrupted. Try again. | O acesso com o Google foi interrompido. Tente novamente. | |
-| 375 | `googleUiUnavailable` | No se pudo abrir el diálogo de Google. | Couldn't open the Google dialog. | Não foi possível abrir a janela do Google. | |
-| 376 | `googleConfigError` | La app no está bien configurada para Google. Intentá más tarde. | The app isn't configured correctly for Google. Try again later. | O app não está configurado corretamente para o Google. Tente mais tarde. | |
-| 377 | `googleUserMismatch` | La cuenta de Google no coincide con la esperada. | The Google account doesn't match the expected one. | A conta do Google não corresponde à esperada. | |
-| 378 | `apiSessionChanged` | La sesión cambió. | The session changed. | A sessão mudou. | |
-| 379 | `apiInvalidResponse` | El servidor devolvió una respuesta inválida. Reintentá. | The server returned an invalid response. Try again. | O servidor retornou uma resposta inválida. Tente novamente. | |
-| 380 | `apiListTooLarge` | El listado es demasiado grande para esta pantalla. No se mostraron resultados incompletos. | The list is too large for this screen. Incomplete results were not shown. | A lista é grande demais para esta tela. Resultados incompletos não foram exibidos. | |
-| 381 | `apiTimeout` | El servidor tardó demasiado en responder. | The server took too long to respond. | O servidor demorou demais para responder. | |
-| 382 | `apiOffline` | No hay conexión con el servidor. Comprobá tu conexión a internet. | Can't reach the server. Check your internet connection. | Sem conexão com o servidor. Verifique sua internet. | |
-| 383 | `apiHttpStatus` | El servidor respondió con un error ({status}). | The server responded with an error ({status}). | O servidor respondeu com um erro ({status}). | |
-| 384 | `noticeVaccineTitle` | Vacuna de {pet} | {pet}'s vaccine | Vacina de {pet} | |
-| 385 | `noticeVaccineBody` | Se acerca {vaccine}: {date}. | {vaccine} is coming up: {date}. | {vaccine} está chegando: {date}. | |
-| 386 | `noticeMedicationTitle` | Medicamento de {pet} | {pet}'s medication | Medicamento de {pet} | |
-| 387 | `noticeMedicationBody` | {medication}: {dose}. | {medication}: {dose}. | {medication}: {dose}. | |
-| 388 | `photoOpenFailed` | No se pudo abrir la imagen. Probá otra vez. | Couldn't open the image. Try again. | Não foi possível abrir a imagem. Tente novamente. | |
-| 389 | `photoTooLarge` | La imagen es demasiado grande. Probá con otra. | The image is too large. Try another one. | A imagem é grande demais. Tente outra. | |
-| 390 | `photoTooLargeAfter` | La foto es demasiado grande incluso después de reducirla. Probá con otra. | The photo is too large even after shrinking it. Try another one. | A foto é grande demais mesmo depois de reduzida. Tente outra. | |
-| 391 | `photoInvalidType` | Elegí una imagen JPEG o PNG. | Choose a JPEG or PNG image. | Escolha uma imagem JPEG ou PNG. | |
-| 392 | `photoInvalidOrLarge` | La imagen no es válida o es demasiado grande. | The image isn't valid or is too large. | A imagem não é válida ou é grande demais. | |
-| 393 | `photoUnreadable` | No se pudo leer la imagen. Probá con otra. | Couldn't read the image. Try another one. | Não foi possível ler a imagem. Tente outra. | |
-| 394 | `exportCancelled` | Exportación cancelada. | Export cancelled. | Exportação cancelada. | |
-| 395 | `exportSessionChanged` | La sesión cambió. No se preparó el archivo. | The session changed. The file wasn't prepared. | A sessão mudou. O arquivo não foi preparado. | |
-| 396 | `exportTooBig` | El archivo necesita asistencia por su tamaño. | The file is too large and needs assistance. | O arquivo precisa de assistência por causa do tamanho. | |
-| 397 | `exportStartFailed` | No se pudo iniciar una exportación válida. | Couldn't start a valid export. | Não foi possível iniciar uma exportação válida. | |
-| 398 | `exportInvalidResponse` | La exportación devolvió una respuesta inválida. Iniciá otra. | The export returned an invalid response. Start another one. | A exportação retornou uma resposta inválida. Inicie outra. | |
-| 399 | `exportIncompleteService` | No se completó la exportación. Iniciá otra. | The export wasn't completed. Start another one. | A exportação não foi concluída. Inicie outra. | |
-| 400 | `captureNotReady` | El mapa todavía no está listo. | The map isn't ready yet. | O mapa ainda não está pronto. | |
-| 401 | `captureUnreadable` | No se pudo leer la imagen del mapa. | Couldn't read the map image. | Não foi possível ler a imagem do mapa. | |
-| 402 | `captureTooLarge` | La captura del mapa salió demasiado grande. Probá con menos zoom. | The map capture is too large. Try zooming out less. | A captura do mapa ficou grande demais. Tente com menos zoom. | |
-| 403 | `locGpsOff` | El GPS está desactivado. Activalo para continuar. | GPS is off. Turn it on to continue. | O GPS está desativado. Ative-o para continuar. | |
-| 404 | `locDenied` | Permiso de ubicación denegado. | Location permission denied. | Permissão de localização negada. | |
-| 405 | `locDeniedForever` | Permiso denegado permanentemente. Habilitalo desde ajustes del sistema. | Permission permanently denied. Enable it in system settings. | Permissão negada permanentemente. Ative-a nas configurações do sistema. | |
-| 406 | `locFailed` | No se pudo obtener la ubicación: {error} | Couldn't get the location: {error} | Não foi possível obter a localização: {error} | |
-| 407 | `inactivityTitle` | Aviso por falta de paseos | No-walk reminder | Aviso por falta de passeios | |
-| 408 | `inactivityHint` | Te avisamos si pasa el plazo que elegís sin registrar un paseo. | We'll remind you if the period you choose passes without a recorded walk. | Avisamos se o prazo escolhido passar sem um passeio registrado. | |
-| 409 | `inactivityAfter` | Avisar tras | Remind after | Avisar após | |
-| 410 | `inactivityDays` | {count, plural, one{{count} día} other{{count} días}} | {count, plural, one{{count} day} other{{count} days}} | {count, plural, one{{count} dia} other{{count} dias}} | |
-| 411 | `inactivityIncludeNew` | Incluir mascotas sin paseos registrados | Include pets with no recorded walks | Incluir pets sem passeios registrados | |
-| 412 | `kindInactivity` | Sin paseos | No walks | Sem passeios | |
-| 413 | `premiumTitle` | Premium | Premium | Premium | |
-| 414 | `premiumActiveUntil` | Premium activo hasta {date} | Premium active until {date} | Premium ativo até {date} | |
-| 415 | `premiumInactive` | Sin Premium activo | No active Premium | Sem Premium ativo | |
-| 416 | `premiumSourceManual` | Concedido por el equipo de PawLife | Granted by the PawLife team | Concedido pela equipe PawLife | |
-| 417 | `premiumSourcePaid` | Suscripción | Subscription | Assinatura | |
-| 418 | `premiumNoPurchases` | Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app. | For now Premium is granted by the PawLife team. There are no in-app purchases yet. | Por enquanto o Premium é concedido pela equipe PawLife. Ainda não há compras dentro do app. | |
-| 419 | `premiumLoadError` | No se pudo consultar tu estado de Premium. | Couldn't check your Premium status. | Não foi possível consultar seu status Premium. | |
-| 420 | `apiAccountDeleting` | Tu cuenta se está eliminando. | Your account is being deleted. | Sua conta está sendo excluída. | |
-| 421 | `apiAccountUnavailable` | La cuenta no está disponible. | The account isn't available. | A conta não está disponível. | |
-| 422 | `apiRateLimited` | Hiciste demasiados cambios seguidos. Esperá un rato y probá de nuevo. | Too many changes in a row. Wait a while and try again. | Muitas alterações seguidas. Aguarde um pouco e tente novamente. | |
-| 423 | `apiPhotoProcessor` | No se pudo procesar la foto ahora. Reintentá más tarde. | The photo can't be processed right now. Try again later. | Não foi possível processar a foto agora. Tente mais tarde. | |
-| 424 | `apiInvalidPhoto` | La foto no es válida. | The photo isn't valid. | A foto não é válida. | |
-| 425 | `apiTooLarge` | Los datos son demasiado grandes para guardarse. | The data is too large to save. | Os dados são grandes demais para salvar. | |
-| 426 | `apiExportExpired` | La exportación venció. Iniciá otra. | The export expired. Start another one. | A exportação expirou. Inicie outra. | |
-| 427 | `apiBillingReview` | Tu cuenta tiene una suscripción o compra que debe revisarse antes de eliminarla. | Your account has a subscription or purchase that must be reviewed before it can be deleted. | Sua conta tem uma assinatura ou compra que precisa ser revisada antes de ser excluída. | |
-| 428 | `apiPrivacyUnavailable` | El canal de privacidad todavía no está disponible. | The privacy channel isn't available yet. | O canal de privacidade ainda não está disponível. | |
-| 429 | `apiServiceBusy` | El servicio no está disponible en este momento. Reintentá en unos minutos. | The service isn't available right now. Try again in a few minutes. | O serviço não está disponível no momento. Tente novamente em alguns minutos. | |
-| 430 | `apiDeviceConflict` | Este dispositivo ya está asociado a otra cuenta. | This device is already linked to another account. | Este dispositivo já está associado a outra conta. | |
+| 276 | `weightLoadError` | No se pudo cargar el historial. | Couldn't load the history. | Não foi possível carregar o histórico. | |
+| 277 | `weightDeleteError` | No se pudo eliminar el registro. | Couldn't delete the record. | Não foi possível excluir o registro. | |
+| 278 | `deleteWeightTitle` | Eliminar registro de peso | Delete weight record | Excluir registro de peso | |
+| 279 | `noWeightRecords` | Todavía no hay registros de peso. | No weight records yet. | Ainda não há registros de peso. | |
+| 280 | `logWeight` | Registrar peso | Log weight | Registrar peso | |
+| 281 | `errWeightPositive` | Ingresá un peso mayor que cero. | Enter a weight greater than zero. | Digite um peso maior que zero. | |
+| 282 | `weightSaveRetry` | No se pudo guardar el peso. Podés reintentar el mismo registro. | Couldn't save the weight. You can retry the same record. | Não foi possível salvar o peso. Você pode tentar o mesmo registro novamente. | |
+| 283 | `confirmIdentity` | Confirmar identidad | Confirm identity | Confirmar identidade | |
+| 284 | `currentPassword` | Contraseña actual | Current password | Senha atual | |
+| 285 | `confirmGoogleAccount` | Confirmá tu cuenta de Google para continuar. | Confirm your Google account to continue. | Confirme sua conta do Google para continuar. | |
+| 286 | `verifyingEllipsis` | Verificando… | Verifying… | Verificando… | |
+| 287 | `confirm` | Confirmar | Confirm | Confirmar | |
+| 288 | `errEnterCurrentPassword` | Ingresá tu contraseña actual. | Enter your current password. | Digite sua senha atual. | |
+| 289 | `identityVerifyError` | No se pudo verificar tu identidad. Intentá otra vez. | Couldn't verify your identity. Try again. | Não foi possível verificar sua identidade. Tente novamente. | |
+| 290 | `passwordChangeError` | No se pudo cambiar la contraseña. Intentá otra vez. | Couldn't change the password. Try again. | Não foi possível alterar a senha. Tente novamente. | |
+| 291 | `googlePasswordNote` | Tu cuenta utiliza Google. Gestioná su contraseña desde tu cuenta de Google. | Your account uses Google. Manage its password from your Google account. | Sua conta usa o Google. Gerencie a senha pela sua conta do Google. | |
+| 292 | `newPassword` | Nueva contraseña | New password | Nova senha | |
+| 293 | `repeatNewPassword` | Repetir nueva contraseña | Repeat new password | Repetir nova senha | |
+| 294 | `errMin6Chars` | Usá al menos 6 caracteres. | Use at least 6 characters. | Use pelo menos 6 caracteres. | |
+| 295 | `newEmail` | Correo nuevo | New email | Novo e-mail | |
+| 296 | `sendLink` | Enviar enlace | Send link | Enviar link | |
+| 297 | `sendingEllipsis` | Enviando… | Sending… | Enviando… | |
+| 298 | `checkingEllipsis` | Comprobando… | Checking… | Verificando… | |
+| 299 | `alreadyOpenedLink` | Ya abrí el enlace | I've opened the link | Já abri o link | |
+| 300 | `linkSentTo` | Te enviamos un enlace a {email}. Tu correo actual no cambia hasta que lo abras. | We sent a link to {email}. Your current email won't change until you open it. | Enviamos um link para {email}. Seu e-mail atual não muda até você abri-lo. | |
+| 301 | `notConfirmedYet` | Todavía no confirmaste el enlace. Abrí el correo que enviamos a {email}. | You haven't confirmed the link yet. Open the email we sent to {email}. | Você ainda não confirmou o link. Abra o e-mail que enviamos para {email}. | |
+| 302 | `errEnterNewEmail` | Ingresá el correo nuevo. | Enter the new email. | Digite o novo e-mail. | |
+| 303 | `errValidEmail` | Ingresá un correo válido. | Enter a valid email. | Digite um e-mail válido. | |
+| 304 | `emailLinkError` | No se pudo enviar el enlace. Intentá otra vez. | Couldn't send the link. Try again. | Não foi possível enviar o link. Tente novamente. | |
+| 305 | `emailCheckError` | No se pudo comprobar. Intentá otra vez. | Couldn't check. Try again. | Não foi possível verificar. Tente novamente. | |
+| 306 | `googleEmailNote` | Tu cuenta utiliza Google. Gestioná tu correo desde tu cuenta de Google. | Your account uses Google. Manage your email from your Google account. | Sua conta usa o Google. Gerencie seu e-mail pela sua conta do Google. | |
+| 307 | `emailUpdated` | Correo actualizado: {email} | Email updated: {email} | E-mail atualizado: {email} | |
+| 308 | `passwordUpdated` | Contraseña actualizada. | Password updated. | Senha atualizada. | |
+| 309 | `deleteAccountTitle` | Eliminar cuenta | Delete account | Excluir conta | |
+| 310 | `deleteAccountBody` | Se borrarán tu cuenta, tus mascotas y sus registros. Esta acción no se puede deshacer. | Your account, your pets and their records will be deleted. This action can't be undone. | Sua conta, seus pets e os registros deles serão apagados. Esta ação não pode ser desfeita. | |
+| 311 | `deleteForever` | Eliminar definitivamente | Delete permanently | Excluir definitivamente | |
+| 312 | `deletionInProgress` | Eliminación en curso | Deletion in progress | Exclusão em andamento | |
+| 313 | `deletionInProgressBody` | Tu cuenta ya está bloqueada y estamos terminando de borrar tus datos. Se completará automáticamente en unos minutos. | Your account is already locked and we're finishing deleting your data. It will complete automatically in a few minutes. | Sua conta já está bloqueada e estamos terminando de apagar seus dados. Será concluído automaticamente em alguns minutos. | |
+| 314 | `understood` | Entendido | Got it | Entendi | |
+| 315 | `signOutError` | No se pudo cerrar sesión: {error} | Couldn't sign out: {error} | Não foi possível sair: {error} | |
+| 316 | `deleteAccountError` | No se pudo eliminar la cuenta: {error} | Couldn't delete the account: {error} | Não foi possível excluir a conta: {error} | |
+| 317 | `privacyTitle` | Privacidad | Privacy | Privacidade | |
+| 318 | `privacySessionChanged` | La sesión cambió. Volvé a entrar desde tu perfil. | The session changed. Sign in again from your profile. | A sessão mudou. Entre novamente pelo seu perfil. | |
+| 319 | `privacyLoadError` | No se pudo cargar la privacidad. | Couldn't load privacy settings. | Não foi possível carregar a privacidade. | |
+| 320 | `prefSavedRemindersFailed` | Preferencia guardada. No se pudieron actualizar los avisos de este dispositivo; reintentá antes de cerrarlo. | Preference saved. This device's notifications couldn't be updated; retry before closing. | Preferência salva. Não foi possível atualizar os avisos deste dispositivo; tente novamente antes de fechar. | |
+| 321 | `prefNotSaved` | No se guardó la preferencia. Reintentá. | The preference wasn't saved. Try again. | A preferência não foi salva. Tente novamente. | |
+| 322 | `downloadMyData` | Descargar mis datos | Download my data | Baixar meus dados | |
+| 323 | `downloadMyDataBody` | El archivo incluye tus fotos y recorridos GPS. Elegí un destino privado cuando lo guardes o compartas. | The file includes your photos and GPS routes. Choose a private destination when you save or share it. | O arquivo inclui suas fotos e trajetos de GPS. Escolha um destino privado ao salvar ou compartilhar. | |
+| 324 | `continueLabel` | Continuar | Continue | Continuar | |
+| 325 | `exportIncomplete` | No se completó el archivo. Podés iniciar otra exportación. | The file wasn't completed. You can start another export. | O arquivo não foi concluído. Você pode iniciar outra exportação. | |
+| 326 | `exportShareFailed` | No se pudo guardar o compartir. El archivo sigue preparado para reintentar. | Couldn't save or share. The file is still ready to retry. | Não foi possível salvar ou compartilhar. O arquivo continua pronto para tentar novamente. | |
+| 327 | `requestNotRegistered` | No se pudo registrar la solicitud. Conservamos el texto para reintentar. | Couldn't register the request. We kept your text so you can retry. | Não foi possível registrar a solicitação. Mantivemos o texto para você tentar novamente. | |
+| 328 | `yourNotices` | Tus avisos | Your notifications | Seus avisos | |
+| 329 | `careReminders` | Recordatorios de cuidados | Care reminders | Lembretes de cuidados | |
+| 330 | `careRemindersHint` | Vacunas, medicamentos y tareas | Vaccines, medications and tasks | Vacinas, medicamentos e tarefas | |
+| 331 | `teamNotices` | Avisos del equipo | Team notices | Avisos da equipe | |
+| 332 | `yourData` | Tus datos | Your data | Seus dados | |
+| 333 | `yourDataBody` | Descargá tu perfil, mascotas, cuidados, fotos y recorridos en un archivo JSON. | Download your profile, pets, care records, photos and routes as a JSON file. | Baixe seu perfil, pets, cuidados, fotos e trajetos em um arquivo JSON. | |
+| 334 | `prepareFile` | Preparar archivo | Prepare file | Preparar arquivo | |
+| 335 | `recordsPrepared` | {count} registros preparados | {count} records prepared | {count} registros preparados | |
+| 336 | `cancelExport` | Cancelar exportación | Cancel export | Cancelar exportação | |
+| 337 | `saveOrShareJson` | Guardar o compartir JSON | Save or share JSON | Salvar ou compartilhar JSON | |
+| 338 | `requestsTitle` | Solicitudes | Requests | Solicitações | |
+| 339 | `requestType` | Tipo de solicitud | Request type | Tipo de solicitação | |
+| 340 | `reqConsulta` | Consulta | Inquiry | Consulta | |
+| 341 | `reqAcceso` | Acceso a información | Access to information | Acesso à informação | |
+| 342 | `reqCorreccion` | Corrección | Correction | Correção | |
+| 343 | `reqOposicion` | Oposición | Objection | Oposição | |
+| 344 | `reqBloqueo` | Bloqueo | Blocking | Bloqueio | |
+| 345 | `reqAnonimizacion` | Anonimización | Anonymization | Anonimização | |
+| 346 | `detailLabel` | Detalle | Details | Detalhes | |
+| 347 | `registerRequest` | Registrar solicitud | Submit request | Registrar solicitação | |
+| 348 | `requestsByEmail` | Por ahora podés enviar tus solicitudes al correo de soporte. | For now you can send your requests to the support email. | Por enquanto você pode enviar suas solicitações ao e-mail de suporte. | |
+| 349 | `requestChannelMissing` | El canal de consultas todavía no está configurado. | The inquiries channel isn't set up yet. | O canal de consultas ainda não foi configurado. | |
+| 350 | `refreshRequests` | Actualizar solicitudes | Refresh requests | Atualizar solicitações | |
+| 351 | `authUserDisabled` | Esta cuenta está deshabilitada. | This account is disabled. | Esta conta está desativada. | |
+| 352 | `authBadCredentials` | Correo o contraseña incorrectos. | Incorrect email or password. | E-mail ou senha incorretos. | |
+| 353 | `authEmailInUse` | Ya existe una cuenta con ese correo. | An account with that email already exists. | Já existe uma conta com esse e-mail. | |
+| 354 | `authWeakPassword` | La contraseña es demasiado débil (mínimo 6 caracteres). | The password is too weak (minimum 6 characters). | A senha é muito fraca (mínimo de 6 caracteres). | |
+| 355 | `authAccountExists` | Ya hay una cuenta con ese correo creada con otro método de acceso. | An account with that email already exists using a different sign-in method. | Já existe uma conta com esse e-mail criada com outro método de acesso. | |
+| 356 | `authRecentLogin` | Por seguridad, volvé a iniciar sesión para hacer este cambio. | For security, sign in again to make this change. | Por segurança, entre novamente para fazer esta alteração. | |
+| 357 | `authUserMismatch` | La cuenta elegida no coincide con la sesión actual. | The chosen account doesn't match the current session. | A conta escolhida não corresponde à sessão atual. | |
+| 358 | `authTooMany` | Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo. | Too many failed attempts. Wait a few minutes and try again. | Muitas tentativas falhas. Aguarde alguns minutos e tente novamente. | |
+| 359 | `authNoInternet` | No hay conexión a internet. | No internet connection. | Sem conexão com a internet. | |
+| 360 | `authNotEnabled` | Este método de acceso no está habilitado. | This sign-in method isn't enabled. | Este método de acesso não está ativado. | |
+| 361 | `authNoSession` | No hay sesión iniciada. | You're not signed in. | Não há sessão iniciada. | |
+| 362 | `authSessionChanged` | La sesión cambió. Volvé a intentar desde tu cuenta. | The session changed. Try again from your account. | A sessão mudou. Tente novamente pela sua conta. | |
+| 363 | `authCancelled` | Operación cancelada. | Operation cancelled. | Operação cancelada. | |
+| 364 | `authGoogleAccount` | Tu cuenta utiliza Google para iniciar sesión. | Your account signs in with Google. | Sua conta entra com o Google. | |
+| 365 | `authPasswordFields` | Completá la contraseña actual y una nueva de al menos 6 caracteres. | Fill in the current password and a new one of at least 6 characters. | Preencha a senha atual e uma nova com pelo menos 6 caracteres. | |
+| 366 | `authSameEmail` | Ese ya es el correo de tu cuenta. | That's already your account's email. | Esse já é o e-mail da sua conta. | |
+| 367 | `authSignupFailed` | No se pudo crear la cuenta. | Couldn't create the account. | Não foi possível criar a conta. | |
+| 368 | `authSigninFailed` | No se pudo iniciar sesión. | Couldn't sign in. | Não foi possível entrar. | |
+| 369 | `authGoogleSigninFailed` | No se pudo iniciar sesión con Google. | Couldn't sign in with Google. | Não foi possível entrar com o Google. | |
+| 370 | `authGoogleUnavailable` | El acceso con Google no está disponible en esta plataforma. | Google sign-in isn't available on this platform. | O acesso com o Google não está disponível nesta plataforma. | |
+| 371 | `authPushDisconnect` | No se pudieron desconectar las notificaciones. Reintentá cerrar sesión. | Couldn't disconnect notifications. Try signing out again. | Não foi possível desconectar as notificações. Tente sair novamente. | |
+| 372 | `authGeneric` | No se pudo completar la operación. Intentá otra vez. | Couldn't complete the operation. Try again. | Não foi possível concluir a operação. Tente novamente. | |
+| 373 | `googleInterrupted` | El acceso con Google se interrumpió. Probá de nuevo. | Google sign-in was interrupted. Try again. | O acesso com o Google foi interrompido. Tente novamente. | |
+| 374 | `googleUiUnavailable` | No se pudo abrir el diálogo de Google. | Couldn't open the Google dialog. | Não foi possível abrir a janela do Google. | |
+| 375 | `googleConfigError` | La app no está bien configurada para Google. Intentá más tarde. | The app isn't configured correctly for Google. Try again later. | O app não está configurado corretamente para o Google. Tente mais tarde. | |
+| 376 | `googleUserMismatch` | La cuenta de Google no coincide con la esperada. | The Google account doesn't match the expected one. | A conta do Google não corresponde à esperada. | |
+| 377 | `apiSessionChanged` | La sesión cambió. | The session changed. | A sessão mudou. | |
+| 378 | `apiInvalidResponse` | El servidor devolvió una respuesta inválida. Reintentá. | The server returned an invalid response. Try again. | O servidor retornou uma resposta inválida. Tente novamente. | |
+| 379 | `apiListTooLarge` | El listado es demasiado grande para esta pantalla. No se mostraron resultados incompletos. | The list is too large for this screen. Incomplete results were not shown. | A lista é grande demais para esta tela. Resultados incompletos não foram exibidos. | |
+| 380 | `apiTimeout` | El servidor tardó demasiado en responder. | The server took too long to respond. | O servidor demorou demais para responder. | |
+| 381 | `apiOffline` | No hay conexión con el servidor. Comprobá tu conexión a internet. | Can't reach the server. Check your internet connection. | Sem conexão com o servidor. Verifique sua internet. | |
+| 382 | `apiHttpStatus` | El servidor respondió con un error ({status}). | The server responded with an error ({status}). | O servidor respondeu com um erro ({status}). | |
+| 383 | `noticeVaccineTitle` | Vacuna de {pet} | {pet}'s vaccine | Vacina de {pet} | |
+| 384 | `noticeVaccineBody` | Se acerca {vaccine}: {date}. | {vaccine} is coming up: {date}. | {vaccine} está chegando: {date}. | |
+| 385 | `noticeMedicationTitle` | Medicamento de {pet} | {pet}'s medication | Medicamento de {pet} | |
+| 386 | `noticeMedicationBody` | {medication}: {dose}. | {medication}: {dose}. | {medication}: {dose}. | |
+| 387 | `photoOpenFailed` | No se pudo abrir la imagen. Probá otra vez. | Couldn't open the image. Try again. | Não foi possível abrir a imagem. Tente novamente. | |
+| 388 | `photoTooLarge` | La imagen es demasiado grande. Probá con otra. | The image is too large. Try another one. | A imagem é grande demais. Tente outra. | |
+| 389 | `photoTooLargeAfter` | La foto es demasiado grande incluso después de reducirla. Probá con otra. | The photo is too large even after shrinking it. Try another one. | A foto é grande demais mesmo depois de reduzida. Tente outra. | |
+| 390 | `photoInvalidType` | Elegí una imagen JPEG o PNG. | Choose a JPEG or PNG image. | Escolha uma imagem JPEG ou PNG. | |
+| 391 | `photoInvalidOrLarge` | La imagen no es válida o es demasiado grande. | The image isn't valid or is too large. | A imagem não é válida ou é grande demais. | |
+| 392 | `photoUnreadable` | No se pudo leer la imagen. Probá con otra. | Couldn't read the image. Try another one. | Não foi possível ler a imagem. Tente outra. | |
+| 393 | `exportCancelled` | Exportación cancelada. | Export cancelled. | Exportação cancelada. | |
+| 394 | `exportSessionChanged` | La sesión cambió. No se preparó el archivo. | The session changed. The file wasn't prepared. | A sessão mudou. O arquivo não foi preparado. | |
+| 395 | `exportTooBig` | El archivo necesita asistencia por su tamaño. | The file is too large and needs assistance. | O arquivo precisa de assistência por causa do tamanho. | |
+| 396 | `exportStartFailed` | No se pudo iniciar una exportación válida. | Couldn't start a valid export. | Não foi possível iniciar uma exportação válida. | |
+| 397 | `exportInvalidResponse` | La exportación devolvió una respuesta inválida. Iniciá otra. | The export returned an invalid response. Start another one. | A exportação retornou uma resposta inválida. Inicie outra. | |
+| 398 | `exportIncompleteService` | No se completó la exportación. Iniciá otra. | The export wasn't completed. Start another one. | A exportação não foi concluída. Inicie outra. | |
+| 399 | `captureNotReady` | El mapa todavía no está listo. | The map isn't ready yet. | O mapa ainda não está pronto. | |
+| 400 | `captureUnreadable` | No se pudo leer la imagen del mapa. | Couldn't read the map image. | Não foi possível ler a imagem do mapa. | |
+| 401 | `captureTooLarge` | La captura del mapa salió demasiado grande. Probá con menos zoom. | The map capture is too large. Try zooming out less. | A captura do mapa ficou grande demais. Tente com menos zoom. | |
+| 402 | `locGpsOff` | El GPS está desactivado. Activalo para continuar. | GPS is off. Turn it on to continue. | O GPS está desativado. Ative-o para continuar. | |
+| 403 | `locDenied` | Permiso de ubicación denegado. | Location permission denied. | Permissão de localização negada. | |
+| 404 | `locDeniedForever` | Permiso denegado permanentemente. Habilitalo desde ajustes del sistema. | Permission permanently denied. Enable it in system settings. | Permissão negada permanentemente. Ative-a nas configurações do sistema. | |
+| 405 | `locFailed` | No se pudo obtener la ubicación: {error} | Couldn't get the location: {error} | Não foi possível obter a localização: {error} | |
+| 406 | `inactivityTitle` | Aviso por falta de paseos | No-walk reminder | Aviso por falta de passeios | |
+| 407 | `inactivityHint` | Te avisamos si pasa el plazo que elegís sin registrar un paseo. | We'll remind you if the period you choose passes without a recorded walk. | Avisamos se o prazo escolhido passar sem um passeio registrado. | |
+| 408 | `inactivityAfter` | Avisar tras | Remind after | Avisar após | |
+| 409 | `inactivityDays` | {count, plural, one{{count} día} other{{count} días}} | {count, plural, one{{count} day} other{{count} days}} | {count, plural, one{{count} dia} other{{count} dias}} | |
+| 410 | `inactivityIncludeNew` | Incluir mascotas sin paseos registrados | Include pets with no recorded walks | Incluir pets sem passeios registrados | |
+| 411 | `kindInactivity` | Sin paseos | No walks | Sem passeios | |
+| 412 | `premiumTitle` | Premium | Premium | Premium | |
+| 413 | `premiumActiveUntil` | Premium activo hasta {date} | Premium active until {date} | Premium ativo até {date} | |
+| 414 | `premiumInactive` | Sin Premium activo | No active Premium | Sem Premium ativo | |
+| 415 | `premiumSourceManual` | Concedido por el equipo de PawLife | Granted by the PawLife team | Concedido pela equipe PawLife | |
+| 416 | `premiumSourcePaid` | Suscripción | Subscription | Assinatura | |
+| 417 | `premiumNoPurchases` | Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app. | For now Premium is granted by the PawLife team. There are no in-app purchases yet. | Por enquanto o Premium é concedido pela equipe PawLife. Ainda não há compras dentro do app. | |
+| 418 | `premiumLoadError` | No se pudo consultar tu estado de Premium. | Couldn't check your Premium status. | Não foi possível consultar seu status Premium. | |
+| 419 | `apiAccountDeleting` | Tu cuenta se está eliminando. | Your account is being deleted. | Sua conta está sendo excluída. | |
+| 420 | `apiAccountUnavailable` | La cuenta no está disponible. | The account isn't available. | A conta não está disponível. | |
+| 421 | `apiRateLimited` | Hiciste demasiados cambios seguidos. Esperá un rato y probá de nuevo. | Too many changes in a row. Wait a while and try again. | Muitas alterações seguidas. Aguarde um pouco e tente novamente. | |
+| 422 | `apiPhotoProcessor` | No se pudo procesar la foto ahora. Reintentá más tarde. | The photo can't be processed right now. Try again later. | Não foi possível processar a foto agora. Tente mais tarde. | |
+| 423 | `apiInvalidPhoto` | La foto no es válida. | The photo isn't valid. | A foto não é válida. | |
+| 424 | `apiTooLarge` | Los datos son demasiado grandes para guardarse. | The data is too large to save. | Os dados são grandes demais para salvar. | |
+| 425 | `apiExportExpired` | La exportación venció. Iniciá otra. | The export expired. Start another one. | A exportação expirou. Inicie outra. | |
+| 426 | `apiBillingReview` | Tu cuenta tiene una suscripción o compra que debe revisarse antes de eliminarla. | Your account has a subscription or purchase that must be reviewed before it can be deleted. | Sua conta tem uma assinatura ou compra que precisa ser revisada antes de ser excluída. | |
+| 427 | `apiPrivacyUnavailable` | El canal de privacidad todavía no está disponible. | The privacy channel isn't available yet. | O canal de privacidade ainda não está disponível. | |
+| 428 | `apiServiceBusy` | El servicio no está disponible en este momento. Reintentá en unos minutos. | The service isn't available right now. Try again in a few minutes. | O serviço não está disponível no momento. Tente novamente em alguns minutos. | |
+| 429 | `apiDeviceConflict` | Este dispositivo ya está asociado a otra cuenta. | This device is already linked to another account. | Este dispositivo já está associado a outra conta. | |

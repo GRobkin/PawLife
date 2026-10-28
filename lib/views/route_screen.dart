@@ -565,25 +565,9 @@ class _StatsCard extends StatelessWidget {
           const Divider(height: 1),
           const SizedBox(height: 14),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: [
-                  const Icon(
-                    Icons.local_fire_department,
-                    size: 16,
-                    color: AppColors.verdeAcento,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    // El cálculo de calorías sigue sin modelo validado: el
-                    // ViewModel no entrega cifra y aquí solo se traduce el aviso.
-                    t.caloriesUnavailable,
-                    style: TextStyle(fontSize: 13, color: context.texto),
-                  ),
-                ],
-              ),
-              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.speed, size: 16, color: context.textoSuave),
                   const SizedBox(width: 6),
