@@ -1696,12 +1696,6 @@ abstract class AppLocalizations {
   /// **'{hours}h {minutes}min'**
   String durationHm(int hours, int minutes);
 
-  /// No description provided for @ints.
-  ///
-  /// In es, this message translates to:
-  /// **'hours'**
-  String get ints;
-
   /// No description provided for @walkInProgress.
   ///
   /// In es, this message translates to:

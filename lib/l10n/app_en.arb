@@ -266,7 +266,6 @@
   "walkedWith": "You walked with {name}",
   "durationSeconds": "{count} s",
   "durationHm": "{hours}h {minutes}min",
-  "ints": "minutes",
   "walkInProgress": "Walk in progress",
   "locationErrorDefault": "A location error occurred.",
   "mapCaptured": "Map captured",

@@ -953,9 +953,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ints => 'minutes';
-
-  @override
   String get walkInProgress => 'Walk in progress';
 
   @override
