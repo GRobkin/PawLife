@@ -118,12 +118,12 @@ Revisión externa de seguridad (paquete listo en `apipaw/docs/SEGURIDAD_REVISION
 4. Decisiones (B) en el orden: consentimiento global → Premium → visitas al veterinario.
 5. D según lo que decidas.
 
-## 5. Preguntas abiertas (tienen un valor por defecto; cambialo si no te sirve)
-1. **Pausar**: ¿no cuenta tiempo ni distancia mientras está pausado? *(por defecto: sí)*
-2. **Mascota**: el reloj usa la mascota activa del Home; con varias mascotas y ninguna activa, ¿elige la primera? *(por defecto: sí, como el botón de paseo actual)*
-3. **Terminar**: ¿pedir confirmación? *(por defecto: no; un segundo toque en «TERMINAR» desde Pausado ya es la confirmación)*
-4. **Idioma**: textos del reloj en los tres idiomas de la app *(por defecto: sí)*.
-5. **Sonido/vibración** al iniciar/terminar: *(por defecto: vibración corta; sin sonido)*.
+## 5. Preguntas abiertas → decididas (28/10/2026)
+1. **Pausar**: no cuenta tiempo ni distancia mientras está pausado.
+2. **Terminar**: sin confirmación extra; desde Pausado, «TERMINAR» es un toque y ya confirma.
+3. **Vibración**: corta al iniciar y al terminar; sin sonido.
+4. **Mascota**: la activa del Home; con varias y ninguna activa, la primera (como el botón de paseo actual).
+5. **Idioma**: textos del reloj en es/en/pt.
 
 ## 6. Verificación e integración de git (revisado el 28/10/2026)
 
