@@ -583,7 +583,6 @@
   "gpsActive": "GPS activo",
   "gpsInactive": "GPS inactivo",
   "durationCaps": "DURACIÓN",
-  "caloriesUnavailable": "Calorías: no disponible",
   "weightLoadError": "No se pudo cargar el historial.",
   "weightDeleteError": "No se pudo eliminar el registro.",
   "deleteWeightTitle": "Eliminar registro de peso",

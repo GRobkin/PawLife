@@ -1750,12 +1750,6 @@ abstract class AppLocalizations {
   /// **'DURACIÓN'**
   String get durationCaps;
 
-  /// No description provided for @caloriesUnavailable.
-  ///
-  /// In es, this message translates to:
-  /// **'Calorías: no disponible'**
-  String get caloriesUnavailable;
-
   /// No description provided for @weightLoadError.
   ///
   /// In es, this message translates to:

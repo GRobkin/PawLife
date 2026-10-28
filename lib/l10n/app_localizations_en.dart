@@ -980,9 +980,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get durationCaps => 'DURATION';
 
   @override
-  String get caloriesUnavailable => 'Calories: not available';
-
-  @override
   String get weightLoadError => 'Couldn\'t load the history.';
 
   @override
