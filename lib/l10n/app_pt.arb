@@ -429,5 +429,7 @@
   "apiPrivacyUnavailable": "O canal de privacidade ainda não está disponível.",
   "apiServiceBusy": "O serviço não está disponível no momento. Tente novamente em alguns minutos.",
   "apiDeviceConflict": "Este dispositivo já está associado a outra conta.",
-  "cellNextVaccine": "PRÓXIMA VACINA"
+  "cellNextVaccine": "PRÓXIMA VACINA",
+  "homeTasksPending": "{count, plural, one{{count} tarefa pendente hoje} other{{count} tarefas pendentes hoje}}",
+  "homeAllDone": "Tudo em dia"
 }

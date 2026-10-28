@@ -1533,4 +1533,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cellNextVaccine => 'PRÓXIMA VACUNA';
+
+  @override
+  String homeTasksPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tareas pendientes hoy',
+      one: '$count tarea pendiente hoy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeAllDone => 'Todo al día';
 }
