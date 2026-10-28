@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/pawlife_models.dart';
 import '../../services/pawlife_repository.dart';
 import '../../theme/app_colors.dart';
@@ -20,23 +21,21 @@ Future<bool> confirmarYEliminarMascota(
   Mascota mascota, {
   PawLifeRepository? repositorio,
 }) async {
+  final t = AppLocalizations.of(context);
   final confirmado = await showDialog<bool>(
     context: context,
     builder: (contexto) => AlertDialog(
-      title: Text('¿Eliminar a ${mascota.nombre}?'),
-      content: const Text(
-        'Se borrarán también sus vacunas, medicamentos, registros de peso y '
-        'paseos. No se puede deshacer.',
-      ),
+      title: Text(t.deletePetTitle(mascota.nombre)),
+      content: Text(t.deletePetBody),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(contexto).pop(false),
-          child: const Text('Cancelar'),
+          child: Text(t.cancel),
         ),
         TextButton(
           onPressed: () => Navigator.of(contexto).pop(true),
           style: TextButton.styleFrom(foregroundColor: AppColors.alerta),
-          child: const Text('Eliminar'),
+          child: Text(t.delete),
         ),
       ],
     ),
@@ -50,7 +49,7 @@ Future<bool> confirmarYEliminarMascota(
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('${mascota.nombre} eliminada.')));
+    ).showSnackBar(SnackBar(content: Text(t.petDeleted(mascota.nombre))));
 
     return true;
   } catch (e) {
@@ -58,7 +57,7 @@ Future<bool> confirmarYEliminarMascota(
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+    ).showSnackBar(SnackBar(content: Text(t.deleteError('$e'))));
 
     return false;
   }

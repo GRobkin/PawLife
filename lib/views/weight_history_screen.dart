@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
@@ -20,6 +22,8 @@ class WeightHistoryScreen extends StatefulWidget {
 }
 
 class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   late final _repo =
       widget.repository ??
       PawLifeRepository(
@@ -50,9 +54,9 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
       final items = await _repo.fetchPesos(widget.mascota.id);
       if (mounted) setState(() => _items = items);
     } on ApiException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) setState(() => _error = apiErrorText(AppLocalizations.of(context), error));
     } catch (_) {
-      if (mounted) setState(() => _error = 'No se pudo cargar el historial.');
+      if (mounted) setState(() => _error = t.weightLoadError);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -72,18 +76,18 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Eliminar registro de peso'),
+        title: Text(t.deleteWeightTitle),
         content: Text(
           '${item.valorKg} kg · ${MaterialLocalizations.of(context).formatMediumDate(item.fecha)}',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancelar'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Eliminar'),
+            child: Text(t.delete),
           ),
         ],
       ),
@@ -97,9 +101,9 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
       await _repo.deletePeso(widget.mascota.id, item.id);
       if (mounted) await _load();
     } on ApiException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) setState(() => _error = apiErrorText(AppLocalizations.of(context), error));
     } catch (_) {
-      if (mounted) setState(() => _error = 'No se pudo eliminar el registro.');
+      if (mounted) setState(() => _error = t.weightDeleteError);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -107,7 +111,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Historial de peso')),
+    appBar: AppBar(title: Text(t.weightHistory)),
     body: Column(
       children: [
         if (_busy) const LinearProgressIndicator(),
@@ -122,7 +126,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
                 ),
                 TextButton(
                   onPressed: _busy ? null : _load,
-                  child: const Text('Reintentar'),
+                  child: Text(t.retry),
                 ),
               ],
             ),
@@ -131,7 +135,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
           child: _items == null
               ? const SizedBox.shrink()
               : _items!.isEmpty
-              ? const Center(child: Text('Todavía no hay registros de peso.'))
+              ? Center(child: Text(t.noWeightRecords))
               : ListView.separated(
                   itemCount: _items!.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
@@ -145,7 +149,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
                         '${MaterialLocalizations.of(context).formatMediumDate(item.fecha)} · ${TimeOfDay.fromDateTime(item.fecha).format(context)}',
                       ),
                       trailing: IconButton(
-                        tooltip: 'Eliminar registro de peso',
+                        tooltip: t.deleteWeightTitle,
                         onPressed: _busy ? null : () => _delete(item),
                         icon: const Icon(Icons.delete_outline),
                       ),
@@ -160,7 +164,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
             child: FilledButton.icon(
               onPressed: _busy ? null : _add,
               icon: const Icon(Icons.add),
-              label: const Text('Registrar peso'),
+              label: Text(t.logWeight),
             ),
           ),
         ),

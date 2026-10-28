@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -12,6 +14,8 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   final _form = GlobalKey<FormState>();
   final _current = TextEditingController();
   final _next = TextEditingController();
@@ -41,11 +45,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       );
       if (mounted) Navigator.pop(context, true);
     } on AuthException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error = 'No se pudo cambiar la contraseña. Intentá otra vez.',
+          () => _error = t.passwordChangeError,
         );
       }
     } finally {
@@ -57,13 +61,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) => PopScope(
     canPop: !_saving,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Cambiar contraseña')),
+      appBar: AppBar(title: Text(t.changePassword)),
       body: !_auth.supportsPasswordChange
-          ? const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                'Tu cuenta utiliza Google. Gestioná su contraseña desde tu cuenta de Google.',
-              ),
+          ? Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(t.googlePasswordNote),
             )
           : Form(
               key: _form,
@@ -76,11 +78,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     obscureText: true,
                     autocorrect: false,
                     enableSuggestions: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña actual',
-                    ),
+                    decoration: InputDecoration(labelText: t.currentPassword),
                     validator: (value) => value == null || value.isEmpty
-                        ? 'Ingresá tu contraseña actual.'
+                        ? t.errEnterCurrentPassword
                         : null,
                   ),
                   const SizedBox(height: 20),
@@ -90,11 +90,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     obscureText: true,
                     autocorrect: false,
                     enableSuggestions: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Nueva contraseña',
-                    ),
+                    decoration: InputDecoration(labelText: t.newPassword),
                     validator: (value) => value == null || value.length < 6
-                        ? 'Usá al menos 6 caracteres.'
+                        ? t.errMin6Chars
                         : null,
                   ),
                   const SizedBox(height: 20),
@@ -104,11 +102,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     obscureText: true,
                     autocorrect: false,
                     enableSuggestions: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Repetir nueva contraseña',
-                    ),
+                    decoration: InputDecoration(labelText: t.repeatNewPassword),
                     validator: (value) => value != _next.text
-                        ? 'Las contraseñas no coinciden.'
+                        ? t.errPasswordMismatch
                         : null,
                     onFieldSubmitted: (_) => _save(),
                   ),
@@ -124,7 +120,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ],
                   FilledButton(
                     onPressed: _saving ? null : _save,
-                    child: Text(_saving ? 'Guardando…' : 'Cambiar contraseña'),
+                    child: Text(_saving ? t.saving : t.changePassword),
                   ),
                 ],
               ),

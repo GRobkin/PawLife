@@ -8,19 +8,21 @@
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../theme/app_palette.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
-
-const _kDarkGreen = Color(0xFF12352A);
-const _kBackground = Color(0xFFF7F8FA);
+import 'widgets/preferences_section.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final fondo = context.fondoPantalla;
     return Scaffold(
-      backgroundColor: _kBackground,
+      backgroundColor: fondo,
       body: Column(
         children: [
           // Parte superior: imagen + logo + nombre
@@ -44,10 +46,33 @@ class WelcomeScreen extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        _kBackground.withValues(alpha: 0.85),
-                        _kBackground,
+                        fondo.withValues(alpha: 0.85),
+                        fondo,
                       ],
                       stops: const [0.35, 0.75, 1.0],
+                    ),
+                  ),
+                ),
+                // Idioma y apariencia disponibles antes de iniciar sesión.
+                SafeArea(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: IconButton.filledTonal(
+                        tooltip: t.language,
+                        icon: const Icon(Icons.translate),
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: context,
+                          showDragHandle: true,
+                          builder: (_) => const SafeArea(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                              child: PreferencesSection(),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -58,34 +83,34 @@ class WelcomeScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: const BoxDecoration(
-                          color: _kDarkGreen,
+                        decoration: BoxDecoration(
+                          color: context.botonFondo,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.pets,
-                          color: Colors.white,
+                          color: context.botonTexto,
                           size: 28,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'PawLife',
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: _kDarkGreen,
+                          color: context.marca,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 40),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Text(
-                          'La salud y felicidad de tu compañero,\ntodo en un solo lugar.',
+                          t.welcomeTagline,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.black54,
+                            color: context.textoSuave,
                             height: 1.4,
                           ),
                         ),
@@ -118,25 +143,25 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _kDarkGreen,
-                        foregroundColor: Colors.white,
+                        backgroundColor: context.botonFondo,
+                        foregroundColor: context.botonTexto,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Comenzar',
-                            style: TextStyle(
+                            t.getStarted,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 18),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward, size: 18),
                         ],
                       ),
                     ),
@@ -149,17 +174,17 @@ class WelcomeScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => const LoginScreen()),
                       ),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        backgroundColor: Colors.white,
+                        foregroundColor: context.texto,
+                        backgroundColor: context.superficie,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFFDDE1E6)),
+                        side: BorderSide(color: context.bordeSuave),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Iniciar sesión',
-                        style: TextStyle(
+                      child: Text(
+                        t.signIn,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -167,32 +192,32 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(text: 'Al continuar, aceptás nuestros '),
+                          TextSpan(text: t.termsPrefix),
                           TextSpan(
-                            text: 'Términos del servicio',
+                            text: t.termsOfService,
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              color: Colors.black87,
+                              color: context.texto,
                             ),
                           ),
-                          TextSpan(text: ' y la '),
+                          TextSpan(text: t.termsAnd),
                           TextSpan(
-                            text: 'Política de privacidad',
+                            text: t.privacyPolicy,
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              color: Colors.black87,
+                              color: context.texto,
                             ),
                           ),
-                          TextSpan(text: '.'),
+                          const TextSpan(text: '.'),
                         ],
                       ),
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.black45),
+                      style: TextStyle(fontSize: 12, color: context.textoTenue),
                     ),
                   ),
                   const SizedBox(height: 8),

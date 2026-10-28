@@ -91,7 +91,10 @@ class ApiClient {
     var bytes = 0;
     for (var page = 0; page < 250; page++) {
       if (_auth.currentUser?.uid != uid) {
-        throw const ApiException('La sesión cambió.');
+        throw const ApiException(
+          'La sesión cambió.',
+          code: 'client-session-changed',
+        );
       }
       final body = await _send(
         'GET',
@@ -99,19 +102,24 @@ class ApiClient {
         query: {'pageSize': '100', ...?query, 'cursor': ?cursor},
       );
       if (_auth.currentUser?.uid != uid) {
-        throw const ApiException('La sesión cambió.');
+        throw const ApiException(
+          'La sesión cambió.',
+          code: 'client-session-changed',
+        );
       }
       final items = body is Map<String, dynamic> ? body['items'] : null;
       if (items is! List ||
           items.any((item) => item is! Map<String, dynamic>)) {
         throw const ApiException(
           'La respuesta del servidor no trae una lista válida.',
+          code: 'client-invalid-response',
         );
       }
       bytes += utf8.encode(jsonEncode(items)).length;
       if (bytes > 8 * 1024 * 1024) {
         throw const ApiException(
           'El listado es demasiado grande para esta pantalla. No se mostraron resultados incompletos.',
+          code: 'client-list-too-large',
         );
       }
       all.addAll(items.cast<Map<String, dynamic>>());
@@ -125,12 +133,14 @@ class ApiClient {
       if (next is! String || next.isEmpty || !seen.add(next) || items.isEmpty) {
         throw const ApiException(
           'El servidor devolvió una página inválida. Reintentá cargar el listado.',
+          code: 'client-invalid-response',
         );
       }
       cursor = next;
     }
     throw const ApiException(
       'El listado requiere demasiadas páginas. No se mostraron resultados incompletos.',
+      code: 'client-list-too-large',
     );
   }
 
@@ -169,7 +179,10 @@ class ApiClient {
 
   Map<String, dynamic> _expectObject(dynamic body) {
     if (body is! Map<String, dynamic>) {
-      throw const ApiException('La respuesta del servidor no es un objeto.');
+      throw const ApiException(
+        'La respuesta del servidor no es un objeto.',
+        code: 'client-invalid-response',
+      );
     }
 
     return body;
@@ -223,11 +236,17 @@ class ApiClient {
     ).replace(queryParameters: (query == null || query.isEmpty) ? null : query);
 
     if (expectedUid != null && _auth.currentUser?.uid != expectedUid) {
-      throw const ApiException('La sesion cambio.');
+      throw const ApiException(
+        'La sesion cambio.',
+        code: 'client-session-changed',
+      );
     }
     final token = await _auth.idToken(forceRefresh: forceRefresh);
     if (expectedUid != null && _auth.currentUser?.uid != expectedUid) {
-      throw const ApiException('La sesion cambio.');
+      throw const ApiException(
+        'La sesion cambio.',
+        code: 'client-session-changed',
+      );
     }
 
     final request = http.Request(method, uri)
@@ -249,13 +268,18 @@ class ApiClient {
     } on TimeoutException {
       throw ApiException(
         'El servidor tardó demasiado en responder (${timeout.inSeconds} s).',
+        code: 'client-timeout',
       );
     } on SocketException {
       throw const ApiException(
         'No hay conexión con el servidor. Comprueba tu conexión a internet.',
+        code: 'client-offline',
       );
     } on http.ClientException catch (e) {
-      throw ApiException('Fallo de red: ${e.message}');
+      throw ApiException(
+        'Fallo de red: ${e.message}',
+        code: 'client-offline',
+      );
     }
   }
 
@@ -268,6 +292,7 @@ class ApiClient {
         throw ApiException(
           'El servidor respondió $status.',
           statusCode: status,
+          code: 'client-http-status',
         );
       }
 
@@ -283,6 +308,7 @@ class ApiClient {
       throw ApiException(
         'El servidor devolvió una respuesta que no es JSON (código $status).',
         statusCode: status,
+        code: 'client-invalid-response',
       );
     }
 
@@ -297,7 +323,11 @@ class ApiClient {
     final error = decoded is Map<String, dynamic> ? decoded['error'] : null;
 
     if (error is! Map<String, dynamic>) {
-      return ApiException('El servidor respondió $status.', statusCode: status);
+      return ApiException(
+        'El servidor respondió $status.',
+        statusCode: status,
+        code: 'client-http-status',
+      );
     }
 
     final details = error['details'];

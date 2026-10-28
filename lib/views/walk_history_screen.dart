@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'walk_detail_screen.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/walk_route_trace.dart';
@@ -61,7 +64,7 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
       if (mounted) {
         setState(() {
           _loading = false;
-          _error = 'No se pudo cargar el historial. Comprobá tu conexión.';
+          _error = AppLocalizations.of(context).historyLoadError;
         });
       }
     }
@@ -95,8 +98,7 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
       if (mounted && generation == _generation) {
         setState(() {
           _loading = false;
-          _error =
-              'No se pudieron cargar los paseos. Reintentá o actualizá el historial.';
+          _error = AppLocalizations.of(context).walksLoadError;
         });
       }
     }
@@ -112,132 +114,133 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: AppColors.fondo,
-    appBar: AppBar(title: const Text('Historial de paseos')),
-    body: RefreshIndicator(
-      onRefresh: _initialize,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Text(
-            'Cada paseo cuenta',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: AppColors.verdeOscuro,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text('Reviví sus recorridos y compartí un recuerdo juntos.'),
-          const SizedBox(height: 20),
-          if (_mascotas != null && _mascotas!.isNotEmpty) ...[
-            DropdownButtonFormField<String>(
-              initialValue: _selected?.id,
-              key: ValueKey(_selected?.id),
-              decoration: const InputDecoration(
-                labelText: 'Mascota',
-                border: OutlineInputBorder(),
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Scaffold(
+      backgroundColor: context.fondoPantalla,
+      appBar: AppBar(title: Text(t.walkHistoryTitle)),
+      body: RefreshIndicator(
+        onRefresh: _initialize,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(20),
+          children: [
+            Text(
+              t.everyWalkCounts,
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: context.marca,
               ),
-              items: _mascotas!
-                  .map(
-                    (p) => DropdownMenuItem(value: p.id, child: Text(p.nombre)),
-                  )
-                  .toList(),
-              onChanged: _loading
-                  ? null
-                  : (id) {
-                      setState(
-                        () => _selected = _mascotas!.firstWhere(
-                          (p) => p.id == id,
-                        ),
-                      );
-                      _load(reset: true);
-                    },
             ),
+            const SizedBox(height: 6),
+            Text(t.reliveWalks),
             const SizedBox(height: 20),
-          ],
-          if (_mascotas?.isEmpty == true)
-            const _HistoryEmpty(
-              text: 'Agregá una mascota para empezar a registrar sus paseos.',
-            )
-          else if (!_loading && _items.isEmpty && _error == null)
-            const _HistoryEmpty(
-              text:
-                  'Todavía no hay paseos. Iniciá uno desde el botón verde de la app.',
-            ),
-          for (final walk in _items)
-            Card(
-              margin: const EdgeInsets.only(bottom: 14),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: () => _open(walk),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          AvatarMascota(mascota: _selected!, radio: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Paseo con ${_selected!.nombre}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+            if (_mascotas != null && _mascotas!.isNotEmpty) ...[
+              DropdownButtonFormField<String>(
+                initialValue: _selected?.id,
+                key: ValueKey(_selected?.id),
+                decoration: InputDecoration(
+                  labelText: t.petLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                items: _mascotas!
+                    .map(
+                      (p) =>
+                          DropdownMenuItem(value: p.id, child: Text(p.nombre)),
+                    )
+                    .toList(),
+                onChanged: _loading
+                    ? null
+                    : (id) {
+                        setState(
+                          () => _selected = _mascotas!.firstWhere(
+                            (p) => p.id == id,
+                          ),
+                        );
+                        _load(reset: true);
+                      },
+              ),
+              const SizedBox(height: 20),
+            ],
+            if (_mascotas?.isEmpty == true)
+              _HistoryEmpty(text: t.addPetToLogWalks)
+            else if (!_loading && _items.isEmpty && _error == null)
+              _HistoryEmpty(text: t.noWalksYetHome),
+            for (final walk in _items)
+              Card(
+                margin: const EdgeInsets.only(bottom: 14),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => _open(walk),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            AvatarMascota(mascota: _selected!, radio: 20),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                t.walkWith(_selected!.nombre),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 120,
-                        width: double.infinity,
-                        child: WalkRouteTrace(points: walk.ruta),
-                      ),
-                      Text(
-                        '${walk.fechaInicio.day}/${walk.fechaInicio.month}/${walk.fechaInicio.year} · '
-                        '${walk.fechaInicio.hour.toString().padLeft(2, '0')}:${walk.fechaInicio.minute.toString().padLeft(2, '0')}',
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '${(walk.distanciaMetros / 1000).toStringAsFixed(2)} km · ${walk.duracion.inMinutes} min ${walk.duracion.inSeconds % 60} s',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.verdeOscuro,
+                            const Icon(Icons.chevron_right),
+                          ],
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          height: 120,
+                          width: double.infinity,
+                          child: WalkRouteTrace(
+                            points: walk.ruta,
+                            startColor: context.esOscuro
+                                ? Colors.white
+                                : AppColors.verdeOscuro,
+                          ),
+                        ),
+                        Text(formatDateTime(context, walk.fechaInicio)),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${(walk.distanciaMetros / 1000).toStringAsFixed(2)} km · ${t.durationMinSec(walk.duracion.inMinutes, walk.duracion.inSeconds % 60)}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: context.marca,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          if (_loading)
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          if (_error != null) ...[
-            Text(_error!, style: const TextStyle(color: AppColors.alerta)),
-            TextButton(
-              onPressed: _mascotas == null
-                  ? _initialize
-                  : () => _load(reset: _items.isEmpty),
-              child: const Text('Reintentar'),
-            ),
-          ] else if (!_loading && _cursor != null)
-            OutlinedButton(
-              onPressed: () => _load(reset: false),
-              child: const Text('Cargar más paseos'),
-            ),
-        ],
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            if (_error != null) ...[
+              Text(_error!, style: const TextStyle(color: AppColors.alerta)),
+              TextButton(
+                onPressed: _mascotas == null
+                    ? _initialize
+                    : () => _load(reset: _items.isEmpty),
+                child: Text(t.retry),
+              ),
+            ] else if (!_loading && _cursor != null)
+              OutlinedButton(
+                onPressed: () => _load(reset: false),
+                child: Text(t.loadMoreWalks),
+              ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _HistoryEmpty extends StatelessWidget {

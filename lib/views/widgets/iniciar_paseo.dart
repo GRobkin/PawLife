@@ -10,6 +10,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/pawlife_models.dart';
 import '../../services/pawlife_repository.dart';
 import '../../services/seleccion_mascota.dart';
@@ -36,7 +37,9 @@ Future<void> iniciarPaseo(
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudieron cargar tus mascotas: $e')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).cantLoadPets('$e')),
+        ),
       );
       return;
     }
@@ -46,9 +49,7 @@ Future<void> iniciarPaseo(
 
   if (disponibles.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Agregá una mascota antes de registrar un paseo.'),
-      ),
+      SnackBar(content: Text(AppLocalizations.of(context).addPetBeforeWalk)),
     );
     return;
   }
@@ -61,7 +62,7 @@ Future<void> iniciarPaseo(
             await elegirMascota(
               context,
               disponibles,
-              titulo: '¿Con quién vas a pasear?',
+              titulo: AppLocalizations.of(context).whoWalks,
             );
 
   if (elegida == null || !context.mounted) return;

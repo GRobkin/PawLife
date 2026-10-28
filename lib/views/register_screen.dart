@@ -7,11 +7,11 @@
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
+import '../theme/app_palette.dart';
 import 'login_screen.dart';
-import '../theme/app_colors.dart';
-
-const _kDarkGreen = Color(0xFF12352A);
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -50,7 +50,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = _passwordController.text;
     final confirmacion = _confirmController.text;
 
-    final error = _validar(nombre, email, password, confirmacion);
+    final error = _validar(
+      AppLocalizations.of(context),
+      nombre,
+      email,
+      password,
+      confirmacion,
+    );
     if (error != null) {
       setState(() => _error = error);
       return;
@@ -75,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Navigator.of(context).popUntil((ruta) => ruta.isFirst);
     } on AuthException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
+      setState(() => _error = authErrorText(AppLocalizations.of(context), e));
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -85,29 +91,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// confirmación de contraseña solo existe aquí: Firebase no sabe nada de
   /// ella, es cosa del formulario.
   String? _validar(
+    AppLocalizations t,
     String nombre,
     String email,
     String password,
     String confirmacion,
   ) {
-    if (nombre.isEmpty) return 'Escribí tu nombre.';
-    if (email.isEmpty) return 'Escribí tu correo electrónico.';
+    if (nombre.isEmpty) return t.errEnterName;
+    if (email.isEmpty) return t.errEnterEmail;
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
-      return 'El correo no tiene un formato válido.';
+      return t.errInvalidEmail;
     }
     // Es el mínimo que exige Firebase; mejor decirlo antes de que lo rechace.
     if (password.length < 6) {
-      return 'La contraseña debe tener al menos 6 caracteres.';
+      return t.errPasswordShort;
     }
-    if (password != confirmacion) return 'Las contraseñas no coinciden.';
+    if (password != confirmacion) return t.errPasswordMismatch;
 
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppColors.verdeSuave,
+      backgroundColor: context.esOscuro
+          ? context.fondoPantalla
+          : const Color(0xFFE8F5EE),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
@@ -122,7 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Container(
                 padding: const EdgeInsets.fromLTRB(32, 32, 32, 36),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.superficie,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: const [
                     BoxShadow(
@@ -135,42 +145,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Center(
+                    Center(
                       child: Text(
                         'PawLife',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
-                          color: _kDarkGreen,
+                          color: context.marca,
                         ),
                       ),
                     ),
                     const SizedBox(height: 28),
-                    const Text(
-                      'Creá tu cuenta',
+                    Text(
+                      t.createAccountTitle,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: context.texto,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Completá tus datos para empezar.',
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    Text(
+                      t.createAccountSubtitle,
+                      style: TextStyle(fontSize: 14, color: context.textoSuave),
                     ),
                     const SizedBox(height: 26),
 
-                    const AppFieldLabel('Nombre completo'),
+                    AppFieldLabel(t.fullName),
                     const SizedBox(height: 8),
                     AppTextField(
                       controller: _nameController,
-                      hint: 'Ej. Juana Pérez',
+                      hint: t.fullNameHint,
                       keyboardType: TextInputType.name,
                     ),
                     const SizedBox(height: 18),
 
-                    const AppFieldLabel('Correo electrónico'),
+                    AppFieldLabel(t.emailLabel),
                     const SizedBox(height: 8),
                     AppTextField(
                       controller: _emailController,
@@ -179,19 +189,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 18),
 
-                    const AppFieldLabel('Contraseña'),
+                    AppFieldLabel(t.passwordLabel),
                     const SizedBox(height: 8),
                     AppTextField(
                       controller: _passwordController,
                       hint: '••••••••',
                       obscureText: _obscurePassword,
                       suffix: IconButton(
+                        tooltip: _obscurePassword
+                            ? t.showPassword
+                            : t.hidePassword,
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           size: 20,
-                          color: Colors.black45,
+                          color: context.textoTenue,
                         ),
                         onPressed: () => setState(
                           () => _obscurePassword = !_obscurePassword,
@@ -200,19 +213,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 18),
 
-                    const AppFieldLabel('Confirmar contraseña'),
+                    AppFieldLabel(t.confirmPassword),
                     const SizedBox(height: 8),
                     AppTextField(
                       controller: _confirmController,
                       hint: '••••••••',
                       obscureText: _obscureConfirm,
                       suffix: IconButton(
+                        tooltip: _obscureConfirm
+                            ? t.showPassword
+                            : t.hidePassword,
                         icon: Icon(
                           _obscureConfirm
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           size: 20,
-                          color: Colors.black45,
+                          color: context.textoTenue,
                         ),
                         onPressed: () =>
                             setState(() => _obscureConfirm = !_obscureConfirm),
@@ -229,25 +245,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: ElevatedButton(
                         onPressed: _cargando ? null : _onCreateAccountPressed,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _kDarkGreen,
-                          foregroundColor: Colors.white,
+                          backgroundColor: context.botonFondo,
+                          foregroundColor: context.botonTexto,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: _cargando
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.2,
-                                  color: Colors.white,
+                                  color: context.botonTexto,
                                 ),
                               )
-                            : const Text(
-                                'Crear cuenta',
-                                style: TextStyle(
+                            : Text(
+                                t.createAccount,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -260,9 +276,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Text.rich(
                         TextSpan(
                           children: [
-                            const TextSpan(
-                              text: '¿Ya tenés una cuenta? ',
-                              style: TextStyle(color: Colors.black54),
+                            TextSpan(
+                              text: t.hasAccountPrefix,
+                              style: TextStyle(color: context.textoSuave),
                             ),
                             WidgetSpan(
                               child: GestureDetector(
@@ -272,11 +288,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         builder: (_) => const LoginScreen(),
                                       ),
                                     ),
-                                child: const Text(
-                                  'Iniciar sesión',
+                                child: Text(
+                                  t.signIn,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: _kDarkGreen,
+                                    color: context.marca,
                                   ),
                                 ),
                               ),

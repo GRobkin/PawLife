@@ -6,12 +6,15 @@
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../services/seleccion_mascota.dart';
 import '../services/walk_repository.dart';
+import '../theme/app_palette.dart';
 import 'pets_screen.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
@@ -19,8 +22,7 @@ import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 import 'widgets/selector_mascota.dart';
 
-const _kDarkGreen = Color(0xFF12352A);
-const _kBackground = Color(0xFFF4F5F7);
+const _kBackgroundLight = Color(0xFFF4F5F7);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -116,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo actualizar la tarea: $e')),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).updateTaskError('$e')),
+          ),
         );
       }
     }
@@ -145,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (mascotas.length == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Solo tenés una mascota por ahora.')),
+        SnackBar(content: Text(AppLocalizations.of(context).onlyOnePet)),
       );
       return;
     }
@@ -153,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final elegida = await elegirMascota(
       context,
       mascotas,
-      titulo: 'Cambiar de mascota',
+      titulo: AppLocalizations.of(context).changePet,
       seleccionadaId: SeleccionMascota.resolver(mascotas)?.id,
     );
 
@@ -169,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final now = DateTime.now();
     final hoy = _recordatorios
         ?.where(
@@ -179,7 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
         )
         .toList();
     return Scaffold(
-      backgroundColor: _kBackground,
+      backgroundColor: context.esOscuro
+          ? context.fondoPantalla
+          : _kBackgroundLight,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
@@ -191,17 +198,14 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Esta es tu agenda de hoy.',
-              style: TextStyle(color: Colors.black54),
-            ),
+            Text(t.todayAgenda, style: TextStyle(color: context.textoSuave)),
             const SizedBox(height: 20),
             _buildPetCard(),
             const SizedBox(height: 16),
             _buildStartWalkCard(context),
             const SizedBox(height: 24),
-            const Text(
-              'Resumen de actividad',
+            Text(
+              t.activitySummary,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
@@ -213,19 +217,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (_) => const WalkHistoryScreen()),
                 ),
                 icon: const Icon(Icons.history),
-                label: const Text('Ver historial de paseos'),
+                label: Text(t.viewWalkHistory),
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Hoy',
+            Text(
+              t.todayTitle,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             if (_recordatorios == null)
               const Center(child: CircularProgressIndicator())
             else if (hoy!.isEmpty)
-              const Text('No tenés tareas para hoy.')
+              Text(t.noTasksToday)
             else
               ...hoy.map(
                 (r) => Padding(
@@ -234,12 +238,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: r.tipo == 'vacuna'
                         ? Icons.medical_services_outlined
                         : Icons.assignment_outlined,
-                    iconColor: _kDarkGreen,
+                    iconColor: context.marca,
                     title: r.mensaje,
                     subtitle: r.completado
-                        ? 'Completada'
-                        : '${r.fecha.hour.toString().padLeft(2, '0')}:'
-                              '${r.fecha.minute.toString().padLeft(2, '0')}',
+                        ? t.completedLabel
+                        : formatTime(context, r.fecha),
                     checked: r.completado,
                     onTap: () => _marcarRecordatorio(r),
                   ),
@@ -260,21 +263,29 @@ class _HomeScreenState extends State<HomeScreen> {
   /// email y contraseña es el que se escribió al registrarse. Si no hay
   /// ninguno (cuentas creadas antes de pedir el nombre), se saluda sin él.
   String _saludo() {
+    final t = AppLocalizations.of(context);
     final usuario = AuthService().currentUser;
     final nombre = usuario?.displayName?.trim();
 
     final hora = DateTime.now().hour;
-    final momento = hora < 13
-        ? 'Buenos días'
+    final tramo = hora < 13
+        ? 0
         : hora < 21
-        ? 'Buenas tardes'
-        : 'Buenas noches';
+        ? 1
+        : 2;
 
-    if (nombre == null || nombre.isEmpty) return '¡$momento!';
+    if (nombre == null || nombre.isEmpty) {
+      return [t.goodMorning, t.goodAfternoon, t.goodEvening][tramo];
+    }
 
     // Solo el primer nombre: "¡Buenos días, Juana Pérez!" queda raro y además
     // se sale de la línea en pantallas estrechas.
-    return '¡$momento, ${nombre.split(' ').first}!';
+    final primero = nombre.split(' ').first;
+    return [
+      t.goodMorningName(primero),
+      t.goodAfternoonName(primero),
+      t.goodEveningName(primero),
+    ][tramo];
   }
 
   Widget _buildTopBar(BuildContext context) {
@@ -296,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Al hacerlo no hay que navegar a ningún lado: el AuthGate de
         // main.dart ve que la sesión se fue y vuelve solo a la bienvenida.
         PopupMenuButton<String>(
-          tooltip: 'Tu cuenta',
+          tooltip: AppLocalizations.of(context).yourAccount,
           offset: const Offset(0, 40),
           onSelected: (valor) {
             if (valor == 'salir') AuthService().signOut();
@@ -305,31 +316,33 @@ class _HomeScreenState extends State<HomeScreen> {
             PopupMenuItem<String>(
               enabled: false,
               child: Text(
-                usuario?.email ?? usuario?.displayName ?? 'Sesión iniciada',
-                style: const TextStyle(fontSize: 13, color: Colors.black54),
+                usuario?.email ??
+                    usuario?.displayName ??
+                    AppLocalizations.of(context).signedIn,
+                style: TextStyle(fontSize: 13, color: context.textoSuave),
               ),
             ),
             const PopupMenuDivider(),
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: 'salir',
               child: Row(
                 children: [
-                  Icon(Icons.logout, size: 18, color: Colors.black54),
-                  SizedBox(width: 10),
-                  Text('Cerrar sesión'),
+                  Icon(Icons.logout, size: 18, color: context.textoSuave),
+                  const SizedBox(width: 10),
+                  Text(AppLocalizations.of(context).logout),
                 ],
               ),
             ),
           ],
           child: CircleAvatar(
             radius: 16,
-            backgroundColor: Colors.black12,
+            backgroundColor: context.bordeSuave,
             // Google trae foto de perfil; con email y contraseña no hay, y se
             // cae al icono genérico de siempre.
             backgroundImage: fotoUrl == null ? null : NetworkImage(fotoUrl),
             child: fotoUrl != null
                 ? null
-                : const Icon(Icons.person, size: 18, color: Colors.black45),
+                : Icon(Icons.person, size: 18, color: context.textoTenue),
           ),
         ),
       ],
@@ -344,13 +357,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return ValueListenableBuilder<String?>(
       valueListenable: SeleccionMascota.id,
       builder: (context, _, _) {
+        final t = AppLocalizations.of(context);
         final mascotas = _mascotas;
         final activa = mascotas == null
             ? null
             : SeleccionMascota.resolver(mascotas);
 
         return Material(
-          color: Colors.white,
+          color: context.superficie,
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
             onTap: _cambiarMascota,
@@ -362,10 +376,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (activa != null)
                     AvatarMascota(mascota: activa, radio: 22)
                   else
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 22,
-                      backgroundColor: Colors.black12,
-                      child: Icon(Icons.pets, color: Colors.black45),
+                      backgroundColor: context.bordeSuave,
+                      child: Icon(Icons.pets, color: context.textoTenue),
                     ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -374,19 +388,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text(
                           activa?.nombre ??
-                              (mascotas == null ? 'Cargando…' : 'Sin mascotas'),
+                              (mascotas == null ? t.loadingEllipsis : t.noPets),
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
                           ),
                         ),
                         Text(
-                          activa?.subtitulo ??
-                              (mascotas == null
-                                  ? ''
-                                  : 'Tocá para agregar la primera'),
-                          style: const TextStyle(
-                            color: Colors.black54,
+                          activa?.subtituloLocalizado(t) ??
+                              (mascotas == null ? '' : t.tapToAddFirst),
+                          style: TextStyle(
+                            color: context.textoSuave,
                             fontSize: 13,
                           ),
                         ),
@@ -397,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (mascotas != null && mascotas.length > 1)
                     const Icon(Icons.keyboard_arrow_down)
                   else if (mascotas != null && mascotas.isEmpty)
-                    const Icon(Icons.add, color: Colors.black45),
+                    Icon(Icons.add, color: context.textoTenue),
                 ],
               ),
             ),
@@ -411,8 +423,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // Única parte funcional de esta pantalla: iniciar el paseo
   // -------------------------------------------------------------------
   Widget _buildStartWalkCard(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Material(
-      color: _kDarkGreen,
+      color: context.botonFondo,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -421,35 +434,38 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Iniciar paseo',
+                      t.startWalk,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.botonTexto,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      '¿Listos para una aventura?',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                      t.readyForAdventure,
+                      style: TextStyle(
+                        color: context.botonTexto.withValues(alpha: 0.75),
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: context.botonTexto,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.directions_walk,
-                  color: _kDarkGreen,
+                  color: context.botonFondo,
                   size: 20,
                 ),
               ),
@@ -467,6 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// hay dónde configurarla ni con qué compararla, así que la segunda tarjeta
   /// pasó a contar el tiempo caminado HOY, que sí se puede sumar de los paseos.
   Widget _buildActivitySummary() {
+    final t = AppLocalizations.of(context);
     final paseos = _paseos;
 
     if (paseos == null) {
@@ -476,9 +493,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _buildSummaryCard(
               icon: Icons.map_outlined,
               iconColor: Colors.green,
-              label: 'Último paseo',
+              label: t.lastWalk,
               value: '…',
-              hint: 'Cargando',
+              hint: t.loadingShort,
             ),
           ),
           const SizedBox(width: 12),
@@ -486,9 +503,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _buildSummaryCard(
               icon: Icons.timer_outlined,
               iconColor: Colors.blueGrey,
-              label: 'Tiempo activo',
+              label: t.activeTime,
               value: '…',
-              hint: 'Cargando',
+              hint: t.loadingShort,
             ),
           ),
         ],
@@ -508,11 +525,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: _buildSummaryCard(
             icon: Icons.map_outlined,
             iconColor: Colors.green,
-            label: 'Último paseo',
+            label: t.lastWalk,
             value: ultimo == null
                 ? '—'
                 : '${(ultimo.distanciaMetros / 1000).toStringAsFixed(2)} km',
-            hint: ultimo == null ? 'Sin paseos' : _cuando(ultimo.fechaInicio),
+            hint: ultimo == null ? t.noWalks : _cuando(ultimo.fechaInicio),
           ),
         ),
         const SizedBox(width: 12),
@@ -520,13 +537,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: _buildSummaryCard(
             icon: Icons.timer_outlined,
             iconColor: Colors.blueGrey,
-            label: 'Tiempo activo',
-            value: cuantosHoy == 0 ? '—' : '$minutosHoy min',
-            hint: switch (cuantosHoy) {
-              0 => 'Sin paseos hoy',
-              1 => '1 paseo hoy',
-              _ => '$cuantosHoy paseos hoy',
-            },
+            label: t.activeTime,
+            value: cuantosHoy == 0 ? '—' : t.minutesShort(minutosHoy),
+            hint: cuantosHoy == 0 ? t.noWalksToday : t.walksToday(cuantosHoy),
           ),
         ),
       ],
@@ -542,36 +555,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// "Hoy, 17:30", "Ayer, 09:15", "14 sep, 18:40".
-  static String _cuando(DateTime fecha) {
-    final hora =
-        '${fecha.hour.toString().padLeft(2, '0')}:'
-        '${fecha.minute.toString().padLeft(2, '0')}';
+  String _cuando(DateTime fecha) {
+    final t = AppLocalizations.of(context);
+    final hora = formatTime(context, fecha);
 
-    if (_esHoy(fecha)) return 'Hoy, $hora';
+    if (_esHoy(fecha)) return t.todayAt(hora);
 
     final ayer = DateTime.now().subtract(const Duration(days: 1));
     if (fecha.year == ayer.year &&
         fecha.month == ayer.month &&
         fecha.day == ayer.day) {
-      return 'Ayer, $hora';
+      return t.yesterdayAt(hora);
     }
 
-    const meses = [
-      'ene',
-      'feb',
-      'mar',
-      'abr',
-      'may',
-      'jun',
-      'jul',
-      'ago',
-      'sep',
-      'oct',
-      'nov',
-      'dic',
-    ];
-
-    return '${fecha.day} ${meses[fecha.month - 1]}, $hora';
+    return formatDayMonthTime(context, fecha);
   }
 
   Widget _buildSummaryCard({
@@ -584,7 +581,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.superficie,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -596,7 +593,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                style: TextStyle(fontSize: 12, color: context.textoSuave),
               ),
             ],
           ),
@@ -606,10 +603,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 2),
-          Text(
-            hint,
-            style: const TextStyle(fontSize: 11, color: Colors.black45),
-          ),
+          Text(hint, style: TextStyle(fontSize: 11, color: context.textoTenue)),
         ],
       ),
     );
@@ -622,12 +616,13 @@ class _HomeScreenState extends State<HomeScreen> {
     required String subtitle,
     required bool checked,
     required VoidCallback onTap,
-    Color subtitleColor = Colors.black54,
+    Color? subtitleColor,
   }) {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.superficie,
         borderRadius: BorderRadius.circular(14),
         border: subtitleColor == Colors.red
             ? const Border(left: BorderSide(color: Colors.red, width: 4))
@@ -654,17 +649,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 12, color: subtitleColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: subtitleColor ?? context.textoSuave,
+                  ),
                 ),
               ],
             ),
           ),
           IconButton(
-            tooltip: checked ? 'Marcar pendiente' : 'Marcar completada',
+            tooltip: checked ? t.markPending : t.markDone,
             onPressed: onTap,
             icon: Icon(
               checked ? Icons.check_box : Icons.check_box_outline_blank,
-              color: checked ? _kDarkGreen : Colors.black26,
+              color: checked ? context.marca : context.textoTenue,
             ),
           ),
         ],

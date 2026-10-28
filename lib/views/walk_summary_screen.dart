@@ -13,18 +13,21 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/route_point.dart';
+import '../theme/app_palette.dart';
 import '../models/pawlife_models.dart';
 import 'walk_share_screen.dart';
 import 'widgets/foto_mascota.dart';
 import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
 
-const _kDarkGreen = Color(0xFF12352A);
+const _kDarkGreen = Color(0xFF12352A); // sobre el badge menta, fijo
 const _kAccentGreen = Color(0xFF3FB77E);
 const _kBadgeGreen = Color(0xFF8DE8B0);
-const _kBackground = Color(0xFFF7F8FA);
-const _kCardGreen = Color(0xFFF1F8F4);
+const _kCardGreenLight = Color(0xFFF1F8F4);
+const _kCardGreenDark = Color(0xFF16241D);
 
 /// Estado del guardado del paseo en el backend.
 enum _SaveStatus { saving, saved, error }
@@ -105,13 +108,12 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
 
   /// Usamos "min"/"s" en vez de "m" para no confundir minutos con metros.
   String get _formattedDuration {
+    final t = AppLocalizations.of(context);
     final seconds = session.duration.inSeconds;
-    if (seconds < 60) return '$seconds s';
+    if (seconds < 60) return t.durationSeconds(seconds);
     final minutes = session.duration.inMinutes;
-    if (minutes < 60) return '$minutes min';
-    final h = session.duration.inHours;
-    final m = minutes % 60;
-    return '${h}h ${m}min';
+    if (minutes < 60) return t.minutesShort(minutes);
+    return t.durationHm(session.duration.inHours, minutes % 60);
   }
 
   String get _formattedSpeed {
@@ -121,32 +123,22 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
     return kmh.toStringAsFixed(1);
   }
 
-  /// Hora de inicio en formato de 24 h, el habitual en español.
-  String get _formattedTime {
-    final t = session.startedAt;
-    final hour = t.hour.toString().padLeft(2, '0');
-    final minute = t.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
-
   Future<void> _close(BuildContext context) async {
     if (_saveStatus == _SaveStatus.saving) return;
     if (_saveStatus == _SaveStatus.error) {
       final discard = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('El paseo no se guardó'),
-          content: const Text(
-            'Podés reintentar el guardado. Si salís ahora, perderás este recorrido.',
-          ),
+          title: Text(AppLocalizations.of(context).walkNotSaved),
+          content: Text(AppLocalizations.of(context).walkNotSavedBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Volver'),
+              child: Text(AppLocalizations.of(context).back),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Salir sin guardar'),
+              child: Text(AppLocalizations.of(context).leaveWithoutSaving),
             ),
           ],
         ),
@@ -183,6 +175,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final mapHeight = MediaQuery.of(context).size.height * 0.34;
 
     return PopScope(
@@ -191,7 +184,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
         if (!didPop) _close(context);
       },
       child: Scaffold(
-        backgroundColor: _kBackground,
+        backgroundColor: context.fondoPantalla,
         body: Stack(
           children: [
             // 1. Mapa de fondo, anclado arriba
@@ -222,23 +215,20 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
                   const SizedBox(height: 14),
                   Center(
                     child: Text(
-                      'Paseo con ${_mascotaNombre ?? 'tu mascota'}',
+                      t.walkWith(_mascotaNombre ?? t.yourPet),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: context.texto,
                       ),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      '${session.startedAt.day}/${session.startedAt.month}/${session.startedAt.year} · $_formattedTime',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
+                      formatDateTime(context, session.startedAt),
+                      style: TextStyle(fontSize: 14, color: context.textoSuave),
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -254,15 +244,15 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               top: MediaQuery.of(context).padding.top + 12,
               left: 16,
               child: Material(
-                color: Colors.white,
+                color: context.superficie,
                 shape: const CircleBorder(),
                 elevation: 3,
                 child: InkWell(
                   customBorder: const CircleBorder(),
                   onTap: () => _close(context),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Icon(Icons.close, size: 22, color: Colors.black87),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Icon(Icons.close, size: 22, color: context.texto),
                   ),
                 ),
               ),
@@ -291,6 +281,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
   /// Mientras guarda no deja cerrar por accidente sin saber si se guardó;
   /// si falló, el mismo botón reintenta.
   Widget _buildSaveButton(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final saving = _saveStatus == _SaveStatus.saving;
     final failed = _saveStatus == _SaveStatus.error;
 
@@ -303,7 +294,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFFFDECEC),
+                color: context.errorFondo,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -317,10 +308,7 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
                   Expanded(
                     child: Text(
                       _saveError!,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black87,
-                      ),
+                      style: TextStyle(fontSize: 13, color: context.errorTexto),
                     ),
                   ),
                 ],
@@ -334,10 +322,10 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               ? _save
               : () => _close(context),
           style: ElevatedButton.styleFrom(
-            backgroundColor: failed ? Colors.redAccent : _kDarkGreen,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: _kDarkGreen.withValues(alpha: 0.6),
-            disabledForegroundColor: Colors.white70,
+            backgroundColor: failed ? Colors.redAccent : context.botonFondo,
+            foregroundColor: failed ? Colors.white : context.botonTexto,
+            disabledBackgroundColor: context.botonFondo.withValues(alpha: 0.6),
+            disabledForegroundColor: context.botonTexto.withValues(alpha: 0.7),
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -355,10 +343,10 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               : Icon(failed ? Icons.refresh : Icons.check_circle, size: 20),
           label: Text(
             saving
-                ? 'Guardando paseo…'
+                ? t.savingWalk
                 : failed
-                ? 'Reintentar'
-                : 'Paseo guardado',
+                ? t.retry
+                : t.walkSaved,
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
         ),
@@ -375,14 +363,14 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
           color: _kBadgeGreen,
           borderRadius: BorderRadius.circular(24),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.verified, size: 18, color: _kDarkGreen),
-            SizedBox(width: 8),
+            const Icon(Icons.verified, size: 18, color: _kDarkGreen),
+            const SizedBox(width: 8),
             Text(
-              '¡Buen paseo!',
-              style: TextStyle(
+              AppLocalizations.of(context).goodWalk,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: _kDarkGreen,
                 fontSize: 15,
@@ -395,13 +383,14 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
   }
 
   Widget _buildStats() {
+    final t = AppLocalizations.of(context);
     return Column(
       children: [
         _SummaryCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _CardLabel(icon: Icons.route, label: 'DISTANCIA'),
+              _CardLabel(icon: Icons.route, label: t.distanceCaps),
               const SizedBox(height: 10),
               _BigValue(value: _formattedDistance, unit: 'km'),
             ],
@@ -417,9 +406,9 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _CardLabel(
+                      _CardLabel(
                         icon: Icons.timer_outlined,
-                        label: 'Duración',
+                        label: t.durationLabel,
                         uppercase: false,
                       ),
                       const SizedBox(height: 16),
@@ -434,9 +423,9 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _CardLabel(
+                      _CardLabel(
                         icon: Icons.speed,
-                        label: 'Vel. promedio',
+                        label: t.avgSpeed,
                         uppercase: false,
                       ),
                       const SizedBox(height: 16),
@@ -453,17 +442,18 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
   }
 
   Widget _buildPetCard() {
+    final t = AppLocalizations.of(context);
     return _SummaryCard(
       child: Row(
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: Colors.black12,
+            backgroundColor: context.bordeSuave,
             backgroundImage: proveedorDeFoto(
               session.fotoUrl ?? _mascota?.fotoUrl,
             ),
             child: session.fotoUrl == null && _mascota?.fotoUrl == null
-                ? const Icon(Icons.pets, size: 20, color: Colors.black45)
+                ? Icon(Icons.pets, size: 20, color: context.textoTenue)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -472,25 +462,25 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Paseaste con ${_mascotaNombre ?? 'tu mascota'}',
-                  style: const TextStyle(
+                  t.walkedWith(_mascotaNombre ?? t.yourPet),
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: Colors.black87,
+                    color: context.texto,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '$_formattedDistance km • $_formattedDuration',
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  style: TextStyle(fontSize: 13, color: context.textoSuave),
                 ),
               ],
             ),
           ),
           IconButton(
-            tooltip: 'Compartir como PNG',
+            tooltip: t.shareAsPng,
             onPressed: _mascota == null ? null : _share,
-            icon: const Icon(Icons.share_outlined, color: Colors.black54),
+            icon: Icon(Icons.share_outlined, color: context.textoSuave),
           ),
         ],
       ),
@@ -592,7 +582,7 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: _kCardGreen,
+        color: context.esOscuro ? _kCardGreenDark : _kCardGreenLight,
         borderRadius: BorderRadius.circular(18),
       ),
       child: child,
@@ -615,7 +605,7 @@ class _CardLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: _kDarkGreen),
+        Icon(icon, size: 18, color: context.marca),
         const SizedBox(width: 8),
         Flexible(
           child: Text(
@@ -625,7 +615,7 @@ class _CardLabel extends StatelessWidget {
               fontSize: uppercase ? 12 : 14,
               letterSpacing: uppercase ? 0.8 : 0,
               fontWeight: FontWeight.w600,
-              color: Colors.black54,
+              color: context.textoSuave,
             ),
           ),
         ),
@@ -650,19 +640,19 @@ class _BigValue extends StatelessWidget {
           children: [
             TextSpan(
               text: value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: context.texto,
               ),
             ),
             if (unit != null)
               TextSpan(
                 text: ' $unit',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black54,
+                  color: context.textoSuave,
                 ),
               ),
           ],

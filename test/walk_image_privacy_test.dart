@@ -1,3 +1,4 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -71,6 +72,10 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           home: Scaffold(
             body: SingleChildScrollView(
               child: WalkShareCard(paseo: walk(type), mascota: pet),

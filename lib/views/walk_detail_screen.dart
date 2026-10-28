@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import '../services/walk_repository.dart';
 import 'walk_share_screen.dart';
 import 'widgets/foto_mascota.dart';
@@ -29,21 +32,20 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
 
   Future<void> _delete() async {
     if (_deleting) return;
+    final t = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('¿Eliminar este paseo?'),
-        content: const Text(
-          'Se borrarán el recorrido, sus estadísticas y la foto. Esta acción no se puede deshacer.',
-        ),
+        title: Text(t.deleteWalkTitle),
+        content: Text(t.deleteWalkBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text(t.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Eliminar'),
+            child: Text(t.delete),
           ),
         ],
       ),
@@ -55,11 +57,9 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
       if (mounted) Navigator.pop(context, true);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo eliminar el paseo. Reintentá.'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.deleteWalkError)));
       }
     } finally {
       if (mounted) setState(() => _deleting = false);
@@ -68,15 +68,16 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final points = paseo.ruta
         .map((point) => LatLng(point.latitude, point.longitude))
         .toList(growable: false);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Paseo con ${mascota.nombre}'),
+        title: Text(t.walkWith(mascota.nombre)),
         actions: [
           IconButton(
-            tooltip: 'Compartir como PNG',
+            tooltip: t.shareAsPng,
             icon: const Icon(Icons.ios_share),
             onPressed: () => Navigator.push(
               context,
@@ -86,7 +87,7 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Eliminar paseo',
+            tooltip: t.deleteWalk,
             icon: const Icon(Icons.delete_outline),
             onPressed: _deleting ? null : _delete,
           ),
@@ -96,9 +97,7 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
         children: [
           Expanded(
             child: points.isEmpty
-                ? const Center(
-                    child: Text('Este paseo no tiene puntos de GPS.'),
-                  )
+                ? Center(child: Text(t.noGpsPoints))
                 : FlutterMap(
                     options: MapOptions(
                       initialCenter: points.first,
@@ -159,16 +158,17 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${paseo.fechaInicio.day}/${paseo.fechaInicio.month}/${paseo.fechaInicio.year} '
-                    'a las ${paseo.fechaInicio.hour.toString().padLeft(2, '0')}:'
-                    '${paseo.fechaInicio.minute.toString().padLeft(2, '0')}',
+                    t.dateAtTime(
+                      formatDate(context, paseo.fechaInicio),
+                      formatTime(context, paseo.fechaInicio),
+                    ),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 10),
                   Text(
                     '${(paseo.distanciaMetros / 1000).toStringAsFixed(2)} km'
                     ' · ${paseo.duracion.inMinutes} min'
-                    ' · Máx. ${paseo.velocidadMaximaKmh.toStringAsFixed(1)} km/h',
+                    ' · ${t.maxSpeedLabel(paseo.velocidadMaximaKmh.toStringAsFixed(1))}',
                   ),
                   const SizedBox(height: 4),
                   if (paseo.fotoUrl != null)
@@ -181,13 +181,13 @@ class _WalkDetailScreenState extends State<WalkDetailScreen> {
                             backgroundImage: proveedorDeFoto(paseo.fotoUrl),
                           ),
                           const SizedBox(width: 12),
-                          const Text('Foto del paseo'),
+                          Text(t.walkPhoto),
                         ],
                       ),
                     ),
-                  const Text(
-                    'Mapa © OpenStreetMap contributors',
-                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                  Text(
+                    t.mapAttribution,
+                    style: TextStyle(fontSize: 11, color: context.textoSuave),
                   ),
                 ],
               ),

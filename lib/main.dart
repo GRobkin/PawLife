@@ -9,13 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
+import 'preferences/app_preferences.dart';
 import 'services/auth_service.dart';
 import 'services/session_registration.dart';
 import 'views/home_screen.dart';
 import 'views/welcome_screen.dart';
-import 'theme/app_colors.dart';
+import 'theme/app_palette.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +41,10 @@ Future<void> main() async {
   // se puede ni entrar ni guardar nada.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const PawLifeApp());
+  final preferences = await AppPreferences.load();
+  runApp(
+    ChangeNotifierProvider.value(value: preferences, child: const PawLifeApp()),
+  );
 }
 
 class PawLifeApp extends StatelessWidget {
@@ -45,25 +52,23 @@ class PawLifeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prefs = context.watch<AppPreferences>();
     return MaterialApp(
-      title: 'PawLife',
+      onGenerateTitle: (_) => 'PawLife',
       debugShowCheckedModeBanner: false,
-      // Toda la interfaz está en español: fijamos el locale para que los
-      // widgets propios de Material (selectores, menús de texto, tooltips)
-      // también se muestren traducidos, sin depender del idioma del sistema.
-      locale: const Locale('es'),
-      supportedLocales: const [Locale('es')],
+      // Idioma elegido por la persona; sin elección se usa el del sistema y,
+      // si no está soportado, español (primer elemento de supportedLocales).
+      locale: prefs.locale,
+      supportedLocales: AppPreferences.supportedLocales,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'NunitoSans',
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.verdeOscuro),
-        scaffoldBackgroundColor: AppColors.fondo,
-      ),
+      themeMode: prefs.themeMode,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       home: const AuthGate(),
     );
   }
@@ -141,15 +146,14 @@ class _SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFFF7F8FA),
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.pets, size: 56, color: Color(0xFF12352A)),
-            SizedBox(height: 20),
-            SizedBox(
+            Icon(Icons.pets, size: 56, color: context.marca),
+            const SizedBox(height: 20),
+            const SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(strokeWidth: 2.5),

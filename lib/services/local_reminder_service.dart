@@ -4,6 +4,9 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as timezone_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:intl/intl.dart';
+
+import '../l10n/active_locale.dart';
 import '../models/pawlife_models.dart';
 import 'pawlife_repository.dart';
 
@@ -120,6 +123,8 @@ class LocalReminderService {
     final reminders = await repository.fetchRecordatorios();
     final now = DateTime.now();
     final events = <_Notice>[];
+    final t = ActiveLocale.strings;
+    final dateFormat = DateFormat.yMd(ActiveLocale.current.toLanguageTag());
 
     for (final reminder in reminders) {
       if (!reminder.completado && reminder.fecha.isAfter(now)) {
@@ -150,8 +155,8 @@ class LocalReminderService {
             _Notice(
               'vacuna:${vaccine.id}',
               notice,
-              'Vacuna de ${pet.nombre}',
-              'Se acerca ${vaccine.nombre}: ${due.day}/${due.month}/${due.year}.',
+              t.noticeVaccineTitle(pet.nombre),
+              t.noticeVaccineBody(vaccine.nombre, dateFormat.format(due)),
             ),
           );
         }
@@ -196,8 +201,8 @@ class LocalReminderService {
                 _Notice(
                   'medicamento:${medicine.id}:${date.toIso8601String()}:$horario',
                   time,
-                  'Medicamento de ${pet.nombre}',
-                  '${medicine.nombre}: ${medicine.dosis}.',
+                  t.noticeMedicationTitle(pet.nombre),
+                  t.noticeMedicationBody(medicine.nombre, medicine.dosis),
                 ),
               );
             }

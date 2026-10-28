@@ -1,0 +1,782 @@
+{
+  "@@locale": "es",
+  "language": "Idioma",
+  "languageSystem": "Sistema",
+  "languageEs": "Español",
+  "languageEn": "English",
+  "languagePt": "Português",
+  "appearance": "Apariencia",
+  "appearanceSystem": "Sistema",
+  "appearanceLight": "Claro",
+  "appearanceDark": "Oscuro",
+  "profileTitle": "Perfil",
+  "profileName": "Nombre",
+  "profileEmail": "Correo electrónico",
+  "profileSave": "Guardar cambios",
+  "profileSaved": "Perfil guardado.",
+  "profileLoadError": "No se pudo cargar el perfil: {error}",
+  "@profileLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSaveError": "No se pudo guardar: {error}",
+  "@profileSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "retry": "Reintentar",
+  "privacyAndData": "Privacidad y mis datos",
+  "changeEmail": "Cambiar correo",
+  "changePassword": "Cambiar contraseña",
+  "signOut": "Cerrar sesión",
+  "deleteAccountButton": "Eliminar mi cuenta",
+  "welcomeTagline": "La salud y felicidad de tu compañero,\ntodo en un solo lugar.",
+  "getStarted": "Comenzar",
+  "signIn": "Iniciar sesión",
+  "termsPrefix": "Al continuar, aceptás nuestros ",
+  "termsOfService": "Términos del servicio",
+  "termsAnd": " y la ",
+  "privacyPolicy": "Política de privacidad",
+  "welcomeBack": "Bienvenido de nuevo",
+  "loginSubtitle": "Iniciá sesión para gestionar los cuidados de tu mascota.",
+  "emailLabel": "Correo electrónico",
+  "passwordLabel": "Contraseña",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "orSeparator": "o",
+  "continueWithGoogle": "Continuar con Google",
+  "noAccountPrefix": "¿No tenés una cuenta? ",
+  "signUp": "Registrate",
+  "hasAccountPrefix": "¿Ya tenés una cuenta? ",
+  "createAccountTitle": "Creá tu cuenta",
+  "createAccountSubtitle": "Completá tus datos para empezar.",
+  "fullName": "Nombre completo",
+  "fullNameHint": "Ej. Juana Pérez",
+  "confirmPassword": "Confirmar contraseña",
+  "createAccount": "Crear cuenta",
+  "errEnterEmail": "Escribí tu correo electrónico.",
+  "errInvalidEmail": "El correo no tiene un formato válido.",
+  "errEnterPassword": "Escribí tu contraseña.",
+  "errEmailAbove": "Escribí tu correo arriba y volvé a pulsar aquí.",
+  "errEnterName": "Escribí tu nombre.",
+  "errPasswordShort": "La contraseña debe tener al menos 6 caracteres.",
+  "errPasswordMismatch": "Las contraseñas no coinciden.",
+  "resetEmailSent": "Te enviamos un correo a {email}.",
+  "@resetEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña",
+  "navHome": "Inicio",
+  "navPets": "Mascotas",
+  "navTasks": "Tareas",
+  "navProfile": "Perfil",
+  "tasksTitle": "Tareas",
+  "tasksLoadError": "No se pudieron cargar las tareas: {error}",
+  "@tasksLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "genericSaveError": "No se pudo guardar: {error}",
+  "@genericSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "addPetFirst": "Agregá una mascota antes de crear una tarea.",
+  "newTask": "Nueva tarea",
+  "petLabel": "Mascota",
+  "taskPrompt": "¿Qué hay que hacer?",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "noTasks": "Todavía no hay tareas.",
+  "deleteTask": "Eliminar tarea",
+  "speciesDog": "Perro",
+  "speciesCat": "Gato",
+  "speciesOther": "Otra",
+  "ageDays": "{count, plural, one{{count} día} other{{count} días}}",
+  "@ageDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageWeeks": "{count, plural, one{{count} semana} other{{count} semanas}}",
+  "@ageWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageMonths": "{count, plural, one{{count} mes} other{{count} meses}}",
+  "@ageMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageYears": "{count, plural, one{{count} año} other{{count} años}}",
+  "@ageYears": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "petsLoadError": "No se pudieron cargar tus mascotas",
+  "petsEmptyTitle": "Todavía no tenés mascotas",
+  "petsEmptyBody": "Agregá la primera para empezar a llevar sus cuidados.",
+  "addPet": "Agregar mascota",
+  "myPets": "Mis mascotas",
+  "myPetsSubtitle": "Gestioná a los miembros peludos de tu familia.",
+  "statusNoVaccines": "Sin vacunas",
+  "statusOverdue": "Vacuna vencida",
+  "statusDueSoon": "Vacuna próxima",
+  "statusHealthy": "Sano",
+  "options": "Opciones",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "cellStatus": "ESTADO",
+  "cellWeight": "PESO",
+  "noRecord": "Sin registro",
+  "goodMorning": "¡Buenos días!",
+  "goodAfternoon": "¡Buenas tardes!",
+  "goodEvening": "¡Buenas noches!",
+  "goodMorningName": "¡Buenos días, {name}!",
+  "@goodMorningName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goodAfternoonName": "¡Buenas tardes, {name}!",
+  "@goodAfternoonName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goodEveningName": "¡Buenas noches, {name}!",
+  "@goodEveningName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayAgenda": "Esta es tu agenda de hoy.",
+  "activitySummary": "Resumen de actividad",
+  "viewWalkHistory": "Ver historial de paseos",
+  "todayTitle": "Hoy",
+  "noTasksToday": "No tenés tareas para hoy.",
+  "completedLabel": "Completada",
+  "updateTaskError": "No se pudo actualizar la tarea: {error}",
+  "@updateTaskError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "onlyOnePet": "Solo tenés una mascota por ahora.",
+  "changePet": "Cambiar de mascota",
+  "yourAccount": "Tu cuenta",
+  "signedIn": "Sesión iniciada",
+  "loadingEllipsis": "Cargando…",
+  "noPets": "Sin mascotas",
+  "tapToAddFirst": "Tocá para agregar la primera",
+  "startWalk": "Iniciar paseo",
+  "readyForAdventure": "¿Listos para una aventura?",
+  "lastWalk": "Último paseo",
+  "activeTime": "Tiempo activo",
+  "loadingShort": "Cargando",
+  "noWalks": "Sin paseos",
+  "noWalksToday": "Sin paseos hoy",
+  "walksToday": "{count, plural, one{{count} paseo hoy} other{{count} paseos hoy}}",
+  "@walksToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesShort": "{count} min",
+  "@minutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayAt": "Hoy, {time}",
+  "@todayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "yesterdayAt": "Ayer, {time}",
+  "@yesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "markPending": "Marcar pendiente",
+  "markDone": "Marcar completada",
+  "logout": "Cerrar sesión",
+  "pickFromGallery": "Elegir de la galería",
+  "takePhoto": "Tomar una foto",
+  "removePhoto": "Quitar foto",
+  "uploadPhoto": "Subir foto",
+  "changePhoto": "Cambiar foto",
+  "birthDate": "Fecha de nacimiento",
+  "errEnterPetName": "Escribí el nombre.",
+  "errWeightInvalid": "El peso no es un número válido.",
+  "errWeightRange": "El peso tiene que estar entre 0 y 200 kg.",
+  "editPet": "Editar mascota",
+  "editPetSubtitle": "Actualizá los datos de {name}.",
+  "@editPetSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addPetSubtitle": "Contanos sobre tu compañero para personalizar sus cuidados.",
+  "savePet": "Guardar mascota",
+  "nameLabel": "Nombre",
+  "nameHint": "Ej. Bella",
+  "speciesLabel": "Especie",
+  "breedLabel": "Raza",
+  "breedHint": "Ej. Golden Retriever",
+  "weightKgLabel": "Peso (kg)",
+  "notesLabel": "Notas",
+  "optional": "Opcional",
+  "notesHint": "Alergias, número de microchip, manías...",
+  "datePlaceholder": "dd/mm/aaaa",
+  "addVaccine": "Añadir vacuna",
+  "editVaccine": "Editar vacuna",
+  "vaccineName": "Nombre de la vacuna",
+  "applicationDate": "Fecha de aplicación",
+  "nextDose": "Próxima dosis",
+  "remindInAdvance": "Avisar con anticipación",
+  "daysUnit": "días",
+  "errRange0to365": "Ingresá un valor entre 0 y 365.",
+  "logFeeding": "Registrar alimentación",
+  "foodType": "Tipo de alimento",
+  "foodTypeHint": "Ej. alimento seco",
+  "amountLabel": "Cantidad",
+  "errValidAmount": "Ingresá una cantidad válida.",
+  "dateAndTime": "Fecha y hora",
+  "notesOptional": "Notas (opcional)",
+  "addMedication": "Añadir medicamento",
+  "editMedication": "Editar medicamento",
+  "medicationLabel": "Medicamento",
+  "doseLabel": "Dosis",
+  "doseHint": "Ej. 1 comprimido",
+  "schedulesLabel": "Horarios",
+  "errTimesFormat": "Usá horarios HH:mm separados por coma.",
+  "startDate": "Fecha de inicio",
+  "endDateOptional": "Fecha de fin (opcional)",
+  "activeTreatment": "Tratamiento activo",
+  "requiredField": "Este campo es obligatorio.",
+  "saving": "Guardando…",
+  "noDate": "Sin fecha",
+  "tabSummary": "Resumen",
+  "tabVaccines": "Vacunas",
+  "tabMedications": "Medicamentos",
+  "tabFeeding": "Alimentación",
+  "tabWalks": "Paseos",
+  "deleteItemTitle": "Eliminar {name}",
+  "@deleteItemTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotBeUndone": "Esta acción no se puede deshacer.",
+  "deleteError": "No se pudo eliminar: {error}",
+  "@deleteError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "metricLastWalk": "ÚLTIMO PASEO",
+  "metricNextVet": "PRÓXIMA VISITA AL VET",
+  "notScheduled": "Sin agendar",
+  "measuredWhen": "Medido {when}",
+  "@measuredWhen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "weightHistory": "Historial de peso",
+  "upcomingCare": "Próximos cuidados",
+  "nothingPending": "No hay nada pendiente.",
+  "kindWhen": "{kind} · {when}",
+  "@kindWhen": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "kindVaccine": "Vacuna",
+  "kindTask": "Tarea",
+  "recentActivity": "Actividad reciente",
+  "noWalksRecorded": "Todavía no hay paseos registrados.",
+  "kmIn": "{km} km en {duration}",
+  "@kmIn": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "appliedOnNext": "Aplicada el {date} · próxima {when}",
+  "@appliedOnNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "noVaccinesRecorded": "Sin vacunas registradas.",
+  "noMedicationsRecorded": "Sin medicamentos registrados.",
+  "noFeedingsRecorded": "Sin alimentaciones registradas.",
+  "activeWithTimes": "Activo · {times}",
+  "@activeWithTimes": {
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "finished": "Finalizado",
+  "noWalksYetHint": "Todavía no hay paseos.\nUsá el botón verde de abajo para registrar uno.",
+  "openWalkHistory": "Abrir historial de paseos",
+  "maxSpeedKmh": "máx {speed} km/h",
+  "@maxSpeedKmh": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "registerWeightCaps": "REGISTRAR PESO",
+  "relToday": "hoy",
+  "relYesterday": "ayer",
+  "relTomorrow": "mañana",
+  "relDaysAgo": "{count, plural, one{hace {count} día} other{hace {count} días}}",
+  "@relDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relMonthsAgo": "{count, plural, one{hace {count} mes} other{hace {count} meses}}",
+  "@relMonthsAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relOverdueDays": "{count, plural, one{vencida hace {count} día} other{vencida hace {count} días}}",
+  "@relOverdueDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relInDays": "{count, plural, one{en {count} día} other{en {count} días}}",
+  "@relInDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cantLoadPets": "No se pudieron cargar tus mascotas: {error}",
+  "@cantLoadPets": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "addPetBeforeWalk": "Agregá una mascota antes de registrar un paseo.",
+  "whoWalks": "¿Con quién vas a pasear?",
+  "choosePet": "Elegí una mascota",
+  "deletePetTitle": "¿Eliminar a {name}?",
+  "@deletePetTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePetBody": "Se borrarán también sus vacunas, medicamentos, registros de peso y paseos. No se puede deshacer.",
+  "petDeleted": "{name} eliminada.",
+  "@petDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "walkHistoryTitle": "Historial de paseos",
+  "everyWalkCounts": "Cada paseo cuenta",
+  "reliveWalks": "Reviví sus recorridos y compartí un recuerdo juntos.",
+  "historyLoadError": "No se pudo cargar el historial. Comprobá tu conexión.",
+  "walksLoadError": "No se pudieron cargar los paseos. Reintentá o actualizá el historial.",
+  "addPetToLogWalks": "Agregá una mascota para empezar a registrar sus paseos.",
+  "noWalksYetHome": "Todavía no hay paseos. Iniciá uno desde el botón verde de la app.",
+  "walkWith": "Paseo con {name}",
+  "@walkWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinSec": "{minutes} min {seconds} s",
+  "@durationMinSec": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMoreWalks": "Cargar más paseos",
+  "deleteWalkTitle": "¿Eliminar este paseo?",
+  "deleteWalkBody": "Se borrarán el recorrido, sus estadísticas y la foto. Esta acción no se puede deshacer.",
+  "deleteWalkError": "No se pudo eliminar el paseo. Reintentá.",
+  "shareAsPng": "Compartir como PNG",
+  "deleteWalk": "Eliminar paseo",
+  "noGpsPoints": "Este paseo no tiene puntos de GPS.",
+  "dateAtTime": "{date} a las {time}",
+  "@dateAtTime": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "maxSpeedLabel": "Máx. {speed} km/h",
+  "@maxSpeedLabel": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "walkPhoto": "Foto del paseo",
+  "mapAttribution": "Mapa © OpenStreetMap contributors",
+  "shareWalkTitle": "Compartir paseo",
+  "sharePrivacyNote": "Compartís la traza y las estadísticas, sin el mapa de calles. La forma del recorrido puede revelar lugares que visitaste.",
+  "shareImageError": "No se pudo preparar la imagen. Intentá otra vez.",
+  "shareFailed": "No se pudo compartir. Volvé a intentarlo.",
+  "sharingEllipsis": "Compartiendo…",
+  "sharePng": "Compartir PNG",
+  "traceCaption": "Traza del recorrido · inicio verde / final rojo",
+  "shareTagline": "Un paseo más, un recuerdo juntos.",
+  "walkNotSaved": "El paseo no se guardó",
+  "walkNotSavedBody": "Podés reintentar el guardado. Si salís ahora, perderás este recorrido.",
+  "back": "Volver",
+  "leaveWithoutSaving": "Salir sin guardar",
+  "savingWalk": "Guardando paseo…",
+  "walkSaved": "Paseo guardado",
+  "goodWalk": "¡Buen paseo!",
+  "distanceCaps": "DISTANCIA",
+  "durationLabel": "Duración",
+  "avgSpeed": "Vel. promedio",
+  "yourPet": "tu mascota",
+  "walkedWith": "Paseaste con {name}",
+  "@walkedWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "durationSeconds": "{count} s",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHm": "{hours}h {minutes}min",
+  "@durationHm": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "ints": "hours",
+  "walkInProgress": "Paseo en curso",
+  "locationErrorDefault": "Ocurrió un error de ubicación.",
+  "mapCaptured": "Mapa capturado",
+  "mapCaptureFailed": "No se pudo capturar el mapa.",
+  "mapCaptureChip": "Captura del mapa",
+  "finishWalk": "Finalizar paseo",
+  "gpsActive": "GPS activo",
+  "gpsInactive": "GPS inactivo",
+  "durationCaps": "DURACIÓN",
+  "caloriesUnavailable": "Calorías: no disponible",
+  "weightLoadError": "No se pudo cargar el historial.",
+  "weightDeleteError": "No se pudo eliminar el registro.",
+  "deleteWeightTitle": "Eliminar registro de peso",
+  "noWeightRecords": "Todavía no hay registros de peso.",
+  "logWeight": "Registrar peso",
+  "errWeightPositive": "Ingresá un peso mayor que cero.",
+  "weightSaveRetry": "No se pudo guardar el peso. Podés reintentar el mismo registro.",
+  "confirmIdentity": "Confirmar identidad",
+  "currentPassword": "Contraseña actual",
+  "confirmGoogleAccount": "Confirmá tu cuenta de Google para continuar.",
+  "verifyingEllipsis": "Verificando…",
+  "confirm": "Confirmar",
+  "errEnterCurrentPassword": "Ingresá tu contraseña actual.",
+  "identityVerifyError": "No se pudo verificar tu identidad. Intentá otra vez.",
+  "passwordChangeError": "No se pudo cambiar la contraseña. Intentá otra vez.",
+  "googlePasswordNote": "Tu cuenta utiliza Google. Gestioná su contraseña desde tu cuenta de Google.",
+  "newPassword": "Nueva contraseña",
+  "repeatNewPassword": "Repetir nueva contraseña",
+  "errMin6Chars": "Usá al menos 6 caracteres.",
+  "newEmail": "Correo nuevo",
+  "sendLink": "Enviar enlace",
+  "sendingEllipsis": "Enviando…",
+  "checkingEllipsis": "Comprobando…",
+  "alreadyOpenedLink": "Ya abrí el enlace",
+  "linkSentTo": "Te enviamos un enlace a {email}. Tu correo actual no cambia hasta que lo abras.",
+  "@linkSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "notConfirmedYet": "Todavía no confirmaste el enlace. Abrí el correo que enviamos a {email}.",
+  "@notConfirmedYet": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "errEnterNewEmail": "Ingresá el correo nuevo.",
+  "errValidEmail": "Ingresá un correo válido.",
+  "emailLinkError": "No se pudo enviar el enlace. Intentá otra vez.",
+  "emailCheckError": "No se pudo comprobar. Intentá otra vez.",
+  "googleEmailNote": "Tu cuenta utiliza Google. Gestioná tu correo desde tu cuenta de Google.",
+  "emailUpdated": "Correo actualizado: {email}",
+  "@emailUpdated": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordUpdated": "Contraseña actualizada.",
+  "deleteAccountTitle": "Eliminar cuenta",
+  "deleteAccountBody": "Se borrarán tu cuenta, tus mascotas y sus registros. Esta acción no se puede deshacer.",
+  "deleteForever": "Eliminar definitivamente",
+  "deletionInProgress": "Eliminación en curso",
+  "deletionInProgressBody": "Tu cuenta ya está bloqueada y estamos terminando de borrar tus datos. Se completará automáticamente en unos minutos.",
+  "understood": "Entendido",
+  "signOutError": "No se pudo cerrar sesión: {error}",
+  "@signOutError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountError": "No se pudo eliminar la cuenta: {error}",
+  "@deleteAccountError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyTitle": "Privacidad",
+  "privacySessionChanged": "La sesión cambió. Volvé a entrar desde tu perfil.",
+  "privacyLoadError": "No se pudo cargar la privacidad.",
+  "prefSavedRemindersFailed": "Preferencia guardada. No se pudieron actualizar los avisos de este dispositivo; reintentá antes de cerrarlo.",
+  "prefNotSaved": "No se guardó la preferencia. Reintentá.",
+  "downloadMyData": "Descargar mis datos",
+  "downloadMyDataBody": "El archivo incluye tus fotos y recorridos GPS. Elegí un destino privado cuando lo guardes o compartas.",
+  "continueLabel": "Continuar",
+  "exportIncomplete": "No se completó el archivo. Podés iniciar otra exportación.",
+  "exportShareFailed": "No se pudo guardar o compartir. El archivo sigue preparado para reintentar.",
+  "requestNotRegistered": "No se pudo registrar la solicitud. Conservamos el texto para reintentar.",
+  "yourNotices": "Tus avisos",
+  "careReminders": "Recordatorios de cuidados",
+  "careRemindersHint": "Vacunas, medicamentos y tareas",
+  "teamNotices": "Avisos del equipo",
+  "yourData": "Tus datos",
+  "yourDataBody": "Descargá tu perfil, mascotas, cuidados, fotos y recorridos en un archivo JSON.",
+  "prepareFile": "Preparar archivo",
+  "recordsPrepared": "{count} registros preparados",
+  "@recordsPrepared": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelExport": "Cancelar exportación",
+  "saveOrShareJson": "Guardar o compartir JSON",
+  "requestsTitle": "Solicitudes",
+  "requestType": "Tipo de solicitud",
+  "reqConsulta": "Consulta",
+  "reqAcceso": "Acceso a información",
+  "reqCorreccion": "Corrección",
+  "reqOposicion": "Oposición",
+  "reqBloqueo": "Bloqueo",
+  "reqAnonimizacion": "Anonimización",
+  "detailLabel": "Detalle",
+  "registerRequest": "Registrar solicitud",
+  "requestsByEmail": "Por ahora podés enviar tus solicitudes al correo de soporte.",
+  "requestChannelMissing": "El canal de consultas todavía no está configurado.",
+  "refreshRequests": "Actualizar solicitudes",
+  "authUserDisabled": "Esta cuenta está deshabilitada.",
+  "authBadCredentials": "Correo o contraseña incorrectos.",
+  "authEmailInUse": "Ya existe una cuenta con ese correo.",
+  "authWeakPassword": "La contraseña es demasiado débil (mínimo 6 caracteres).",
+  "authAccountExists": "Ya hay una cuenta con ese correo creada con otro método de acceso.",
+  "authRecentLogin": "Por seguridad, volvé a iniciar sesión para hacer este cambio.",
+  "authUserMismatch": "La cuenta elegida no coincide con la sesión actual.",
+  "authTooMany": "Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo.",
+  "authNoInternet": "No hay conexión a internet.",
+  "authNotEnabled": "Este método de acceso no está habilitado.",
+  "authNoSession": "No hay sesión iniciada.",
+  "authSessionChanged": "La sesión cambió. Volvé a intentar desde tu cuenta.",
+  "authCancelled": "Operación cancelada.",
+  "authGoogleAccount": "Tu cuenta utiliza Google para iniciar sesión.",
+  "authPasswordFields": "Completá la contraseña actual y una nueva de al menos 6 caracteres.",
+  "authSameEmail": "Ese ya es el correo de tu cuenta.",
+  "authSignupFailed": "No se pudo crear la cuenta.",
+  "authSigninFailed": "No se pudo iniciar sesión.",
+  "authGoogleSigninFailed": "No se pudo iniciar sesión con Google.",
+  "authGoogleUnavailable": "El acceso con Google no está disponible en esta plataforma.",
+  "authPushDisconnect": "No se pudieron desconectar las notificaciones. Reintentá cerrar sesión.",
+  "authGeneric": "No se pudo completar la operación. Intentá otra vez.",
+  "googleInterrupted": "El acceso con Google se interrumpió. Probá de nuevo.",
+  "googleUiUnavailable": "No se pudo abrir el diálogo de Google.",
+  "googleConfigError": "La app no está bien configurada para Google. Intentá más tarde.",
+  "googleUserMismatch": "La cuenta de Google no coincide con la esperada.",
+  "apiSessionChanged": "La sesión cambió.",
+  "apiInvalidResponse": "El servidor devolvió una respuesta inválida. Reintentá.",
+  "apiListTooLarge": "El listado es demasiado grande para esta pantalla. No se mostraron resultados incompletos.",
+  "apiTimeout": "El servidor tardó demasiado en responder.",
+  "apiOffline": "No hay conexión con el servidor. Comprobá tu conexión a internet.",
+  "apiHttpStatus": "El servidor respondió con un error ({status}).",
+  "@apiHttpStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeVaccineTitle": "Vacuna de {pet}",
+  "@noticeVaccineTitle": {
+    "placeholders": {
+      "pet": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeVaccineBody": "Se acerca {vaccine}: {date}.",
+  "@noticeVaccineBody": {
+    "placeholders": {
+      "vaccine": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeMedicationTitle": "Medicamento de {pet}",
+  "@noticeMedicationTitle": {
+    "placeholders": {
+      "pet": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeMedicationBody": "{medication}: {dose}.",
+  "@noticeMedicationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  }
+}

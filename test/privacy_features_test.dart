@@ -1,3 +1,4 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -262,6 +263,10 @@ void main() {
     addTearDown(auth.changes.close);
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+
         home: PrivacyScreen(auth: auth, repository: repository),
       ),
     );
@@ -287,6 +292,10 @@ void main() {
     final reminders = PrivacyReminders();
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+
         home: PrivacyScreen(
           auth: auth,
           repository: repository,
@@ -316,6 +325,10 @@ void main() {
       ..contactEmail = 'pawlife.support@gmail.com';
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+
         home: PrivacyScreen(auth: auth, repository: repository),
       ),
     );
@@ -341,6 +354,10 @@ void main() {
           RepaintBoundary(
             key: key,
             child: MaterialApp(
+              locale: const Locale('es'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
                 fontFamily: 'NunitoSans',

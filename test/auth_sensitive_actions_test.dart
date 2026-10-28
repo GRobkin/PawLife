@@ -1,3 +1,4 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -132,6 +133,10 @@ void main() {
     final user = UserStub('a');
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+
         home: ChangePasswordScreen(auth: AuthService(auth: FirebaseStub(user))),
       ),
     );

@@ -19,16 +19,16 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/route_point.dart';
+import '../theme/app_palette.dart';
 import '../services/map_capture_service.dart';
 import 'widgets/foto_mascota.dart';
 import '../viewmodels/route_view_model.dart';
 import 'walk_summary_screen.dart';
 
 // Paleta acorde al diseño (verde bosque oscuro para acciones principales)
-const _kDarkGreen = Color(0xFF12352A);
 const _kAccentGreen = Color(0xFF3FB77E);
-const _kBackground = Color(0xFFF4F5F7);
 
 class RouteScreen extends StatelessWidget {
   const RouteScreen({super.key, required this.mascotaId});
@@ -119,6 +119,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
 
     final densidad = MediaQuery.devicePixelRatioOf(context);
     final avisos = ScaffoldMessenger.of(context);
+    final t = AppLocalizations.of(context);
 
     setState(() => _takingPhoto = true);
     try {
@@ -140,9 +141,9 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
 
       setState(() => _fotoUrl = captura);
       avisos.showSnackBar(
-        const SnackBar(
-          content: Text('Mapa capturado'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(t.mapCaptured),
+          duration: const Duration(seconds: 2),
         ),
       );
     } on MapCaptureException catch (e) {
@@ -150,9 +151,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
     } catch (_) {
       // toImage puede fallar por motivos del motor gráfico que no son culpa
       // del usuario. Que no tumbe el paseo en curso: se avisa y se sigue.
-      avisos.showSnackBar(
-        const SnackBar(content: Text('No se pudo capturar el mapa.')),
-      );
+      avisos.showSnackBar(SnackBar(content: Text(t.mapCaptureFailed)));
     } finally {
       if (mounted) setState(() => _takingPhoto = false);
     }
@@ -168,7 +167,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
         if (!didPop && vm.isTracking) _onFinishPressed(context, vm);
       },
       child: Scaffold(
-        backgroundColor: _kBackground,
+        backgroundColor: context.fondoPantalla,
         body: SafeArea(
           child: Column(
             children: [
@@ -186,7 +185,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
   // -------------------------------------------------------------------
   Widget _buildHeader(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.superficie,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
@@ -201,14 +200,14 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
               }
             },
           ),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
-                'Paseo en curso',
+                AppLocalizations.of(context).walkInProgress,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: context.texto,
                 ),
               ),
             ),
@@ -223,6 +222,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
   // Contenido: mapa + badge GPS + tarjeta de stats + botones
   // -------------------------------------------------------------------
   Widget _buildContent(BuildContext context, RouteViewModel vm) {
+    final t = AppLocalizations.of(context);
     switch (vm.status) {
       case RouteScreenStatus.loading:
         return const Center(child: CircularProgressIndicator());
@@ -234,18 +234,15 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.location_off, size: 48, color: Colors.grey),
+                Icon(Icons.location_off, size: 48, color: context.textoTenue),
                 const SizedBox(height: 12),
                 Text(
-                  vm.errorMessage ?? 'Ocurrió un error de ubicación.',
+                  vm.errorMessage ?? t.locationErrorDefault,
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: vm.init,
-                  child: const Text('Reintentar'),
-                ),
+                ElevatedButton(onPressed: vm.init, child: Text(t.retry)),
               ],
             ),
           ),
@@ -359,7 +356,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                         avatar: CircleAvatar(
                           backgroundImage: proveedorDeFoto(_fotoUrl),
                         ),
-                        label: const Text('Captura del mapa'),
+                        label: Text(t.mapCaptureChip),
                         onDeleted: () => setState(() => _fotoUrl = null),
                       ),
                     ),
@@ -368,7 +365,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                     children: [
                       _CircleIconButton(
                         icon: Icons.map_outlined,
-                        backgroundColor: Colors.white,
+                        elevated: true,
                         onPressed: () => _onCameraPressed(context),
                       ),
                       const SizedBox(width: 12),
@@ -376,8 +373,8 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                         child: ElevatedButton.icon(
                           onPressed: () => _onFinishPressed(context, vm),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _kDarkGreen,
-                            foregroundColor: Colors.white,
+                            backgroundColor: context.botonFondo,
+                            foregroundColor: context.botonTexto,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
@@ -387,9 +384,9 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                             Icons.stop_circle_outlined,
                             size: 20,
                           ),
-                          label: const Text(
-                            'Finalizar paseo',
-                            style: TextStyle(
+                          label: Text(
+                            t.finishWalk,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -415,25 +412,31 @@ class _CircleIconButton extends StatelessWidget {
   const _CircleIconButton({
     required this.icon,
     required this.onPressed,
-    this.backgroundColor = const Color(0xFFEFF1F3),
+    this.elevated = false,
   });
 
   final IconData icon;
   final VoidCallback onPressed;
-  final Color backgroundColor;
+
+  /// Sobre el mapa: fondo de superficie con sombra.
+  final bool elevated;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: backgroundColor,
+      color: elevated
+          ? context.superficie
+          : (context.esOscuro
+                ? const Color(0xFF1D2D25)
+                : const Color(0xFFEFF1F3)),
       shape: const CircleBorder(),
-      elevation: backgroundColor == Colors.white ? 3 : 0,
+      elevation: elevated ? 3 : 0,
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: Icon(icon, size: 20, color: Colors.black87),
+          child: Icon(icon, size: 20, color: context.texto),
         ),
       ),
     );
@@ -450,7 +453,7 @@ class _CompassButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.superficie,
       shape: const CircleBorder(),
       elevation: 3,
       child: InkWell(
@@ -484,7 +487,7 @@ class _GpsActiveBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.superficie,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -502,16 +505,18 @@ class _GpsActiveBadge extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: active ? _kAccentGreen : Colors.grey,
+              color: active ? _kAccentGreen : context.textoTenue,
             ),
           ),
           const SizedBox(width: 8),
           Text(
-            active ? 'GPS activo' : 'GPS inactivo',
-            style: const TextStyle(
+            active
+                ? AppLocalizations.of(context).gpsActive
+                : AppLocalizations.of(context).gpsInactive,
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Colors.black87,
+              color: context.texto,
             ),
           ),
         ],
@@ -527,10 +532,11 @@ class _StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.superficie,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -545,9 +551,9 @@ class _StatsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _StatBlock(label: 'DURACIÓN', value: vm.formattedElapsed),
+              _StatBlock(label: t.durationCaps, value: vm.formattedElapsed),
               _StatBlock(
-                label: 'DISTANCIA',
+                label: t.distanceCaps,
                 value: vm.formattedDistance.split(' ').first,
                 unit: 'km',
                 alignEnd: true,
@@ -569,18 +575,20 @@ class _StatsCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    vm.formattedCalories,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    // El cálculo de calorías sigue sin modelo validado: el
+                    // ViewModel no entrega cifra y aquí solo se traduce el aviso.
+                    t.caloriesUnavailable,
+                    style: TextStyle(fontSize: 13, color: context.texto),
                   ),
                 ],
               ),
               Row(
                 children: [
-                  const Icon(Icons.speed, size: 16, color: Colors.black54),
+                  Icon(Icons.speed, size: 16, color: context.textoSuave),
                   const SizedBox(width: 6),
                   Text(
                     vm.formattedSpeed,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    style: TextStyle(fontSize: 13, color: context.texto),
                   ),
                 ],
               ),
@@ -614,10 +622,10 @@ class _StatBlock extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             letterSpacing: 0.5,
-            color: Colors.black45,
+            color: context.textoTenue,
           ),
         ),
         const SizedBox(height: 2),
@@ -626,19 +634,19 @@ class _StatBlock extends StatelessWidget {
             children: [
               TextSpan(
                 text: value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: context.texto,
                 ),
               ),
               if (unit != null)
                 TextSpan(
                   text: ' $unit',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black54,
+                    color: context.textoSuave,
                   ),
                 ),
             ],

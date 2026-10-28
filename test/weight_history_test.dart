@@ -1,3 +1,4 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ import 'package:pawlife/services/pawlife_repository.dart';
 import 'package:pawlife/views/weight_history_screen.dart';
 
 class AuthStub implements AuthService {
-  @override Null get currentUser => null;
+  @override
+  Null get currentUser => null;
   @override
   Future<String> idToken({bool forceRefresh = false}) async => 'test-token';
   @override
@@ -129,6 +131,10 @@ void main() {
       addTearDown(client.close);
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           home: WeightHistoryScreen(
             mascota: pet,
             repository: PawLifeRepository(client: client),

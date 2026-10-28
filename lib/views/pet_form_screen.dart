@@ -11,10 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
 import '../services/photo_service.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'widgets/foto_mascota.dart';
 
 /// Lo que puede elegirse en el menú de la foto. "Quitar" no es un origen, así
@@ -79,6 +82,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
     // El menú devuelve su propio enum en vez de OrigenFoto porque "quitar" no
     // es un origen, y null ya significa "cerró el menú sin elegir": cerrarlo
     // deslizándolo no debe borrar la foto.
+    final t = AppLocalizations.of(context);
     final accion = await showModalBottomSheet<_AccionFoto>(
       context: context,
       builder: (contexto) => SafeArea(
@@ -87,12 +91,12 @@ class _PetFormScreenState extends State<PetFormScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Elegir de la galería'),
+              title: Text(t.pickFromGallery),
               onTap: () => Navigator.of(contexto).pop(_AccionFoto.galeria),
             ),
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Tomar una foto'),
+              title: Text(t.takePhoto),
               onTap: () => Navigator.of(contexto).pop(_AccionFoto.camara),
             ),
             if (_foto != null)
@@ -101,9 +105,9 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   Icons.delete_outline,
                   color: AppColors.alerta,
                 ),
-                title: const Text(
-                  'Quitar foto',
-                  style: TextStyle(color: AppColors.alerta),
+                title: Text(
+                  t.removePhoto,
+                  style: const TextStyle(color: AppColors.alerta),
                 ),
                 onTap: () => Navigator.of(contexto).pop(_AccionFoto.quitar),
               ),
@@ -143,7 +147,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
       // cualquier perro o gato.
       firstDate: DateTime(hoy.year - 30),
       lastDate: hoy,
-      helpText: 'Fecha de nacimiento',
+      helpText: AppLocalizations.of(context).birthDate,
     );
 
     if (elegida != null && mounted) {
@@ -152,14 +156,15 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }
 
   String? _validar() {
-    if (_nombre.text.trim().isEmpty) return 'Escribí el nombre.';
+    final t = AppLocalizations.of(context);
+    if (_nombre.text.trim().isEmpty) return t.errEnterPetName;
 
     final pesoTexto = _peso.text.trim().replaceAll(',', '.');
     if (pesoTexto.isNotEmpty) {
       final valor = double.tryParse(pesoTexto);
-      if (valor == null) return 'El peso no es un número válido.';
+      if (valor == null) return t.errWeightInvalid;
       if (valor <= 0 || valor > 200) {
-        return 'El peso tiene que estar entre 0 y 200 kg.';
+        return t.errWeightRange;
       }
     }
 
@@ -243,12 +248,13 @@ class _PetFormScreenState extends State<PetFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: context.fondoPantalla,
       appBar: AppBar(
-        backgroundColor: AppColors.fondo,
+        backgroundColor: context.fondoPantalla,
         elevation: 0,
-        foregroundColor: AppColors.verdeOscuro,
+        foregroundColor: context.marca,
         title: const Text(
           'PawLife',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -260,15 +266,15 @@ class _PetFormScreenState extends State<PetFormScreen> {
           padding: const EdgeInsets.fromLTRB(22, 4, 22, 28),
           children: [
             Text(
-              _esEdicion ? 'Editar mascota' : 'Agregar mascota',
+              _esEdicion ? t.editPet : t.addPet,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
             Text(
               _esEdicion
-                  ? 'Actualizá los datos de ${widget.mascota!.nombre}.'
-                  : 'Contanos sobre tu compañero para personalizar sus cuidados.',
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  ? t.editPetSubtitle(widget.mascota!.nombre)
+                  : t.addPetSubtitle,
+              style: TextStyle(fontSize: 14, color: context.textoSuave),
             ),
             const SizedBox(height: 24),
             Center(child: _buildSelectorFoto()),
@@ -285,7 +291,9 @@ class _PetFormScreenState extends State<PetFormScreen> {
                 onPressed: _guardando ? null : _guardar,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.verdeAcento,
-                  foregroundColor: Colors.white,
+                  foregroundColor: context.esOscuro
+                      ? AppColors.verdeOscuro
+                      : Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -293,16 +301,18 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   ),
                 ),
                 child: _guardando
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.2,
-                          color: Colors.white,
+                          color: context.esOscuro
+                              ? AppColors.verdeOscuro
+                              : Colors.white,
                         ),
                       )
                     : Text(
-                        _esEdicion ? 'Guardar cambios' : 'Guardar mascota',
+                        _esEdicion ? t.profileSave : t.savePet,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -318,17 +328,20 @@ class _PetFormScreenState extends State<PetFormScreen> {
                     ? null
                     : () => Navigator.of(context).pop(false),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  backgroundColor: Colors.white,
+                  foregroundColor: context.texto,
+                  backgroundColor: context.superficie,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppColors.borde),
+                  side: BorderSide(color: context.bordeSuave),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                child: Text(
+                  t.cancel,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -339,6 +352,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }
 
   Widget _buildSelectorFoto() {
+    final t = AppLocalizations.of(context);
     final imagen = proveedorDeFoto(_foto);
 
     return GestureDetector(
@@ -350,23 +364,25 @@ class _PetFormScreenState extends State<PetFormScreen> {
             height: 104,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFE6EBF2),
+              color: context.esOscuro
+                  ? const Color(0xFF1D2D25)
+                  : const Color(0xFFE6EBF2),
               image: imagen == null
                   ? null
                   : DecorationImage(image: imagen, fit: BoxFit.cover),
             ),
             child: imagen != null
                 ? null
-                : const Icon(
+                : Icon(
                     Icons.add_a_photo_outlined,
                     size: 32,
-                    color: Colors.black38,
+                    color: context.textoTenue,
                   ),
           ),
           const SizedBox(height: 8),
           Text(
-            imagen == null ? 'Subir foto' : 'Cambiar foto',
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            imagen == null ? t.uploadPhoto : t.changePhoto,
+            style: TextStyle(fontSize: 13, color: context.textoSuave),
           ),
         ],
       ),
@@ -374,26 +390,27 @@ class _PetFormScreenState extends State<PetFormScreen> {
   }
 
   Widget _buildTarjetaCampos() {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.superficie,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _Rotulo('Nombre'),
+          _Rotulo(t.nameLabel),
           const SizedBox(height: 8),
-          _Campo(controlador: _nombre, pista: 'Ej. Bella'),
+          _Campo(controlador: _nombre, pista: t.nameHint),
           const SizedBox(height: 18),
-          const _Rotulo('Especie'),
+          _Rotulo(t.speciesLabel),
           const SizedBox(height: 8),
           _buildSelectorEspecie(),
           const SizedBox(height: 18),
-          const _Rotulo('Raza'),
+          _Rotulo(t.breedLabel),
           const SizedBox(height: 8),
-          _Campo(controlador: _raza, pista: 'Ej. Golden Retriever'),
+          _Campo(controlador: _raza, pista: t.breedHint),
           const SizedBox(height: 18),
           // Etiquetas y campos van en DOS filas, no en dos columnas de una
           // etiqueta más su campo.
@@ -406,13 +423,13 @@ class _PetFormScreenState extends State<PetFormScreen> {
           // del teléfono.
           Row(
             children: [
-              const Expanded(child: _Rotulo('Fecha de nacimiento')),
+              Expanded(child: _Rotulo(t.birthDate)),
               // El peso solo al crear: en edición se registra desde el detalle,
               // porque cada peso es una entrada del historial y guardar el
               // formulario dos veces dejaría registros duplicados del mismo día.
               if (!_esEdicion) ...[
                 const SizedBox(width: 14),
-                const Expanded(child: _Rotulo('Peso (kg)')),
+                Expanded(child: _Rotulo(t.weightKgLabel)),
               ],
             ],
           ),
@@ -440,30 +457,29 @@ class _PetFormScreenState extends State<PetFormScreen> {
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              _Rotulo('Notas'),
+            children: [
+              _Rotulo(t.notesLabel),
               Text(
-                'Opcional',
-                style: TextStyle(fontSize: 12, color: Colors.black45),
+                t.optional,
+                style: TextStyle(fontSize: 12, color: context.textoTenue),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          _Campo(
-            controlador: _notas,
-            pista: 'Alergias, número de microchip, manías...',
-            lineas: 3,
-          ),
+          _Campo(controlador: _notas, pista: t.notesHint, lineas: 3),
         ],
       ),
     );
   }
 
   Widget _buildSelectorEspecie() {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF3F8),
+        color: context.esOscuro
+            ? const Color(0xFF1D2D25)
+            : const Color(0xFFEFF3F8),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -476,7 +492,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 11),
                   decoration: BoxDecoration(
                     color: _especie == especie
-                        ? AppColors.verdeOscuro
+                        ? context.botonFondo
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(9),
                   ),
@@ -487,18 +503,22 @@ class _PetFormScreenState extends State<PetFormScreen> {
                         _iconoDe(especie),
                         size: 14,
                         color: _especie == especie
-                            ? Colors.white
-                            : Colors.black54,
+                            ? context.botonTexto
+                            : context.textoSuave,
                       ),
                       const SizedBox(width: 7),
                       Text(
-                        especie.etiqueta,
+                        switch (especie) {
+                          Especie.perro => t.speciesDog,
+                          Especie.gato => t.speciesCat,
+                          Especie.otra => t.speciesOther,
+                        },
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _especie == especie
-                              ? Colors.white
-                              : Colors.black54,
+                              ? context.botonTexto
+                              : context.textoSuave,
                         ),
                       ),
                     ],
@@ -527,38 +547,31 @@ class _PetFormScreenState extends State<PetFormScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFFBFCFD),
+          color: context.campo,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borde),
+          border: Border.all(color: context.bordeSuave),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
-                fecha == null ? 'dd/mm/aaaa' : _formatearFecha(fecha),
+                fecha == null
+                    ? AppLocalizations.of(context).datePlaceholder
+                    : formatDate(context, fecha),
                 style: TextStyle(
-                  color: fecha == null ? Colors.black38 : Colors.black87,
+                  color: fecha == null ? context.textoTenue : context.texto,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.calendar_today_outlined,
               size: 17,
-              color: Colors.black45,
+              color: context.textoTenue,
             ),
           ],
         ),
       ),
     );
-  }
-
-  /// Se formatea a mano en vez de con `intl` para no depender de un paquete
-  /// que hoy solo llega como dependencia transitiva.
-  static String _formatearFecha(DateTime fecha) {
-    final dia = fecha.day.toString().padLeft(2, '0');
-    final mes = fecha.month.toString().padLeft(2, '0');
-
-    return '$dia/$mes/${fecha.year}';
   }
 }
 
@@ -571,10 +584,10 @@ class _Rotulo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       texto,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w600,
-        color: Colors.black87,
+        color: context.texto,
       ),
     );
   }
@@ -599,7 +612,7 @@ class _Campo extends StatelessWidget {
   Widget build(BuildContext context) {
     final borde = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.borde),
+      borderSide: BorderSide(color: context.bordeSuave),
     );
 
     return TextField(
@@ -612,9 +625,9 @@ class _Campo extends StatelessWidget {
           : TextCapitalization.words,
       decoration: InputDecoration(
         hintText: pista,
-        hintStyle: const TextStyle(color: Colors.black38),
+        hintStyle: TextStyle(color: context.textoTenue),
         filled: true,
-        fillColor: const Color(0xFFFBFCFD),
+        fillColor: context.campo,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 16,
@@ -623,10 +636,7 @@ class _Campo extends StatelessWidget {
         enabledBorder: borde,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: AppColors.verdeOscuro,
-            width: 1.4,
-          ),
+          borderSide: BorderSide(color: context.marca, width: 1.4),
         ),
       ),
     );
@@ -644,19 +654,19 @@ class _BannerError extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.alertaSuave,
+        color: context.errorFondo,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF5C6C6)),
+        border: Border.all(color: context.errorBorde),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, size: 19, color: AppColors.alerta),
+          Icon(Icons.error_outline, size: 19, color: context.errorIcono),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               mensaje,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF8E2A22)),
+              style: TextStyle(fontSize: 13, color: context.errorTexto),
             ),
           ),
         ],
