@@ -1550,4 +1550,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get holdToFinish => 'Mantené pulsado para finalizar';
+
+  @override
+  String get shareStyleForest => 'Bosque';
+
+  @override
+  String get shareStyleMint => 'Menta';
+
+  @override
+  String get shareStyleStats => 'Cifras';
+
+  @override
+  String get shareStyleLabel => 'Estilo de la tarjeta';
 }

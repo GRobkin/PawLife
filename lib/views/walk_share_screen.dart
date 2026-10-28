@@ -13,6 +13,8 @@ import '../theme/app_palette.dart';
 import 'widgets/foto_mascota.dart';
 import 'widgets/walk_route_trace.dart';
 
+enum TarjetaEstilo { bosque, menta, cifras }
+
 class WalkShareScreen extends StatefulWidget {
   const WalkShareScreen({
     super.key,
@@ -31,6 +33,7 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
   Uint8List? _png;
   String? _error;
   bool _sharing = false;
+  TarjetaEstilo _estilo = TarjetaEstilo.bosque;
 
   @override
   void initState() {
@@ -114,7 +117,38 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
                   child: WalkShareCard(
                     paseo: widget.paseo,
                     mascota: widget.mascota,
+                    estilo: _estilo,
                   ),
+                ),
+                const SizedBox(height: 14),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    t.shareStyleLabel,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final e in [
+                      (TarjetaEstilo.bosque, t.shareStyleForest),
+                      (TarjetaEstilo.menta, t.shareStyleMint),
+                      (TarjetaEstilo.cifras, t.shareStyleStats),
+                    ])
+                      ChoiceChip(
+                        label: Text(e.$2),
+                        selected: _estilo == e.$1,
+                        onSelected: (_) {
+                          if (_estilo == e.$1) return;
+                          setState(() => _estilo = e.$1);
+                          WidgetsBinding.instance.addPostFrameCallback(
+                            (_) => _prepare(),
+                          );
+                        },
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 18),
                 Text(t.sharePrivacyNote),
@@ -143,33 +177,54 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
 }
 
 class WalkShareCard extends StatelessWidget {
-  const WalkShareCard({super.key, required this.paseo, required this.mascota});
+  const WalkShareCard({
+    super.key,
+    required this.paseo,
+    required this.mascota,
+    this.estilo = TarjetaEstilo.bosque,
+  });
   final Paseo paseo;
   final Mascota mascota;
+  final TarjetaEstilo estilo;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final date = paseo.fechaInicio;
     final photo = proveedorDeFoto(paseo.fotoParaCompartir(mascota));
+    final claro = estilo == TarjetaEstilo.menta;
+    final fondo = claro ? AppColors.verdeSuave : AppColors.verdeOscuro;
+    final texto = claro ? AppColors.verdeOscuro : Colors.white;
+    final acento = claro ? AppColors.verdeOscuro : AppColors.verdeAcento;
+    final cifras = estilo == TarjetaEstilo.cifras;
+    final km = '${(paseo.distanciaMetros / 1000).toStringAsFixed(2)} km';
+    final tiempo = t.durationMinSec(
+      paseo.duracion.inMinutes,
+      paseo.duracion.inSeconds % 60,
+    );
+    final traza = Container(
+      height: cifras ? 150 : 240,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: claro ? Colors.white : AppColors.verdeSuave,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: WalkRouteTrace(points: paseo.ruta),
+    );
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      color: AppColors.verdeOscuro,
+      color: fondo,
       child: DefaultTextStyle(
-        style: const TextStyle(
-          color: Colors.white,
-          fontFamily: 'NunitoSans',
-          fontSize: 15,
-        ),
+        style: TextStyle(color: texto, fontFamily: 'NunitoSans', fontSize: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.pets, color: AppColors.verdeAcento),
-                SizedBox(width: 8),
-                Text(
+                Icon(Icons.pets, color: acento),
+                const SizedBox(width: 8),
+                const Text(
                   'PawLife',
                   style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
@@ -198,43 +253,43 @@ class WalkShareCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(formatDateTime(context, date)),
             const SizedBox(height: 18),
-            Container(
-              height: 240,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.verdeSuave,
-                borderRadius: BorderRadius.circular(18),
+            if (cifras) ...[
+              Text(
+                km,
+                style: const TextStyle(
+                  fontSize: 64,
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
               ),
-              child: WalkRouteTrace(points: paseo.ruta),
-            ),
-            const SizedBox(height: 8),
-            Text(t.traceCaption, style: const TextStyle(fontSize: 11)),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 24,
-              runSpacing: 12,
-              children: [
-                Text(
-                  '${(paseo.distanciaMetros / 1000).toStringAsFixed(2)} km',
-                  style: const TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 6),
+              Text(tiempo, style: TextStyle(fontSize: 24, color: acento)),
+              const SizedBox(height: 18),
+              traza,
+              const SizedBox(height: 8),
+              Text(t.traceCaption, style: const TextStyle(fontSize: 11)),
+            ] else ...[
+              traza,
+              const SizedBox(height: 8),
+              Text(t.traceCaption, style: const TextStyle(fontSize: 11)),
+              const SizedBox(height: 18),
+              Wrap(
+                spacing: 24,
+                runSpacing: 12,
+                children: [
+                  Text(
+                    km,
+                    style: const TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  t.durationMinSec(
-                    paseo.duracion.inMinutes,
-                    paseo.duracion.inSeconds % 60,
-                  ),
-                  style: const TextStyle(fontSize: 21),
-                ),
-              ],
-            ),
+                  Text(tiempo, style: const TextStyle(fontSize: 21)),
+                ],
+              ),
+            ],
             const SizedBox(height: 8),
-            Text(
-              t.shareTagline,
-              style: const TextStyle(color: AppColors.verdeAcento),
-            ),
+            Text(t.shareTagline, style: TextStyle(color: acento)),
           ],
         ),
       ),

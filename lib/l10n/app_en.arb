@@ -432,5 +432,9 @@
   "cellNextVaccine": "NEXT VACCINE",
   "homeTasksPending": "{count, plural, one{{count} task left today} other{{count} tasks left today}}",
   "homeAllDone": "All caught up",
-  "holdToFinish": "Press and hold to finish"
+  "holdToFinish": "Press and hold to finish",
+  "shareStyleForest": "Forest",
+  "shareStyleMint": "Mint",
+  "shareStyleStats": "Stats",
+  "shareStyleLabel": "Card style"
 }

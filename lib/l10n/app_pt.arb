@@ -432,5 +432,9 @@
   "cellNextVaccine": "PRÓXIMA VACINA",
   "homeTasksPending": "{count, plural, one{{count} tarefa pendente hoje} other{{count} tarefas pendentes hoje}}",
   "homeAllDone": "Tudo em dia",
-  "holdToFinish": "Mantenha pressionado para finalizar"
+  "holdToFinish": "Mantenha pressionado para finalizar",
+  "shareStyleForest": "Floresta",
+  "shareStyleMint": "Menta",
+  "shareStyleStats": "Números",
+  "shareStyleLabel": "Estilo do cartão"
 }

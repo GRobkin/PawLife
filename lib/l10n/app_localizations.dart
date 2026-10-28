@@ -2697,6 +2697,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Mantené pulsado para finalizar'**
   String get holdToFinish;
+
+  /// No description provided for @shareStyleForest.
+  ///
+  /// In es, this message translates to:
+  /// **'Bosque'**
+  String get shareStyleForest;
+
+  /// No description provided for @shareStyleMint.
+  ///
+  /// In es, this message translates to:
+  /// **'Menta'**
+  String get shareStyleMint;
+
+  /// No description provided for @shareStyleStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Cifras'**
+  String get shareStyleStats;
+
+  /// No description provided for @shareStyleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Estilo de la tarjeta'**
+  String get shareStyleLabel;
 }
 
 class _AppLocalizationsDelegate
