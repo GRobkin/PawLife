@@ -127,11 +127,9 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
           children: [
             Text(
               t.everyWalkCounts,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: context.marca,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(color: context.marca),
             ),
             const SizedBox(height: 6),
             Text(t.reliveWalks),

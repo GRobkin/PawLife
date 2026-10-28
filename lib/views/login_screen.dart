@@ -151,11 +151,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     t.welcomeBack,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: context.marca,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.displaySmall?.copyWith(color: context.marca),
                   ),
                   const SizedBox(height: 8),
                   Text(

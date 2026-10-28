@@ -213,11 +213,9 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
                     child: Text(
                       t.walkWith(_mascotaNombre ?? t.yourPet),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: context.texto,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineSmall?.copyWith(color: context.texto),
                     ),
                   ),
                   const SizedBox(height: 6),
