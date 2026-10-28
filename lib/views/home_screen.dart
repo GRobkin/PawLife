@@ -20,6 +20,7 @@ import 'pets_screen.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
+import 'wearable/wearable_screen.dart';
 import 'widgets/carrusel_hoy.dart';
 import 'widgets/motion.dart';
 import 'widgets/portada_mascota.dart';
@@ -388,6 +389,13 @@ class _HomeScreenState extends State<HomeScreen> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
+        ),
+        IconButton(
+          tooltip: AppLocalizations.of(context).wearableOpen,
+          icon: const Icon(Icons.watch_outlined),
+          onPressed: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const WearableScreen())),
         ),
         // El avatar es el único sitio desde el que se puede cerrar sesión.
         // Al hacerlo no hay que navegar a ningún lado: el AuthGate de

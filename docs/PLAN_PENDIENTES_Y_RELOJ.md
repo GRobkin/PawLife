@@ -160,3 +160,7 @@ Objetivo: que **vos decidas** qué UI queda, con evidencia visual, antes de segu
 6. Lo mismo para el reloj: después de W1 te muestro las capturas por estado y decidís antes de conectar al paseo real (W3).
 
 Orden: **(1) integración de git → (2) revisión UI antes/después → (3) reloj W1 → revisión → W2–W5**.
+
+## Estado del reloj (28/10/2026)
+W1–W4 hechos en local: pausar/reanudar en `RouteViewModel` (tests en `test/route_view_model_pause_test.dart`), pantalla en `lib/views/wearable/`, acceso con `Icons.watch_outlined` en la barra del Home, textos es/en/pt (`wearable*`), `test/wearable_test.dart` y capturas en `test/wearable_gallery_test.dart`.
+Pendiente: W5 (prueba en navegador a 250×250) y W6 (hardware Wear OS, fuera de alcance). Nada se probó con GPS real ni en dispositivo. Al reanudar, el trazo une el último punto previo con el primero posterior (sin sumar esa distancia).
