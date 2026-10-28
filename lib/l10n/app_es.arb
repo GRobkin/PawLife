@@ -574,7 +574,6 @@
       }
     }
   },
-  "ints": "hours",
   "walkInProgress": "Paseo en curso",
   "locationErrorDefault": "Ocurrió un error de ubicación.",
   "mapCaptured": "Mapa capturado",

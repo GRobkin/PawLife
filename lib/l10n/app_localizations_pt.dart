@@ -959,9 +959,6 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get ints => 'hours';
-
-  @override
   String get walkInProgress => 'Passeio em andamento';
 
   @override

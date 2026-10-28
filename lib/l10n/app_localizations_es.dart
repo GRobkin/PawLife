@@ -960,9 +960,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get ints => 'hours';
-
-  @override
   String get walkInProgress => 'Paseo en curso';
 
   @override
