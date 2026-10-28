@@ -212,24 +212,66 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             _buildStartWalkCard(context),
             const SizedBox(height: 24),
-            Text(
-              t.activitySummary,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            _buildActivitySummary(),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const WalkHistoryScreen()),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.activitySummary,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
-                icon: const Icon(Icons.history),
-                label: Text(t.viewWalkHistory),
-              ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.only(left: 10),
+                  ),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const WalkHistoryScreen(),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(t.viewWalkHistory),
+                      const Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            Text(t.todayTitle, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            _buildActivitySummary(),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.todayTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                if (_recordatorios != null && hoy!.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: context.mentaSuave,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${hoy.where((r) => r.completado).length}/${hoy.length}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: context.marca,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 12),
             if (_recordatorios == null)
               const Column(
@@ -240,34 +282,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               )
             else if (hoy!.isEmpty)
-              Row(
-                children: [
-                  Icon(Icons.check_circle_outline, color: context.marca),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      t.noTasksToday,
-                      style: TextStyle(color: context.textoSuave),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: context.tarjetaMenta,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: context.marca),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        t.noTasksToday,
+                        style: TextStyle(color: context.texto),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
             else
-              ...hoy.map(
-                (r) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _buildTaskTile(
-                    icon: r.tipo == 'vacuna'
-                        ? Icons.medical_services_outlined
-                        : Icons.assignment_outlined,
-                    iconColor: context.marca,
-                    title: r.mensaje,
-                    subtitle: r.completado
-                        ? t.completedLabel
-                        : formatTime(context, r.fecha),
-                    checked: r.completado,
-                    onTap: () => _marcarRecordatorio(r),
-                  ),
+              Container(
+                decoration: BoxDecoration(
+                  color: context.superficie,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < hoy.length; i++) ...[
+                      if (i > 0)
+                        Divider(
+                          height: 1,
+                          indent: 62,
+                          color: context.bordeSuave,
+                        ),
+                      _buildTaskTile(
+                        icon: switch (hoy[i].tipo) {
+                          'vacuna' => Icons.vaccines_outlined,
+                          'medicamento' => Icons.medication_outlined,
+                          _ => Icons.assignment_outlined,
+                        },
+                        iconColor: context.marca,
+                        title: hoy[i].mensaje,
+                        subtitle: hoy[i].completado
+                            ? t.completedLabel
+                            : formatTime(context, hoy[i].fecha),
+                        checked: hoy[i].completado,
+                        onTap: () => _marcarRecordatorio(hoy[i]),
+                      ),
+                    ],
+                  ],
                 ),
               ),
           ],
@@ -726,65 +791,89 @@ class _HomeScreenState extends State<HomeScreen> {
     Color? subtitleColor,
   }) {
     final t = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.superficie,
-        borderRadius: BorderRadius.circular(14),
-        border: subtitleColor == Colors.red
-            ? const Border(left: BorderSide(color: Colors.red, width: 4))
-            : null,
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: iconColor.withValues(alpha: 0.12),
-            child: Icon(icon, size: 16, color: iconColor),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 220),
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: checked ? context.textoTenue : context.texto,
-                    decoration: checked ? TextDecoration.lineThrough : null,
-                  ),
-                  child: Text(title),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: subtitleColor ?? context.textoSuave,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip: checked ? t.markPending : t.markDone,
-            onPressed: onTap,
-            icon: AnimatedSwitcher(
-              duration: reducirMovimiento(context)
-                  ? Duration.zero
-                  : const Duration(milliseconds: 200),
-              transitionBuilder: (hijo, animacion) =>
-                  ScaleTransition(scale: animacion, child: hijo),
+    final rapido = reducirMovimiento(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 9, 14, 9),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: checked ? context.relleno : context.mentaSuave,
+                borderRadius: BorderRadius.circular(13),
+              ),
               child: Icon(
-                checked ? Icons.check_box : Icons.check_box_outline_blank,
-                key: ValueKey(checked),
-                color: checked ? context.marca : context.textoTenue,
+                icon,
+                size: 20,
+                color: checked ? context.textoTenue : iconColor,
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AnimatedDefaultTextStyle(
+                    duration: rapido,
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: checked ? context.textoTenue : context.texto,
+                      decoration: checked ? TextDecoration.lineThrough : null,
+                    ),
+                    child: Text(title),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: subtitleColor ?? context.textoSuave,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Semantics(
+              button: true,
+              label: checked ? t.markPending : t.markDone,
+              excludeSemantics: true,
+              child: AnimatedContainer(
+                duration: rapido,
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: checked ? context.botonFondo : Colors.transparent,
+                  border: Border.all(
+                    color: checked ? context.marca : context.textoTenue,
+                    width: 2,
+                  ),
+                ),
+                child: AnimatedSwitcher(
+                  duration: rapido,
+                  transitionBuilder: (hijo, animacion) =>
+                      ScaleTransition(scale: animacion, child: hijo),
+                  child: checked
+                      ? Icon(
+                          Icons.check,
+                          key: const ValueKey(true),
+                          size: 17,
+                          color: context.botonTexto,
+                        )
+                      : const SizedBox.shrink(key: ValueKey(false)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
