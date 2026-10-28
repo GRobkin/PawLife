@@ -25,6 +25,7 @@ import 'package:pawlife/views/walk_history_screen.dart';
 import 'package:pawlife/views/walk_share_screen.dart';
 import 'package:pawlife/views/weight_history_screen.dart';
 import 'package:pawlife/views/welcome_screen.dart';
+import 'package:pawlife/views/widgets/estado_vacio.dart';
 import 'package:pawlife/views/widgets/preferences_section.dart';
 import 'package:provider/provider.dart';
 
@@ -199,6 +200,22 @@ void main() {
           child: WalkShareCard(paseo: walk('x'), mascota: pet),
         ),
       ),
+    ),
+    'vacios': () => Builder(
+      builder: (context) {
+        final t = AppLocalizations.of(context);
+        return Scaffold(
+          body: Center(
+            child: EstadoVacio(
+              icono: Icons.pets,
+              titulo: t.petsEmptyTitle,
+              detalle: t.petsEmptyBody,
+              accion: t.addPet,
+              onAccion: () {},
+            ),
+          ),
+        );
+      },
     ),
     'prefs': () => const Scaffold(
       body: Padding(padding: EdgeInsets.all(20), child: PreferencesSection()),

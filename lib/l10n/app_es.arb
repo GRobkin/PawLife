@@ -850,5 +850,6 @@
       }
     }
   },
-  "homeAllDone": "Todo al día"
+  "homeAllDone": "Todo al día",
+  "holdToFinish": "Mantené pulsado para finalizar"
 }

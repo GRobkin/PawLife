@@ -2691,6 +2691,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Todo al día'**
   String get homeAllDone;
+
+  /// No description provided for @holdToFinish.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantené pulsado para finalizar'**
+  String get holdToFinish;
 }
 
 class _AppLocalizationsDelegate

@@ -1547,4 +1547,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get homeAllDone => 'Todo al día';
+
+  @override
+  String get holdToFinish => 'Mantené pulsado para finalizar';
 }
