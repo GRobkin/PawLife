@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../../l10n/error_messages.dart';
 import '../../services/auth_service.dart';
 
 Future<bool> confirmIdentity(BuildContext context, AuthService auth) async =>
@@ -20,6 +22,8 @@ class _ReauthenticationDialog extends StatefulWidget {
 }
 
 class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   final _password = TextEditingController();
   bool _busy = false;
   String? _error;
@@ -33,7 +37,7 @@ class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
   Future<void> _confirm() async {
     if (_busy) return;
     if (widget.auth.supportsPasswordChange && _password.text.isEmpty) {
-      setState(() => _error = 'Ingresá tu contraseña actual.');
+      setState(() => _error = t.errEnterCurrentPassword);
       return;
     }
     setState(() {
@@ -46,11 +50,11 @@ class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
       );
       if (mounted) Navigator.pop(context, true);
     } on AuthException catch (error) {
-      if (mounted && !error.isCancelled) setState(() => _error = error.message);
+      if (mounted && !error.isCancelled) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error = 'No se pudo verificar tu identidad. Intentá otra vez.',
+          () => _error = t.identityVerifyError,
         );
       }
     } finally {
@@ -62,7 +66,7 @@ class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
   Widget build(BuildContext context) => PopScope(
     canPop: !_busy,
     child: AlertDialog(
-      title: const Text('Confirmar identidad'),
+      title: Text(t.confirmIdentity),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -74,11 +78,11 @@ class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
               obscureText: true,
               autocorrect: false,
               enableSuggestions: false,
-              decoration: const InputDecoration(labelText: 'Contraseña actual'),
+              decoration: InputDecoration(labelText: t.currentPassword),
               onSubmitted: (_) => _confirm(),
             )
           else
-            const Text('Confirmá tu cuenta de Google para continuar.'),
+            Text(t.confirmGoogleAccount),
           if (_error != null) ...[
             const SizedBox(height: 12),
             Text(
@@ -91,11 +95,11 @@ class _ReauthenticationDialogState extends State<_ReauthenticationDialog> {
       actions: [
         TextButton(
           onPressed: _busy ? null : () => Navigator.pop(context, false),
-          child: const Text('Cancelar'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed: _busy ? null : _confirm,
-          child: Text(_busy ? 'Verificando…' : 'Confirmar'),
+          child: Text(_busy ? t.verifyingEllipsis : t.confirm),
         ),
       ],
     ),

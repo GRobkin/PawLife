@@ -1,3 +1,4 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -90,6 +91,10 @@ void main() {
       final walks = WalksStub();
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           home: WalkHistoryScreen(
             petsRepository: PetsStub(),
             walkRepository: walks,
@@ -118,6 +123,10 @@ void main() {
     final walks = WalksStub()..fail = true;
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+
         home: WalkHistoryScreen(
           petsRepository: PetsStub(),
           walkRepository: walks,
@@ -206,6 +215,10 @@ void main() {
       final key = GlobalKey();
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           home: Scaffold(
             body: Center(
               child: SizedBox(
@@ -266,6 +279,10 @@ void main() {
     ]) {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           home: SizedBox(
             width: 100,
             height: 100,

@@ -22,6 +22,9 @@ abstract final class AppColors {
   /// Fondo general de las pantallas.
   static const Color fondo = Color(0xFFF7F8FA);
 
+  /// Fondo general en modo oscuro (verde casi negro, afín a la marca).
+  static const Color fondoOscuro = Color(0xFF0E1A15);
+
   /// Fondo alternativo, un pelín más azulado (el del Home).
   static const Color fondoAlterno = Color(0xFFF4F5F7);
 

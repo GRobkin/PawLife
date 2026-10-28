@@ -9,7 +9,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
+import '../../theme/app_palette.dart';
 import '../pets_screen.dart';
 import '../tasks_screen.dart';
 import '../profile_screen.dart';
@@ -33,8 +34,9 @@ class PawLifeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return BottomAppBar(
-      color: Colors.white,
+      color: context.superficie,
       // Altura y padding explícitos. Material 3 le pone al BottomAppBar 80 de
       // alto con 12 de padding vertical propio, y sumándole el padding de aquí
       // el contenido no cabía: salía el "BOTTOM OVERFLOWED BY 4.0 PIXELS".
@@ -52,7 +54,7 @@ class PawLifeBottomNav extends StatelessWidget {
             _Item(
               icono: Icons.home_outlined,
               iconoActivo: Icons.home,
-              etiqueta: 'Inicio',
+              etiqueta: t.navHome,
               seccion: SeccionNav.inicio,
               activa: activa,
               onTap: () => _irA(context, SeccionNav.inicio),
@@ -60,7 +62,7 @@ class PawLifeBottomNav extends StatelessWidget {
             _Item(
               icono: Icons.pets_outlined,
               iconoActivo: Icons.pets,
-              etiqueta: 'Mascotas',
+              etiqueta: t.navPets,
               seccion: SeccionNav.mascotas,
               activa: activa,
               onTap: () => _irA(context, SeccionNav.mascotas),
@@ -71,10 +73,10 @@ class PawLifeBottomNav extends StatelessWidget {
               onTap: onPaseo,
               child: CircleAvatar(
                 radius: 22,
-                backgroundColor: AppColors.verdeOscuro,
-                child: const Icon(
+                backgroundColor: context.botonFondo,
+                child: Icon(
                   Icons.directions_walk,
-                  color: Colors.white,
+                  color: context.botonTexto,
                   size: 20,
                 ),
               ),
@@ -82,7 +84,7 @@ class PawLifeBottomNav extends StatelessWidget {
             _Item(
               icono: Icons.assignment_outlined,
               iconoActivo: Icons.assignment,
-              etiqueta: 'Tareas',
+              etiqueta: t.navTasks,
               seccion: SeccionNav.tareas,
               activa: activa,
               onTap: () => _irA(context, SeccionNav.tareas),
@@ -90,7 +92,7 @@ class PawLifeBottomNav extends StatelessWidget {
             _Item(
               icono: Icons.person_outline,
               iconoActivo: Icons.person,
-              etiqueta: 'Perfil',
+              etiqueta: t.navProfile,
               seccion: SeccionNav.perfil,
               activa: activa,
               onTap: () => _irA(context, SeccionNav.perfil),
@@ -156,7 +158,7 @@ class _Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final esActiva = seccion == activa;
-    final color = esActiva ? AppColors.verdeOscuro : Colors.black45;
+    final color = esActiva ? context.marca : context.textoTenue;
 
     return InkWell(
       onTap: onTap,

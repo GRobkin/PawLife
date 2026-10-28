@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/pawlife_models.dart';
 import '../../theme/app_colors.dart';
 import 'foto_mascota.dart';
@@ -17,9 +18,10 @@ import 'foto_mascota.dart';
 Future<Mascota?> elegirMascota(
   BuildContext context,
   List<Mascota> mascotas, {
-  String titulo = 'Elegí una mascota',
+  String? titulo,
   String? seleccionadaId,
 }) {
+  final t = AppLocalizations.of(context);
   return showModalBottomSheet<Mascota>(
     context: context,
     builder: (contexto) => SafeArea(
@@ -29,7 +31,7 @@ Future<Mascota?> elegirMascota(
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              titulo,
+              titulo ?? t.choosePet,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
@@ -43,7 +45,7 @@ Future<Mascota?> elegirMascota(
                   ListTile(
                     leading: AvatarMascota(mascota: mascota, radio: 18),
                     title: Text(mascota.nombre),
-                    subtitle: Text(mascota.subtitulo),
+                    subtitle: Text(mascota.subtituloLocalizado(t)),
                     trailing: mascota.id == seleccionadaId
                         ? const Icon(
                             Icons.check_circle,

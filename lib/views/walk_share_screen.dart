@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../theme/app_colors.dart';
 import 'widgets/foto_mascota.dart';
@@ -61,9 +63,7 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = 'No se pudo preparar la imagen. Intentá otra vez.',
-        );
+        setState(() => _error = AppLocalizations.of(context).shareImageError);
       }
     }
   }
@@ -81,16 +81,14 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
           fileNameOverrides: [
             'pawlife-paseo-${widget.paseo.fechaInicio.millisecondsSinceEpoch}.png',
           ],
-          title: 'Paseo con ${widget.mascota.nombre}',
+          title: AppLocalizations.of(context).walkWith(widget.mascota.nombre),
           sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
         ),
       );
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo compartir. Volvé a intentarlo.'),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context).shareFailed)),
         );
       }
     } finally {
@@ -99,50 +97,51 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Compartir paseo')),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Column(
-            children: [
-              RepaintBoundary(
-                key: _cardKey,
-                child: WalkShareCard(
-                  paseo: widget.paseo,
-                  mascota: widget.mascota,
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(t.shareWalkTitle)),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              children: [
+                RepaintBoundary(
+                  key: _cardKey,
+                  child: WalkShareCard(
+                    paseo: widget.paseo,
+                    mascota: widget.mascota,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                'Compartís la traza y las estadísticas, sin el mapa de calles. La forma del recorrido puede revelar lugares que visitaste.',
-              ),
-              const SizedBox(height: 14),
-              if (_error != null) ...[
-                Text(_error!, style: const TextStyle(color: AppColors.alerta)),
-                TextButton(
-                  onPressed: _prepare,
-                  child: const Text('Reintentar'),
+                const SizedBox(height: 18),
+                Text(t.sharePrivacyNote),
+                const SizedBox(height: 14),
+                if (_error != null) ...[
+                  Text(
+                    _error!,
+                    style: const TextStyle(color: AppColors.alerta),
+                  ),
+                  TextButton(onPressed: _prepare, child: Text(t.retry)),
+                ] else if (_png == null)
+                  const LinearProgressIndicator(),
+                Builder(
+                  builder: (buttonContext) => FilledButton.icon(
+                    onPressed: _png == null || _sharing
+                        ? null
+                        : () => _share(buttonContext),
+                    icon: const Icon(Icons.ios_share),
+                    label: Text(_sharing ? t.sharingEllipsis : t.sharePng),
+                  ),
                 ),
-              ] else if (_png == null)
-                const LinearProgressIndicator(),
-              Builder(
-                builder: (buttonContext) => FilledButton.icon(
-                  onPressed: _png == null || _sharing
-                      ? null
-                      : () => _share(buttonContext),
-                  icon: const Icon(Icons.ios_share),
-                  label: Text(_sharing ? 'Compartiendo…' : 'Compartir PNG'),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class WalkShareCard extends StatelessWidget {
@@ -152,6 +151,7 @@ class WalkShareCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final date = paseo.fechaInicio;
     final photo = proveedorDeFoto(paseo.fotoParaCompartir(mascota));
     return Container(
@@ -188,7 +188,7 @@ class WalkShareCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Paseo con ${mascota.nombre}',
+                    t.walkWith(mascota.nombre),
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -198,9 +198,7 @@ class WalkShareCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              '${date.day}/${date.month}/${date.year} · ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}',
-            ),
+            Text(formatDateTime(context, date)),
             const SizedBox(height: 18),
             Container(
               height: 240,
@@ -212,10 +210,7 @@ class WalkShareCard extends StatelessWidget {
               child: WalkRouteTrace(points: paseo.ruta),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Traza del recorrido · inicio verde / final rojo',
-              style: TextStyle(fontSize: 11),
-            ),
+            Text(t.traceCaption, style: const TextStyle(fontSize: 11)),
             const SizedBox(height: 18),
             Wrap(
               spacing: 24,
@@ -229,15 +224,18 @@ class WalkShareCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${paseo.duracion.inMinutes} min ${paseo.duracion.inSeconds % 60} s',
+                  t.durationMinSec(
+                    paseo.duracion.inMinutes,
+                    paseo.duracion.inSeconds % 60,
+                  ),
                   style: const TextStyle(fontSize: 21),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Un paseo más, un recuerdo juntos.',
-              style: TextStyle(color: AppColors.verdeAcento),
+            Text(
+              t.shareTagline,
+              style: const TextStyle(color: AppColors.verdeAcento),
             ),
           ],
         ),

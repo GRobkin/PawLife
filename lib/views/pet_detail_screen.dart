@@ -6,12 +6,16 @@
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'care_form_screen.dart';
 import 'pet_form_screen.dart';
 import 'route_screen.dart';
@@ -94,7 +98,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       });
     } on ApiException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
+      setState(() => _error = apiErrorText(AppLocalizations.of(context), e));
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString());
@@ -183,16 +187,16 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Eliminar $nombre'),
-          content: const Text('Esta acción no se puede deshacer.'),
+          title: Text(AppLocalizations.of(context).deleteItemTitle(nombre)),
+          content: Text(AppLocalizations.of(context).cannotBeUndone),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Eliminar'),
+              child: Text(AppLocalizations.of(context).delete),
             ),
           ],
         ),
@@ -207,9 +211,11 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       await _cargar();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).deleteError('$e')),
+          ),
+        );
       }
     }
   }
@@ -222,9 +228,11 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       await _cargar();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).deleteError('$e')),
+          ),
+        );
       }
     }
   }
@@ -236,9 +244,11 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       await _cargar();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('No se pudo eliminar: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).deleteError('$e')),
+          ),
+        );
       }
     }
   }
@@ -251,24 +261,25 @@ class _PetDetailScreenState extends State<PetDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: context.fondoPantalla,
       appBar: AppBar(
-        backgroundColor: AppColors.fondo,
+        backgroundColor: context.fondoPantalla,
         elevation: 0,
-        foregroundColor: AppColors.verdeOscuro,
+        foregroundColor: context.marca,
         title: const Text(
           'PawLife',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            tooltip: 'Editar',
+            tooltip: t.edit,
             onPressed: _editar,
             icon: const Icon(Icons.edit_outlined),
           ),
           IconButton(
-            tooltip: 'Eliminar',
+            tooltip: t.delete,
             onPressed: _eliminar,
             icon: const Icon(Icons.delete_outline),
           ),
@@ -310,16 +321,16 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                         controller: _tabs,
                         isScrollable: true,
                         tabAlignment: TabAlignment.start,
-                        labelColor: AppColors.verdeOscuro,
-                        unselectedLabelColor: Colors.black54,
-                        indicatorColor: AppColors.verdeOscuro,
+                        labelColor: context.marca,
+                        unselectedLabelColor: context.textoSuave,
+                        indicatorColor: context.marca,
                         indicatorSize: TabBarIndicatorSize.label,
-                        tabs: const [
-                          Tab(text: 'Resumen'),
-                          Tab(text: 'Vacunas'),
-                          Tab(text: 'Medicamentos'),
-                          Tab(text: 'Alimentación'),
-                          Tab(text: 'Paseos'),
+                        tabs: [
+                          Tab(text: t.tabSummary),
+                          Tab(text: t.tabVaccines),
+                          Tab(text: t.tabMedications),
+                          Tab(text: t.tabFeeding),
+                          Tab(text: t.tabWalks),
                         ],
                       ),
                     ),
@@ -355,15 +366,18 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.cloud_off, size: 48, color: Colors.black26),
+            Icon(Icons.cloud_off, size: 48, color: context.textoTenue),
             const SizedBox(height: 16),
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(color: context.textoSuave),
             ),
             const SizedBox(height: 18),
-            ElevatedButton(onPressed: _cargar, child: const Text('Reintentar')),
+            ElevatedButton(
+              onPressed: _cargar,
+              child: Text(AppLocalizations.of(context).retry),
+            ),
           ],
         ),
       ),
@@ -371,6 +385,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   }
 
   Widget _buildMetricas() {
+    final t = AppLocalizations.of(context);
     final peso = _ultimoPeso;
     final paseo = _ultimoPaseo;
 
@@ -381,22 +396,22 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             Expanded(
               child: _Metrica(
                 icono: Icons.monitor_weight_outlined,
-                rotulo: 'PESO',
+                rotulo: t.cellWeight,
                 valor: peso == null ? '—' : _formatearKg(peso.valorKg),
                 unidad: peso == null ? null : 'kg',
                 insignia: peso == null
-                    ? 'Sin registro'
-                    : 'Medido ${_haceCuanto(peso.fecha)}',
+                    ? t.noRecord
+                    : t.measuredWhen(_haceCuanto(peso.fecha)),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _Metrica(
                 icono: Icons.directions_walk,
-                rotulo: 'ÚLTIMO PASEO',
+                rotulo: t.metricLastWalk,
                 valor: paseo == null ? '—' : _haceCuanto(paseo.fechaInicio),
                 insignia: paseo == null
-                    ? 'Sin paseos'
+                    ? t.noWalks
                     : '${(paseo.distanciaMetros / 1000).toStringAsFixed(1)} km',
               ),
             ),
@@ -408,13 +423,13 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             Expanded(
               child: _Metrica(
                 icono: Icons.calendar_today_outlined,
-                rotulo: 'PRÓXIMA VISITA AL VET',
+                rotulo: t.metricNextVet,
                 valor: '—',
                 // Pendiente: todavía no existe el concepto de visita
                 // veterinaria como entidad, así que no hay de dónde sacar la
                 // fecha. Se deja el hueco a la vista para no prometer un dato
                 // que la app no tiene.
-                insignia: 'Sin agendar',
+                insignia: t.notScheduled,
                 atenuada: true,
               ),
             ),
@@ -427,7 +442,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
           child: TextButton.icon(
             onPressed: _abrirPesos,
             icon: const Icon(Icons.monitor_weight_outlined),
-            label: const Text('Historial de peso'),
+            label: Text(t.weightHistory),
           ),
         ),
       ],
@@ -437,6 +452,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   // ------------------------------------------------------------- pestañas
 
   Widget _buildResumen() {
+    final t = AppLocalizations.of(context);
     final recordatorios = _recordatorios;
     final paseos = _paseos;
 
@@ -453,43 +469,43 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       key: const PageStorageKey("resumen"),
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
       children: [
-        const _TituloSeccion('Próximos cuidados'),
+        _TituloSeccion(t.upcomingCare),
         const SizedBox(height: 12),
         if (recordatorios.isEmpty && proximaVacuna == null)
-          const _Vacio(
-            icono: Icons.event_available_outlined,
-            texto: 'No hay nada pendiente.',
-          )
+          _Vacio(icono: Icons.event_available_outlined, texto: t.nothingPending)
         else ...[
           if (proximaVacuna != null)
             _FilaCuidado(
               icono: Icons.vaccines_outlined,
               titulo: proximaVacuna.nombre,
-              detalle: 'Vacuna · ${_cuandoToca(proximaVacuna.proximaFecha)}',
+              detalle: t.kindWhen(
+                t.kindVaccine,
+                _cuandoToca(proximaVacuna.proximaFecha),
+              ),
             ),
           for (final recordatorio in recordatorios)
             _FilaCuidado(
               icono: Icons.notifications_outlined,
               titulo: recordatorio.mensaje,
-              detalle:
-                  '${recordatorio.tipo} · ${_cuandoToca(recordatorio.fecha)}',
+              detalle: t.kindWhen(
+                _tipoRecordatorio(t, recordatorio.tipo),
+                _cuandoToca(recordatorio.fecha),
+              ),
             ),
         ],
         const SizedBox(height: 26),
-        const _TituloSeccion('Actividad reciente'),
+        _TituloSeccion(t.recentActivity),
         const SizedBox(height: 12),
         if (paseos.isEmpty)
-          const _Vacio(
-            icono: Icons.directions_walk,
-            texto: 'Todavía no hay paseos registrados.',
-          )
+          _Vacio(icono: Icons.directions_walk, texto: t.noWalksRecorded)
         else
           for (final paseo in paseos.take(5))
             _FilaCuidado(
               icono: Icons.directions_walk,
-              titulo:
-                  '${(paseo.distanciaMetros / 1000).toStringAsFixed(2)} km en '
-                  '${_duracion(paseo.duracion)}',
+              titulo: t.kmIn(
+                (paseo.distanciaMetros / 1000).toStringAsFixed(2),
+                _duracion(paseo.duracion),
+              ),
               detalle: _fechaLarga(paseo.fechaInicio),
             ),
       ],
@@ -497,6 +513,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   }
 
   Widget _buildVacunas() {
+    final t = AppLocalizations.of(context);
     final vacunas = _vacunas;
     if (vacunas == null) {
       return const _CuerpoPestana(
@@ -514,22 +531,20 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       children: [
         _BotonAgregar(
           icono: Icons.add,
-          texto: 'Añadir vacuna',
+          texto: t.addVaccine,
           onTap: _abrirVacuna,
         ),
         const SizedBox(height: 14),
         if (ordenadas.isEmpty)
-          const _Vacio(
-            icono: Icons.vaccines_outlined,
-            texto: 'Sin vacunas registradas.',
-          ),
+          _Vacio(icono: Icons.vaccines_outlined, texto: t.noVaccinesRecorded),
         for (final vacuna in ordenadas)
           _FilaCuidado(
             icono: Icons.vaccines_outlined,
             titulo: vacuna.nombre,
-            detalle:
-                'Aplicada el ${_fechaCorta(vacuna.fechaAplicacion)} · '
-                'próxima ${_cuandoToca(vacuna.proximaFecha)}',
+            detalle: t.appliedOnNext(
+              formatDate(context, vacuna.fechaAplicacion),
+              _cuandoToca(vacuna.proximaFecha),
+            ),
             alerta: vacuna.proximaFecha.isBefore(DateTime.now()),
             onTap: () => _abrirVacuna(vacuna),
             onDelete: () => _borrarVacuna(vacuna),
@@ -539,6 +554,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   }
 
   Widget _buildMedicamentos() {
+    final t = AppLocalizations.of(context);
     final medicamentos = _medicamentos;
     if (medicamentos == null) {
       return const _CuerpoPestana(
@@ -553,22 +569,22 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       children: [
         _BotonAgregar(
           icono: Icons.add,
-          texto: 'Añadir medicamento',
+          texto: t.addMedication,
           onTap: _abrirMedicamento,
         ),
         const SizedBox(height: 14),
         if (medicamentos.isEmpty)
-          const _Vacio(
+          _Vacio(
             icono: Icons.medication_outlined,
-            texto: 'Sin medicamentos registrados.',
+            texto: t.noMedicationsRecorded,
           ),
         for (final medicamento in medicamentos)
           _FilaCuidado(
             icono: Icons.medication_outlined,
             titulo: '${medicamento.nombre} · ${medicamento.dosis}',
             detalle: medicamento.activo
-                ? 'Activo · ${medicamento.horarios.join(', ')}'
-                : 'Finalizado',
+                ? t.activeWithTimes(medicamento.horarios.join(', '))
+                : t.finished,
             atenuada: !medicamento.activo,
             onTap: () => _abrirMedicamento(medicamento),
             onDelete: () => _borrarMedicamento(medicamento),
@@ -578,6 +594,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   }
 
   Widget _buildAlimentaciones() {
+    final t = AppLocalizations.of(context);
     final alimentaciones = _alimentaciones;
     if (alimentaciones == null) {
       return const _CuerpoPestana(
@@ -595,15 +612,12 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       children: [
         _BotonAgregar(
           icono: Icons.add,
-          texto: 'Registrar alimentación',
+          texto: t.logFeeding,
           onTap: _abrirAlimentacion,
         ),
         const SizedBox(height: 14),
         if (ordenadas.isEmpty)
-          const _Vacio(
-            icono: Icons.restaurant_outlined,
-            texto: 'Sin alimentaciones registradas.',
-          ),
+          _Vacio(icono: Icons.restaurant_outlined, texto: t.noFeedingsRecorded),
         for (final alimentacion in ordenadas)
           _FilaCuidado(
             icono: Icons.restaurant_outlined,
@@ -617,6 +631,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   }
 
   Widget _buildPaseos() {
+    final t = AppLocalizations.of(context);
     final paseos = _paseos;
     if (paseos == null) {
       return const _CuerpoPestana(
@@ -629,14 +644,9 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       // Era el único estado vacío que quedaba como cuerpo directo de una
       // pestaña: las demás lo tienen dentro de su ListView, junto al botón
       // de añadir, y por eso solo esta se desbordaba.
-      return const _CuerpoPestana(
+      return _CuerpoPestana(
         clave: "paseos",
-        child: _Vacio(
-          icono: Icons.directions_walk,
-          texto:
-              'Todavía no hay paseos.\nUsá el botón verde de abajo para '
-              'registrar uno.',
-        ),
+        child: _Vacio(icono: Icons.directions_walk, texto: t.noWalksYetHint),
       );
     }
 
@@ -654,7 +664,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             if (mounted) await _cargar();
           },
           icon: const Icon(Icons.history),
-          label: const Text('Abrir historial de paseos'),
+          label: Text(t.openWalkHistory),
         ),
         for (final paseo in paseos)
           _FilaCuidado(
@@ -663,7 +673,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             detalle:
                 '${_fechaLarga(paseo.fechaInicio)} · '
                 '${_duracion(paseo.duracion)} · '
-                'máx ${paseo.velocidadMaximaKmh.toStringAsFixed(1)} km/h',
+                '${t.maxSpeedKmh(paseo.velocidadMaximaKmh.toStringAsFixed(1))}',
             onTap: () async {
               final deleted = await Navigator.of(context).push<bool>(
                 MaterialPageRoute(
@@ -693,62 +703,53 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   static String _formatearKg(double kg) =>
       kg == kg.roundToDouble() ? kg.toStringAsFixed(0) : kg.toStringAsFixed(1);
 
-  static String _duracion(Duration d) {
-    if (d.inHours > 0) return '${d.inHours} h ${d.inMinutes.remainder(60)} min';
+  String _duracion(Duration d) {
+    final t = AppLocalizations.of(context);
+    if (d.inHours > 0) {
+      return t.durationHoursMinutes(
+        '${d.inHours}',
+        '${d.inMinutes.remainder(60)}',
+      );
+    }
 
-    return '${d.inMinutes} min';
+    return t.minutesShort(d.inMinutes);
   }
 
   /// "hoy", "ayer", "hace 3 días", "hace 2 meses".
-  static String _haceCuanto(DateTime fecha) {
+  String _haceCuanto(DateTime fecha) {
+    final t = AppLocalizations.of(context);
     final dias = DateTime.now().difference(fecha).inDays;
 
-    if (dias <= 0) return 'hoy';
-    if (dias == 1) return 'ayer';
-    if (dias < 30) return 'hace $dias días';
+    if (dias <= 0) return t.relToday;
+    if (dias == 1) return t.relYesterday;
+    if (dias < 30) return t.relDaysAgo(dias);
 
-    final meses = dias ~/ 30;
-
-    return 'hace $meses ${meses == 1 ? 'mes' : 'meses'}';
+    return t.relMonthsAgo(dias ~/ 30);
   }
 
   /// "en 3 días", "hoy", "vencida hace 5 días".
-  static String _cuandoToca(DateTime fecha) {
+  String _cuandoToca(DateTime fecha) {
+    final t = AppLocalizations.of(context);
     final dias = fecha.difference(DateTime.now()).inDays;
 
-    if (dias < 0) {
-      final atraso = -dias;
+    if (dias < 0) return t.relOverdueDays(-dias);
+    if (dias == 0) return t.relToday;
+    if (dias == 1) return t.relTomorrow;
 
-      return 'vencida hace $atraso ${atraso == 1 ? 'día' : 'días'}';
-    }
-    if (dias == 0) return 'hoy';
-    if (dias == 1) return 'mañana';
-
-    return 'en $dias días';
+    return t.relInDays(dias);
   }
 
-  static const _meses = [
-    'ene',
-    'feb',
-    'mar',
-    'abr',
-    'may',
-    'jun',
-    'jul',
-    'ago',
-    'sep',
-    'oct',
-    'nov',
-    'dic',
-  ];
+  /// El tipo viene del servidor ("vacuna", "tarea"…); lo desconocido se
+  /// muestra tal cual.
+  static String _tipoRecordatorio(AppLocalizations t, String tipo) =>
+      switch (tipo) {
+        'vacuna' => t.kindVaccine,
+        'tarea' => t.kindTask,
+        'medicamento' => t.medicationLabel,
+        _ => tipo,
+      };
 
-  static String _fechaCorta(DateTime f) =>
-      '${f.day} ${_meses[f.month - 1]} ${f.year}';
-
-  static String _fechaLarga(DateTime f) =>
-      '${f.day} ${_meses[f.month - 1]}, '
-      '${f.hour.toString().padLeft(2, '0')}:'
-      '${f.minute.toString().padLeft(2, '0')}';
+  String _fechaLarga(DateTime f) => formatDayMonthTime(context, f);
 }
 
 /// Deja el TabBar fijo arriba mientras se scrollea el contenido de la pestaña.
@@ -775,7 +776,7 @@ class _CabeceraPestanas extends SliverPersistentHeaderDelegate {
   ) {
     // Fondo opaco: sin él, el contenido de la pestaña se vería pasar por
     // detrás de los rótulos al scrollear.
-    return ColoredBox(color: AppColors.fondo, child: tabBar);
+    return ColoredBox(color: context.fondoPantalla, child: tabBar);
   }
 
   @override
@@ -840,7 +841,7 @@ class _Portada extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  mascota.subtitulo,
+                  mascota.subtituloLocalizado(AppLocalizations.of(context)),
                   style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
@@ -892,7 +893,7 @@ class _Metrica extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.superficie,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -900,15 +901,15 @@ class _Metrica extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icono, size: 14, color: Colors.black45),
+              Icon(icono, size: 14, color: context.textoTenue),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   rotulo,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: Colors.black45,
+                    color: context.textoTenue,
                     letterSpacing: 0.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -926,14 +927,14 @@ class _Metrica extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 21,
                   fontWeight: FontWeight.bold,
-                  color: atenuada ? Colors.black38 : Colors.black87,
+                  color: atenuada ? context.textoTenue : context.texto,
                 ),
               ),
               if (unidad != null) ...[
                 const SizedBox(width: 3),
                 Text(
                   unidad!,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  style: TextStyle(fontSize: 13, color: context.textoSuave),
                 ),
               ],
             ],
@@ -944,15 +945,19 @@ class _Metrica extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: atenuada
-                    ? const Color(0xFFF0F1F3)
-                    : AppColors.verdeSuave,
+                    ? (context.esOscuro
+                          ? const Color(0xFF222E28)
+                          : const Color(0xFFF0F1F3))
+                    : (context.esOscuro
+                          ? const Color(0xFF1D3328)
+                          : AppColors.verdeSuave),
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Text(
                 insignia!,
                 style: TextStyle(
                   fontSize: 11,
-                  color: atenuada ? Colors.black45 : AppColors.verdeOscuro,
+                  color: atenuada ? context.textoTenue : context.marca,
                 ),
               ),
             ),
@@ -978,17 +983,20 @@ class _BotonMetrica extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 26),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borde, style: BorderStyle.solid),
+          border: Border.all(
+            color: context.bordeSuave,
+            style: BorderStyle.solid,
+          ),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            Icon(Icons.add_circle_outline, color: Colors.black54),
-            SizedBox(height: 8),
+            Icon(Icons.add_circle_outline, color: context.textoSuave),
+            const SizedBox(height: 8),
             Text(
-              'REGISTRAR PESO',
+              AppLocalizations.of(context).registerWeightCaps,
               style: TextStyle(
                 fontSize: 10,
-                color: Colors.black54,
+                color: context.textoSuave,
                 letterSpacing: 0.5,
                 fontWeight: FontWeight.w600,
               ),
@@ -1042,7 +1050,7 @@ class _FilaCuidado extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.superficie,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -1050,13 +1058,17 @@ class _FilaCuidado extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: alerta ? AppColors.alertaSuave : const Color(0xFFEDF2F7),
+                color: alerta
+                    ? context.errorFondo
+                    : (context.esOscuro
+                          ? const Color(0xFF1D2D25)
+                          : const Color(0xFFEDF2F7)),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icono,
                 size: 18,
-                color: alerta ? AppColors.alerta : AppColors.verdeOscuro,
+                color: alerta ? context.errorIcono : context.marca,
               ),
             ),
             const SizedBox(width: 12),
@@ -1068,7 +1080,7 @@ class _FilaCuidado extends StatelessWidget {
                     titulo,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: atenuada ? Colors.black45 : Colors.black87,
+                      color: atenuada ? context.textoTenue : context.texto,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1076,7 +1088,7 @@ class _FilaCuidado extends StatelessWidget {
                     detalle,
                     style: TextStyle(
                       fontSize: 12.5,
-                      color: alerta ? AppColors.alerta : Colors.black54,
+                      color: alerta ? context.errorIcono : context.textoSuave,
                     ),
                   ),
                 ],
@@ -1084,9 +1096,9 @@ class _FilaCuidado extends StatelessWidget {
             ),
             if (onDelete != null)
               IconButton(
-                tooltip: 'Eliminar',
+                tooltip: AppLocalizations.of(context).delete,
                 onPressed: onDelete,
-                icon: const Icon(Icons.delete_outline, color: Colors.black45),
+                icon: Icon(Icons.delete_outline, color: context.textoTenue),
               ),
           ],
         ),
@@ -1111,7 +1123,8 @@ class _BotonAgregar extends StatelessWidget {
     icon: Icon(icono),
     label: Text(texto),
     style: FilledButton.styleFrom(
-      backgroundColor: AppColors.verdeOscuro,
+      backgroundColor: context.botonFondo,
+      foregroundColor: context.botonTexto,
       padding: const EdgeInsets.symmetric(vertical: 15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
@@ -1163,12 +1176,12 @@ class _Vacio extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 40, color: Colors.black26),
+            Icon(icono, size: 40, color: context.textoTenue),
             const SizedBox(height: 14),
             Text(
               texto,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black54, height: 1.4),
+              style: TextStyle(color: context.textoSuave, height: 1.4),
             ),
           ],
         ),

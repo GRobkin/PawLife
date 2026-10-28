@@ -5,12 +5,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/local_reminder_service.dart';
 import '../services/pawlife_repository.dart';
 import '../services/privacy_export_service.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'widgets/reauthentication_dialog.dart';
 
 class PrivacyScreen extends StatefulWidget {
@@ -24,6 +25,8 @@ class PrivacyScreen extends StatefulWidget {
 }
 
 class _PrivacyScreenState extends State<PrivacyScreen> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   late final _auth = widget.auth ?? AuthService();
   late final _uid = _auth.currentUser?.uid ?? '';
   late final _reminders = widget.reminders ?? LocalReminderService.instance;
@@ -57,7 +60,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
           _info = null;
           _requests = [];
           _detail.clear();
-          _error = 'La sesión cambió. Volvé a entrar desde tu perfil.';
+          _error = t.privacySessionChanged;
         });
       }
     });
@@ -87,7 +90,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _error = 'No se pudo cargar la privacidad.');
+      if (mounted) setState(() => _error = t.privacyLoadError);
     }
   }
 
@@ -111,14 +114,13 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       } catch (_) {
         if (mounted) {
           setState(
-            () => _error =
-                'Preferencia guardada. No se pudieron actualizar los avisos de este dispositivo; reintentá antes de cerrarlo.',
+            () => _error = t.prefSavedRemindersFailed,
           );
         }
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'No se guardó la preferencia. Reintentá.');
+        setState(() => _error = t.prefNotSaved);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -129,18 +131,16 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Descargar mis datos'),
-        content: const Text(
-          'El archivo incluye tus fotos y recorridos GPS. Elegí un destino privado cuando lo guardes o compartas.',
-        ),
+        title: Text(t.downloadMyData),
+        content: Text(t.downloadMyDataBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Continuar'),
+            child: Text(t.continueLabel),
           ),
         ],
       ),
@@ -173,7 +173,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
         setState(
           () => _error = error is PrivacyExportException
               ? error.message
-              : 'No se completó el archivo. Podés iniciar otra exportación.',
+              : t.exportIncomplete,
         );
       }
     } finally {
@@ -204,8 +204,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error =
-              'No se pudo guardar o compartir. El archivo sigue preparado para reintentar.',
+          () => _error = t.exportShareFailed,
         );
       }
     } finally {
@@ -236,8 +235,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error =
-              'No se pudo registrar la solicitud. Conservamos el texto para reintentar.',
+          () => _error = t.requestNotRegistered,
         );
       }
     } finally {
@@ -251,10 +249,10 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
     final preferences = info?['preferencias'];
     final contact = info?['contacto'];
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: context.fondoPantalla,
       appBar: AppBar(
-        title: const Text('Privacidad'),
-        backgroundColor: AppColors.fondo,
+        title: Text(t.privacyTitle),
+        backgroundColor: context.fondoPantalla,
       ),
       body: info == null && _error == null
           ? const Center(child: CircularProgressIndicator())
@@ -270,19 +268,19 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                   ),
                   TextButton(
                     onPressed: _saving ? null : _load,
-                    child: const Text('Reintentar'),
+                    child: Text(t.retry),
                   ),
                   const SizedBox(height: 16),
                 ],
                 if (info != null) ...[
                   Text(
-                    'Tus avisos',
+                    t.yourNotices,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   SwitchListTile.adaptive(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Recordatorios de cuidados'),
-                    subtitle: const Text('Vacunas, medicamentos y tareas'),
+                    title: Text(t.careReminders),
+                    subtitle: Text(t.careRemindersHint),
                     value:
                         preferences is Map &&
                         preferences['recordatoriosCuidados'] == true,
@@ -293,7 +291,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                   ),
                   SwitchListTile.adaptive(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Avisos del equipo'),
+                    title: Text(t.teamNotices),
                     value:
                         preferences is Map &&
                         preferences['avisosEquipo'] == true,
@@ -303,26 +301,24 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                   ),
                   const Divider(height: 32),
                   Text(
-                    'Tus datos',
+                    t.yourData,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Descargá tu perfil, mascotas, cuidados, fotos y recorridos en un archivo JSON.',
-                  ),
+                  Text(t.yourDataBody),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     onPressed: _saving ? null : _prepareExport,
                     icon: const Icon(Icons.download_outlined),
-                    label: const Text('Preparar archivo'),
+                    label: Text(t.prepareFile),
                   ),
                   if (_export != null) ...[
                     const SizedBox(height: 12),
                     const LinearProgressIndicator(),
-                    Text('$_records registros preparados'),
+                    Text(t.recordsPrepared(_records)),
                     TextButton(
                       onPressed: () => unawaited(_export?.cancel()),
-                      child: const Text('Cancelar exportación'),
+                      child: Text(t.cancelExport),
                     ),
                   ],
                   if (_file != null) ...[
@@ -331,13 +327,13 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                       builder: (context) => FilledButton.icon(
                         onPressed: _saving ? null : () => _share(context),
                         icon: const Icon(Icons.save_alt),
-                        label: const Text('Guardar o compartir JSON'),
+                        label: Text(t.saveOrShareJson),
                       ),
                     ),
                   ],
                   const Divider(height: 32),
                   Text(
-                    'Solicitudes',
+                    t.requestsTitle,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
@@ -352,33 +348,31 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                     DropdownButtonFormField<String>(
                       initialValue: _requestType,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de solicitud',
-                      ),
-                      items: const [
+                      decoration: InputDecoration(labelText: t.requestType),
+                      items: [
                         DropdownMenuItem(
                           value: 'consulta',
-                          child: Text('Consulta'),
+                          child: Text(t.reqConsulta),
                         ),
                         DropdownMenuItem(
                           value: 'acceso',
-                          child: Text('Acceso a información'),
+                          child: Text(t.reqAcceso),
                         ),
                         DropdownMenuItem(
                           value: 'correccion',
-                          child: Text('Corrección'),
+                          child: Text(t.reqCorreccion),
                         ),
                         DropdownMenuItem(
                           value: 'oposicion',
-                          child: Text('Oposición'),
+                          child: Text(t.reqOposicion),
                         ),
                         DropdownMenuItem(
                           value: 'bloqueo',
-                          child: Text('Bloqueo'),
+                          child: Text(t.reqBloqueo),
                         ),
                         DropdownMenuItem(
                           value: 'anonimizacion',
-                          child: Text('Anonimización'),
+                          child: Text(t.reqAnonimizacion),
                         ),
                       ],
                       onChanged: _saving
@@ -395,20 +389,20 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                       maxLength: 1000,
                       maxLines: 4,
                       onChanged: (_) => _requestId = null,
-                      decoration: const InputDecoration(
-                        labelText: 'Detalle',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: t.detailLabel,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     OutlinedButton(
                       onPressed: _saving ? null : _sendRequest,
-                      child: const Text('Registrar solicitud'),
+                      child: Text(t.registerRequest),
                     ),
                   ] else
                     Text(
                       contact is Map
-                          ? 'Por ahora podés enviar tus solicitudes al correo de soporte.'
-                          : 'El canal de consultas todavía no está configurado.',
+                          ? t.requestsByEmail
+                          : t.requestChannelMissing,
                     ),
                   for (final request in _requests)
                     ListTile(
@@ -419,7 +413,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                   if (_requests.isNotEmpty)
                     TextButton(
                       onPressed: _saving ? null : _load,
-                      child: const Text('Actualizar solicitudes'),
+                      child: Text(t.refreshRequests),
                     ),
                 ],
               ],

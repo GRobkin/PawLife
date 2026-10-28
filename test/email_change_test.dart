@@ -1,3 +1,4 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -168,6 +169,10 @@ void main() {
   Future<void> pumpScreen(WidgetTester tester, _User user) async {
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+
         home: ChangeEmailScreen(auth: AuthService(auth: _Firebase(user))),
       ),
     );

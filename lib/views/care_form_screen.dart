@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
 class VaccineFormScreen extends StatefulWidget {
   const VaccineFormScreen({super.key, required this.mascotaId, this.vacuna});
@@ -76,7 +79,7 @@ class _VaccineFormScreenState extends State<VaccineFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        ).showSnackBar(SnackBar(content: Text(apiErrorText(AppLocalizations.of(context), e))));
       }
     } finally {
       if (mounted) {
@@ -86,59 +89,60 @@ class _VaccineFormScreenState extends State<VaccineFormScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => _CareScaffold(
-    title: widget.vacuna == null ? 'Añadir vacuna' : 'Editar vacuna',
-    saving: _guardando,
-    onSave: _guardar,
-    child: Form(
-      key: _form,
-      child: Column(
-        children: [
-          TextFormField(
-            controller: _nombre,
-            decoration: const InputDecoration(
-              labelText: 'Nombre de la vacuna',
-              prefixIcon: Icon(Icons.vaccines_outlined),
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return _CareScaffold(
+      title: widget.vacuna == null ? t.addVaccine : t.editVaccine,
+      saving: _guardando,
+      onSave: _guardar,
+      child: Form(
+        key: _form,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _nombre,
+              decoration: InputDecoration(
+                labelText: t.vaccineName,
+                prefixIcon: const Icon(Icons.vaccines_outlined),
+              ),
+              validator: _required(context),
             ),
-            validator: _required,
-          ),
-          const SizedBox(height: 16),
-          _DateField(
-            label: 'Fecha de aplicación',
-            date: _aplicacion,
-            onTap: () async {
-              final value = await _fecha(_aplicacion);
-              if (value != null) setState(() => _aplicacion = value);
-            },
-          ),
-          const SizedBox(height: 16),
-          _DateField(
-            label: 'Próxima dosis',
-            date: _proxima,
-            onTap: () async {
-              final value = await _fecha(_proxima);
-              if (value != null) setState(() => _proxima = value);
-            },
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _aviso,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Avisar con anticipación',
-              suffixText: 'días',
+            const SizedBox(height: 16),
+            _DateField(
+              label: t.applicationDate,
+              date: _aplicacion,
+              onTap: () async {
+                final value = await _fecha(_aplicacion);
+                if (value != null) setState(() => _aplicacion = value);
+              },
             ),
-            validator: (v) {
-              final n = int.tryParse(v ?? '');
-              return n == null || n < 0 || n > 365
-                  ? 'Ingresá un valor entre 0 y 365.'
-                  : null;
-            },
-          ),
-        ],
+            const SizedBox(height: 16),
+            _DateField(
+              label: t.nextDose,
+              date: _proxima,
+              onTap: () async {
+                final value = await _fecha(_proxima);
+                if (value != null) setState(() => _proxima = value);
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _aviso,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: t.remindInAdvance,
+                suffixText: t.daysUnit,
+              ),
+              validator: (v) {
+                final n = int.tryParse(v ?? '');
+                return n == null || n < 0 || n > 365 ? t.errRange0to365 : null;
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class MedicationFormScreen extends StatefulWidget {
@@ -220,7 +224,7 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        ).showSnackBar(SnackBar(content: Text(apiErrorText(AppLocalizations.of(context), e))));
       }
     } finally {
       if (mounted) setState(() => _guardando = false);
@@ -228,56 +232,61 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => _CareScaffold(
-    title: 'Registrar alimentación',
-    saving: _guardando,
-    onSave: _guardar,
-    child: Form(
-      key: _form,
-      child: Column(
-        children: [
-          TextFormField(
-            controller: _tipo,
-            decoration: const InputDecoration(
-              labelText: 'Tipo de alimento',
-              hintText: 'Ej. alimento seco',
-              prefixIcon: Icon(Icons.restaurant_outlined),
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return _CareScaffold(
+      title: t.logFeeding,
+      saving: _guardando,
+      onSave: _guardar,
+      child: Form(
+        key: _form,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _tipo,
+              decoration: InputDecoration(
+                labelText: t.foodType,
+                hintText: t.foodTypeHint,
+                prefixIcon: const Icon(Icons.restaurant_outlined),
+              ),
+              validator: _required(context),
             ),
-            validator: _required,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _cantidad,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Cantidad',
-              suffixText: 'g',
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _cantidad,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: t.amountLabel,
+                suffixText: 'g',
+              ),
+              validator: (value) {
+                final amount = double.tryParse(
+                  (value ?? '').replaceAll(',', '.'),
+                );
+                return amount == null || amount <= 0 || amount > 10000
+                    ? t.errValidAmount
+                    : null;
+              },
             ),
-            validator: (value) {
-              final amount = double.tryParse(
-                (value ?? '').replaceAll(',', '.'),
-              );
-              return amount == null || amount <= 0 || amount > 10000
-                  ? 'Ingresá una cantidad válida.'
-                  : null;
-            },
-          ),
-          const SizedBox(height: 16),
-          _DateField(
-            label: 'Fecha y hora',
-            date: _fechaHora,
-            onTap: _elegirFecha,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _notas,
-            maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Notas (opcional)'),
-          ),
-        ],
+            const SizedBox(height: 16),
+            _DateField(
+              label: t.dateAndTime,
+              date: _fechaHora,
+              onTap: _elegirFecha,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _notas,
+              maxLines: 3,
+              decoration: InputDecoration(labelText: t.notesOptional),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _MedicationFormScreenState extends State<MedicationFormScreen> {
@@ -361,7 +370,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        ).showSnackBar(SnackBar(content: Text(apiErrorText(AppLocalizations.of(context), e))));
       }
     } finally {
       if (mounted) {
@@ -371,88 +380,91 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => _CareScaffold(
-    title: widget.medicamento == null
-        ? 'Añadir medicamento'
-        : 'Editar medicamento',
-    saving: _guardando,
-    onSave: _guardar,
-    child: Form(
-      key: _form,
-      child: Column(
-        children: [
-          TextFormField(
-            controller: _nombre,
-            decoration: const InputDecoration(
-              labelText: 'Medicamento',
-              prefixIcon: Icon(Icons.medication_outlined),
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return _CareScaffold(
+      title: widget.medicamento == null ? t.addMedication : t.editMedication,
+      saving: _guardando,
+      onSave: _guardar,
+      child: Form(
+        key: _form,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _nombre,
+              decoration: InputDecoration(
+                labelText: t.medicationLabel,
+                prefixIcon: const Icon(Icons.medication_outlined),
+              ),
+              validator: _required(context),
             ),
-            validator: _required,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _dosis,
-            decoration: const InputDecoration(
-              labelText: 'Dosis',
-              hintText: 'Ej. 1 comprimido',
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _dosis,
+              decoration: InputDecoration(
+                labelText: t.doseLabel,
+                hintText: t.doseHint,
+              ),
+              validator: _required(context),
             ),
-            validator: _required,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _horarios,
-            decoration: const InputDecoration(
-              labelText: 'Horarios',
-              hintText: '09:00, 21:00',
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _horarios,
+              decoration: InputDecoration(
+                labelText: t.schedulesLabel,
+                hintText: '09:00, 21:00',
+              ),
+              validator: (v) {
+                final values = (v ?? '')
+                    .split(',')
+                    .map((e) => e.trim())
+                    .where((e) => e.isNotEmpty);
+                return values.isEmpty ||
+                        values.any(
+                          (e) =>
+                              !RegExp(r'^([01]\d|2[0-3]):[0-5]\d$').hasMatch(e),
+                        )
+                    ? t.errTimesFormat
+                    : null;
+              },
             ),
-            validator: (v) {
-              final values = (v ?? '')
-                  .split(',')
-                  .map((e) => e.trim())
-                  .where((e) => e.isNotEmpty);
-              return values.isEmpty ||
-                      values.any(
-                        (e) =>
-                            !RegExp(r'^([01]\d|2[0-3]):[0-5]\d$').hasMatch(e),
-                      )
-                  ? 'Usá horarios HH:mm separados por coma.'
-                  : null;
-            },
-          ),
-          const SizedBox(height: 16),
-          _DateField(
-            label: 'Fecha de inicio',
-            date: _inicio,
-            onTap: () async {
-              final v = await _fecha(_inicio);
-              if (v != null) setState(() => _inicio = v);
-            },
-          ),
-          const SizedBox(height: 16),
-          _DateField(
-            label: 'Fecha de fin (opcional)',
-            date: _fin,
-            onTap: () async {
-              final v = await _fecha(_fin ?? _inicio);
-              if (v != null) setState(() => _fin = v);
-            },
-            onClear: _fin == null ? null : () => setState(() => _fin = null),
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Tratamiento activo'),
-            value: _activo,
-            onChanged: (v) => setState(() => _activo = v),
-            activeThumbColor: AppColors.verdeOscuro,
-          ),
-        ],
+            const SizedBox(height: 16),
+            _DateField(
+              label: t.startDate,
+              date: _inicio,
+              onTap: () async {
+                final v = await _fecha(_inicio);
+                if (v != null) setState(() => _inicio = v);
+              },
+            ),
+            const SizedBox(height: 16),
+            _DateField(
+              label: t.endDateOptional,
+              date: _fin,
+              onTap: () async {
+                final v = await _fecha(_fin ?? _inicio);
+                if (v != null) setState(() => _fin = v);
+              },
+              onClear: _fin == null ? null : () => setState(() => _fin = null),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.activeTreatment),
+              value: _activo,
+              onChanged: (v) => setState(() => _activo = v),
+              activeThumbColor: context.botonFondo,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-String? _required(String? value) =>
-    value == null || value.trim().isEmpty ? 'Este campo es obligatorio.' : null;
+String? Function(String?) _required(BuildContext context) {
+  final message = AppLocalizations.of(context).requiredField;
+  return (value) => value == null || value.trim().isEmpty ? message : null;
+}
 
 class _CareScaffold extends StatelessWidget {
   const _CareScaffold({
@@ -467,11 +479,11 @@ class _CareScaffold extends StatelessWidget {
   final VoidCallback onSave;
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: AppColors.fondo,
+    backgroundColor: context.fondoPantalla,
     appBar: AppBar(
       title: Text(title),
-      backgroundColor: AppColors.fondo,
-      foregroundColor: AppColors.verdeOscuro,
+      backgroundColor: context.fondoPantalla,
+      foregroundColor: context.marca,
     ),
     body: SafeArea(
       child: ListView(
@@ -480,7 +492,7 @@ class _CareScaffold extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.superficie,
               borderRadius: BorderRadius.circular(20),
             ),
             child: child,
@@ -494,7 +506,11 @@ class _CareScaffold extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.check),
-            label: Text(saving ? 'Guardando…' : 'Guardar'),
+            label: Text(
+              saving
+                  ? AppLocalizations.of(context).saving
+                  : AppLocalizations.of(context).save,
+            ),
           ),
         ],
       ),
@@ -517,15 +533,15 @@ class _DateField extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
     shape: RoundedRectangleBorder(
-      side: const BorderSide(color: AppColors.borde),
+      side: BorderSide(color: context.bordeSuave),
       borderRadius: BorderRadius.circular(12),
     ),
     leading: const Icon(Icons.calendar_month_outlined),
     title: Text(label),
     subtitle: Text(
       date == null
-          ? 'Sin fecha'
-          : '${date!.day.toString().padLeft(2, '0')}/${date!.month.toString().padLeft(2, '0')}/${date!.year}',
+          ? AppLocalizations.of(context).noDate
+          : formatDate(context, date!),
     ),
     trailing: onClear == null
         ? const Icon(Icons.chevron_right)

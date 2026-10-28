@@ -11,11 +11,14 @@
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
@@ -74,7 +77,7 @@ class _PetsScreenState extends State<PetsScreen> {
       setState(() => _mascotas = resumenes);
     } on ApiException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
+      setState(() => _error = apiErrorText(AppLocalizations.of(context), e));
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString());
@@ -131,7 +134,7 @@ class _PetsScreenState extends State<PetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: context.fondoPantalla,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -143,8 +146,8 @@ class _PetsScreenState extends State<PetsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _abrirFormulario(),
-        backgroundColor: AppColors.verdeOscuro,
-        foregroundColor: Colors.white,
+        backgroundColor: context.botonFondo,
+        foregroundColor: context.botonTexto,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         child: const Icon(Icons.add),
       ),
@@ -173,11 +176,11 @@ class _PetsScreenState extends State<PetsScreen> {
           ),
           CircleAvatar(
             radius: 16,
-            backgroundColor: Colors.black12,
+            backgroundColor: context.bordeSuave,
             backgroundImage: fotoUrl == null ? null : NetworkImage(fotoUrl),
             child: fotoUrl != null
                 ? null
-                : const Icon(Icons.person, size: 18, color: Colors.black45),
+                : Icon(Icons.person, size: 18, color: context.textoTenue),
           ),
         ],
       ),
@@ -185,12 +188,13 @@ class _PetsScreenState extends State<PetsScreen> {
   }
 
   Widget _buildContenido() {
+    final t = AppLocalizations.of(context);
     if (_error != null) {
       return _EstadoVacio(
         icono: Icons.cloud_off,
-        titulo: 'No se pudieron cargar tus mascotas',
+        titulo: t.petsLoadError,
         detalle: _error!,
-        accion: 'Reintentar',
+        accion: t.retry,
         onAccion: _cargar,
       );
     }
@@ -203,9 +207,9 @@ class _PetsScreenState extends State<PetsScreen> {
     if (mascotas.isEmpty) {
       return _EstadoVacio(
         icono: Icons.pets,
-        titulo: 'Todavía no tenés mascotas',
-        detalle: 'Agregá la primera para empezar a llevar sus cuidados.',
-        accion: 'Agregar mascota',
+        titulo: t.petsEmptyTitle,
+        detalle: t.petsEmptyBody,
+        accion: t.addPet,
         onAccion: () => _abrirFormulario(),
       );
     }
@@ -215,15 +219,12 @@ class _PetsScreenState extends State<PetsScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 90),
         children: [
-          const Text(
-            'Mis mascotas',
+          Text(
+            t.myPets,
             style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Gestioná a los miembros peludos de tu familia.',
-            style: TextStyle(color: Colors.black54),
-          ),
+          Text(t.myPetsSubtitle, style: TextStyle(color: context.textoSuave)),
           const SizedBox(height: 20),
           for (final resumen in mascotas) ...[
             _TarjetaMascota(
@@ -253,38 +254,22 @@ class _ResumenMascota {
   final RegistroPeso? ultimoPeso;
 
   /// Estado de salud derivado de la vacuna más próxima.
-  _Estado get estado {
+  _EstadoSalud get estado {
     final vacuna = proximaVacuna;
-    if (vacuna == null) {
-      return const _Estado('Sin vacunas', Icons.info_outline, Colors.black54);
-    }
+    if (vacuna == null) return _EstadoSalud.sinVacunas;
 
     final dias = vacuna.proximaFecha.difference(DateTime.now()).inDays;
 
-    if (dias < 0) {
-      return const _Estado(
-        'Vacuna vencida',
-        Icons.warning_amber_rounded,
-        AppColors.alerta,
-      );
-    }
+    if (dias < 0) return _EstadoSalud.vencida;
 
     // `anticipacionDias` es cuántos días antes quiere avisar el usuario.
-    if (dias <= vacuna.anticipacionDias) {
-      return const _Estado(
-        'Vacuna próxima',
-        Icons.warning_amber_rounded,
-        AppColors.aviso,
-      );
-    }
+    if (dias <= vacuna.anticipacionDias) return _EstadoSalud.proxima;
 
-    return const _Estado(
-      'Sano',
-      Icons.check_circle_outline,
-      AppColors.verdeAcento,
-    );
+    return _EstadoSalud.sano;
   }
 }
+
+enum _EstadoSalud { sinVacunas, vencida, proxima, sano }
 
 class _Estado {
   const _Estado(this.texto, this.icono, this.color);
@@ -292,6 +277,32 @@ class _Estado {
   final String texto;
   final IconData icono;
   final Color color;
+
+  factory _Estado.de(BuildContext context, _EstadoSalud estado) {
+    final t = AppLocalizations.of(context);
+    return switch (estado) {
+      _EstadoSalud.sinVacunas => _Estado(
+        t.statusNoVaccines,
+        Icons.info_outline,
+        context.textoSuave,
+      ),
+      _EstadoSalud.vencida => _Estado(
+        t.statusOverdue,
+        Icons.warning_amber_rounded,
+        AppColors.alerta,
+      ),
+      _EstadoSalud.proxima => _Estado(
+        t.statusDueSoon,
+        Icons.warning_amber_rounded,
+        AppColors.aviso,
+      ),
+      _EstadoSalud.sano => _Estado(
+        t.statusHealthy,
+        Icons.check_circle_outline,
+        AppColors.verdeAcento,
+      ),
+    };
+  }
 }
 
 class _TarjetaMascota extends StatelessWidget {
@@ -309,12 +320,13 @@ class _TarjetaMascota extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final mascota = resumen.mascota;
-    final estado = resumen.estado;
+    final estado = _Estado.de(context, resumen.estado);
     final peso = resumen.ultimoPeso;
 
     return Material(
-      color: Colors.white,
+      color: context.superficie,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -340,29 +352,29 @@ class _TarjetaMascota extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          mascota.subtitulo,
-                          style: const TextStyle(
+                          mascota.subtituloLocalizado(t),
+                          style: TextStyle(
                             fontSize: 13,
-                            color: Colors.black54,
+                            color: context.textoSuave,
                           ),
                         ),
                       ],
                     ),
                   ),
                   PopupMenuButton<String>(
-                    tooltip: 'Opciones',
-                    icon: const Icon(Icons.more_vert, color: Colors.black45),
+                    tooltip: t.options,
+                    icon: Icon(Icons.more_vert, color: context.textoTenue),
                     onSelected: (valor) {
                       if (valor == 'editar') onEditar();
                       if (valor == 'eliminar') onEliminar();
                     },
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'editar', child: Text('Editar')),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(value: 'editar', child: Text(t.edit)),
                       PopupMenuItem(
                         value: 'eliminar',
                         child: Text(
-                          'Eliminar',
-                          style: TextStyle(color: AppColors.alerta),
+                          t.delete,
+                          style: const TextStyle(color: AppColors.alerta),
                         ),
                       ),
                     ],
@@ -374,7 +386,7 @@ class _TarjetaMascota extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _Celda(
-                      rotulo: 'ESTADO',
+                      rotulo: t.cellStatus,
                       valor: estado.texto,
                       icono: estado.icono,
                       color: estado.color,
@@ -383,12 +395,12 @@ class _TarjetaMascota extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _Celda(
-                      rotulo: 'PESO',
+                      rotulo: t.cellWeight,
                       valor: peso == null
-                          ? 'Sin registro'
+                          ? t.noRecord
                           : '${_formatearKg(peso.valorKg)} kg',
                       icono: Icons.monitor_weight_outlined,
-                      color: peso == null ? Colors.black45 : Colors.black87,
+                      color: peso == null ? context.textoTenue : context.texto,
                     ),
                   ),
                 ],
@@ -425,16 +437,16 @@ class _Celda extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borde),
+        border: Border.all(color: context.bordeSuave),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             rotulo,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: Colors.black45,
+              color: context.textoTenue,
               letterSpacing: 0.5,
               fontWeight: FontWeight.w600,
             ),
@@ -486,7 +498,7 @@ class _EstadoVacio extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icono, size: 56, color: Colors.black26),
+            Icon(icono, size: 56, color: context.textoTenue),
             const SizedBox(height: 18),
             Text(
               titulo,
@@ -497,14 +509,14 @@ class _EstadoVacio extends StatelessWidget {
             Text(
               detalle,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(color: context.textoSuave),
             ),
             const SizedBox(height: 22),
             ElevatedButton(
               onPressed: onAccion,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.verdeOscuro,
-                foregroundColor: Colors.white,
+                backgroundColor: context.botonFondo,
+                foregroundColor: context.botonTexto,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 14,

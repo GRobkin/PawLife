@@ -8,10 +8,12 @@
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
+import '../theme/app_palette.dart';
 import 'register_screen.dart';
 
-const _kDarkGreen = Color(0xFF12352A);
 const _kAccentGreen = Color(0xFF5CC58F);
 
 class LoginScreen extends StatefulWidget {
@@ -58,28 +60,29 @@ class _LoginScreenState extends State<LoginScreen> {
     } on AuthException catch (e) {
       if (!mounted) return;
       // Cancelar el diálogo de Google no es un error que haya que enseñar.
-      setState(() => _error = e.isCancelled ? null : e.message);
+      setState(() => _error = e.isCancelled ? null : authErrorText(AppLocalizations.of(context), e));
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
   }
 
   void _onLoginPressed() {
+    final t = AppLocalizations.of(context);
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     // Validación mínima en cliente: evita un viaje a Firebase para errores
     // que se ven a simple vista. El resto lo valida Firebase.
     if (email.isEmpty) {
-      setState(() => _error = 'Escribí tu correo electrónico.');
+      setState(() => _error = t.errEnterEmail);
       return;
     }
     if (!_emailValido(email)) {
-      setState(() => _error = 'El correo no tiene un formato válido.');
+      setState(() => _error = t.errInvalidEmail);
       return;
     }
     if (password.isEmpty) {
-      setState(() => _error = 'Escribí tu contraseña.');
+      setState(() => _error = t.errEnterPassword);
       return;
     }
 
@@ -91,12 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _onForgotPasswordPressed() async {
+    final t = AppLocalizations.of(context);
     final email = _emailController.text.trim();
 
     if (email.isEmpty || !_emailValido(email)) {
-      setState(
-        () => _error = 'Escribí tu correo arriba y volvé a pulsar aquí.',
-      );
+      setState(() => _error = t.errEmailAbove);
       return;
     }
 
@@ -108,12 +110,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth.sendPasswordReset(email);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Te enviamos un correo a $email.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.resetEmailSent(email))));
     } on AuthException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
+      setState(() => _error = authErrorText(AppLocalizations.of(context), e));
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -124,13 +126,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF4F7FB), Color(0xFFEFF4F1)],
+            colors: context.esOscuro
+                ? const [Color(0xFF0E1A15), Color(0xFF0B1410)]
+                : const [Color(0xFFF4F7FB), Color(0xFFEFF4F1)],
           ),
         ),
         child: SafeArea(
@@ -140,20 +145,20 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Bienvenido de nuevo',
+                  Text(
+                    t.welcomeBack,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: _kDarkGreen,
+                      color: context.marca,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Iniciá sesión para gestionar los cuidados de tu mascota.',
+                  Text(
+                    t.loginSubtitle,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    style: TextStyle(fontSize: 14, color: context.textoSuave),
                   ),
                   const SizedBox(height: 28),
 
@@ -161,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.superficie,
                       borderRadius: BorderRadius.circular(22),
                       boxShadow: [
                         BoxShadow(
@@ -174,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _FieldLabel('Correo electrónico'),
+                        _FieldLabel(t.emailLabel),
                         const SizedBox(height: 8),
                         _AppTextField(
                           controller: _emailController,
@@ -187,14 +192,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const _FieldLabel('Contraseña'),
+                            _FieldLabel(t.passwordLabel),
                             GestureDetector(
-                              onTap: _cargando ? null : _onForgotPasswordPressed,
-                              child: const Text(
-                                '¿Olvidaste tu contraseña?',
+                              onTap: _cargando
+                                  ? null
+                                  : _onForgotPasswordPressed,
+                              child: Text(
+                                t.forgotPassword,
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: _kAccentGreen,
+                                  color: context.esOscuro
+                                      ? _kAccentGreen
+                                      : const Color(0xFF2E8B5E),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -208,12 +217,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icons.lock_outline,
                           obscureText: _obscurePassword,
                           suffix: IconButton(
+                            tooltip: _obscurePassword
+                                ? t.showPassword
+                                : t.hidePassword,
                             icon: Icon(
                               _obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               size: 20,
-                              color: Colors.black45,
+                              color: context.textoTenue,
                             ),
                             onPressed: () => setState(
                               () => _obscurePassword = !_obscurePassword,
@@ -232,9 +244,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: _cargando ? null : _onLoginPressed,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _kAccentGreen,
-                              foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              foregroundColor: context.esOscuro
+                                  ? const Color(0xFF12352A)
+                                  : Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -249,9 +262,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: Colors.white,
                                     ),
                                   )
-                                : const Text(
-                                    'Iniciar sesión',
-                                    style: TextStyle(
+                                : Text(
+                                    t.signIn,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -260,17 +273,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        const Row(
+                        Row(
                           children: [
-                            Expanded(child: Divider()),
+                            const Expanded(child: Divider()),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               child: Text(
-                                'o',
-                                style: TextStyle(color: Colors.black45),
+                                t.orSeparator,
+                                style: TextStyle(color: context.textoTenue),
                               ),
                             ),
-                            Expanded(child: Divider()),
+                            const Expanded(child: Divider()),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -280,10 +295,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: OutlinedButton.icon(
                             onPressed: _cargando ? null : _onGooglePressed,
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.black87,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 15),
-                              side: const BorderSide(color: Color(0xFFDDE1E6)),
+                              foregroundColor: context.texto,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              side: BorderSide(color: context.bordeSuave),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -297,9 +311,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 20,
                               height: 20,
                             ),
-                            label: const Text(
-                              'Continuar con Google',
-                              style: TextStyle(
+                            label: Text(
+                              t.continueWithGoogle,
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -312,23 +326,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text.rich(
                             TextSpan(
                               children: [
-                                const TextSpan(
-                                  text: '¿No tenés una cuenta? ',
-                                  style: TextStyle(color: Colors.black54),
+                                TextSpan(
+                                  text: t.noAccountPrefix,
+                                  style: TextStyle(color: context.textoSuave),
                                 ),
                                 WidgetSpan(
                                   child: GestureDetector(
                                     onTap: () =>
                                         Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (_) => const RegisterScreen(),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Registrate',
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const RegisterScreen(),
+                                          ),
+                                        ),
+                                    child: Text(
+                                      t.signUp,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: _kDarkGreen,
+                                        color: context.marca,
                                       ),
                                     ),
                                   ),
@@ -364,10 +379,10 @@ class _FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w600,
-        color: Colors.black87,
+        color: context.texto,
       ),
     );
   }
@@ -398,26 +413,28 @@ class _AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black38),
+        hintStyle: TextStyle(color: context.textoTenue),
         prefixIcon: prefixIcon == null
             ? null
-            : Icon(prefixIcon, size: 20, color: Colors.black45),
+            : Icon(prefixIcon, size: 20, color: context.textoTenue),
         suffixIcon: suffix,
         filled: true,
-        fillColor: const Color(0xFFFBFCFD),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        fillColor: context.campo,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFDDE1E6)),
+          borderSide: BorderSide(color: context.bordeSuave),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFDDE1E6)),
+          borderSide: BorderSide(color: context.bordeSuave),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _kDarkGreen, width: 1.4),
+          borderSide: BorderSide(color: context.marca, width: 1.4),
         ),
       ),
     );
@@ -440,19 +457,19 @@ class _ErrorBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFDECEC),
+        color: context.errorFondo,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF5C6C6)),
+        border: Border.all(color: context.errorBorde),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, size: 19, color: Color(0xFFC0392B)),
+          Icon(Icons.error_outline, size: 19, color: context.errorIcono),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               mensaje,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF8E2A22)),
+              style: TextStyle(fontSize: 13, color: context.errorTexto),
             ),
           ),
         ],

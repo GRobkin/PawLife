@@ -136,11 +136,13 @@ class AuthService {
     if (!supportsPasswordChange) {
       throw const AuthException(
         'Tu cuenta utiliza Google para iniciar sesión.',
+        code: 'google-account',
       );
     }
     if (currentPassword.isEmpty || newPassword.length < 6) {
       throw const AuthException(
         'Completá la contraseña actual y una nueva de al menos 6 caracteres.',
+        code: 'password-fields',
       );
     }
     await reauthenticateForSensitiveAction(password: currentPassword);
@@ -168,17 +170,27 @@ class AuthService {
     if (!supportsPasswordChange) {
       throw const AuthException(
         'Tu cuenta utiliza Google: el correo se gestiona desde tu cuenta de Google.',
+        code: 'google-email',
       );
     }
     final email = newEmail.trim().toLowerCase();
     if (!_emailPattern.hasMatch(email) || email.length > 254) {
-      throw const AuthException('Ingresá un correo válido.');
+      throw const AuthException(
+        'Ingresá un correo válido.',
+        code: 'invalid-email',
+      );
     }
     if (email == user.email?.toLowerCase()) {
-      throw const AuthException('Ese ya es el correo de tu cuenta.');
+      throw const AuthException(
+        'Ese ya es el correo de tu cuenta.',
+        code: 'same-email',
+      );
     }
     if (currentPassword.isEmpty) {
-      throw const AuthException('Ingresá tu contraseña actual.');
+      throw const AuthException(
+        'Ingresá tu contraseña actual.',
+        code: 'password-required',
+      );
     }
     await reauthenticateForSensitiveAction(password: currentPassword);
     _requireSameUser(user);
@@ -223,7 +235,10 @@ class AuthService {
 
       final user = credential.user;
       if (user == null) {
-        throw const AuthException('No se pudo crear la cuenta.');
+        throw const AuthException(
+          'No se pudo crear la cuenta.',
+          code: 'signup-failed',
+        );
       }
 
       // El nombre es parte del perfil de Firebase, no de nuestra base de
@@ -254,7 +269,10 @@ class AuthService {
 
       final user = credential.user;
       if (user == null) {
-        throw const AuthException('No se pudo iniciar sesión.');
+        throw const AuthException(
+          'No se pudo iniciar sesión.',
+          code: 'signin-failed',
+        );
       }
 
       return user;
@@ -279,7 +297,10 @@ class AuthService {
         final result = await _auth.signInWithPopup(GoogleAuthProvider());
         final user = result.user;
         if (user == null) {
-          throw const AuthException('No se pudo iniciar sesión con Google.');
+          throw const AuthException(
+          'No se pudo iniciar sesión con Google.',
+          code: 'google-signin-failed',
+        );
         }
         return user;
       } on FirebaseAuthException catch (e) {
@@ -299,7 +320,10 @@ class AuthService {
 
       final user = resultado.user;
       if (user == null) {
-        throw const AuthException('No se pudo iniciar sesión con Google.');
+        throw const AuthException(
+          'No se pudo iniciar sesión con Google.',
+          code: 'google-signin-failed',
+        );
       }
 
       return user;
@@ -315,6 +339,7 @@ class AuthService {
     if (!google.supportsAuthenticate()) {
       throw const AuthException(
         'El acceso con Google no está disponible en esta plataforma.',
+        code: 'google-unavailable',
       );
     }
     _googleInit ??= google.initialize(
@@ -326,6 +351,7 @@ class AuthService {
     if (idToken == null) {
       throw const AuthException(
         'Google no devolvió un token de identidad. Revisá la configuración OAuth de la app.',
+        code: 'google-no-token',
       );
     }
     return GoogleAuthProvider.credential(idToken: idToken);
@@ -345,6 +371,7 @@ class AuthService {
       } catch (_) {
         throw const AuthException(
           'No se pudieron desconectar las notificaciones. Reintentá cerrar sesión.',
+          code: 'push-disconnect',
         );
       }
     }
@@ -375,7 +402,10 @@ class AuthService {
     try {
       final token = await user.getIdToken(forceRefresh);
       if (token == null || token.isEmpty) {
-        throw const AuthException('Firebase no devolvió un token válido.');
+        throw const AuthException(
+          'Firebase no devolvió un token válido.',
+          code: 'no-token',
+        );
       }
 
       return token;
@@ -446,7 +476,7 @@ class AuthService {
       mensaje,
       code: e.code == GoogleSignInExceptionCode.canceled
           ? 'cancelado'
-          : 'google',
+          : 'google-${e.code.name}',
     );
   }
 }

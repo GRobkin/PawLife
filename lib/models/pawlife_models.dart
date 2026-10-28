@@ -9,6 +9,7 @@
 // fromJson/toJson y Firestore queda escondido detrás del backend.
 
 import 'route_point.dart';
+import '../l10n/app_localizations.dart';
 
 /// Fecha obligatoria. Si el backend manda algo que no se entiende preferimos
 /// caer aquí, con el nombre del campo, y no arrastrar una fecha inventada
@@ -178,6 +179,49 @@ class Mascota {
     final partes = [
       if (raza != null && raza!.trim().isNotEmpty) raza!.trim() else especie,
       ?edadTexto,
+    ];
+
+    return partes.join(' • ');
+  }
+
+  /// Edad para mostrar en el idioma activo. `edadTexto` queda para usos sin
+  /// contexto de idioma.
+  String? edadLocalizada(AppLocalizations t) {
+    final meses = edadEnMeses;
+    if (meses == null) return null;
+
+    if (meses < 1) {
+      final dias = DateTime.now().difference(fechaNacimiento!).inDays;
+      final semanas = dias ~/ 7;
+      if (semanas < 1) return t.ageDays(dias);
+
+      return t.ageWeeks(semanas);
+    }
+
+    if (meses < 24) return t.ageMonths(meses);
+
+    return t.ageYears(meses ~/ 12);
+  }
+
+  /// Nombre de la especie en el idioma activo. Lo guardado no cambia: una
+  /// especie desconocida (p. ej. "Conejo") se muestra tal como se escribió.
+  String especieLocalizada(AppLocalizations t) => switch (especieConocida) {
+    Especie.perro => t.speciesDog,
+    Especie.gato => t.speciesCat,
+    Especie.otra =>
+      especie.trim().isEmpty || especie.trim().toLowerCase() == 'otra'
+          ? t.speciesOther
+          : especie.trim(),
+  };
+
+  /// Igual que `subtitulo`, pero en el idioma activo.
+  String subtituloLocalizado(AppLocalizations t) {
+    final partes = [
+      if (raza != null && raza!.trim().isNotEmpty)
+        raza!.trim()
+      else
+        especieLocalizada(t),
+      ?edadLocalizada(t),
     ];
 
     return partes.join(' • ');

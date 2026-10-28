@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
-import '../theme/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import 'change_email_screen.dart';
 import 'change_password_screen.dart';
 import 'privacy_screen.dart';
 import 'widgets/reauthentication_dialog.dart';
 import 'widgets/iniciar_paseo.dart';
+import 'widgets/preferences_section.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,6 +20,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   final _auth = AuthService();
   late final _repo = PawLifeRepository(
     client: ApiClient(auth: _auth, expectedUid: _auth.currentUser?.uid ?? ''),
@@ -52,7 +55,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _error = null;
       });
     } catch (e) {
-      if (mounted) setState(() => _error = 'No se pudo cargar el perfil: $e');
+      if (mounted) {
+        setState(
+          () => _error = AppLocalizations.of(context).profileLoadError('$e'),
+        );
+      }
     }
   }
 
@@ -64,11 +71,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final updated = await _repo.updatePerfil(nombre: nombre);
       if (!mounted) return;
       setState(() => _perfil = updated);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Perfil guardado.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).profileSaved)),
+      );
     } catch (e) {
-      if (mounted) setState(() => _error = 'No se pudo guardar: $e');
+      if (mounted) {
+        setState(
+          () => _error = AppLocalizations.of(context).profileSaveError('$e'),
+        );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -80,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await _auth.signOut();
       if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      if (mounted) setState(() => _error = 'No se pudo cerrar sesión: $e');
+      if (mounted) setState(() => _error = t.signOutError('$e'));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -90,18 +101,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Eliminar cuenta'),
-        content: const Text(
-          'Se borrarán tu cuenta, tus mascotas y sus registros. Esta acción no se puede deshacer.',
-        ),
+        title: Text(t.deleteAccountTitle),
+        content: Text(t.deleteAccountBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancelar'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Eliminar definitivamente'),
+            child: Text(t.deleteForever),
           ),
         ],
       ),
@@ -115,15 +124,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await showDialog<void>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Eliminación en curso'),
-            content: const Text(
-              'Tu cuenta ya está bloqueada y estamos terminando de borrar tus datos. '
-              'Se completará automáticamente en unos minutos.',
-            ),
+            title: Text(t.deletionInProgress),
+            content: Text(t.deletionInProgressBody),
             actions: [
               FilledButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Entendido'),
+                child: Text(t.understood),
               ),
             ],
           ),
@@ -134,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      if (mounted) setState(() => _error = 'No se pudo eliminar la cuenta: $e');
+      if (mounted) setState(() => _error = t.deleteAccountError('$e'));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -149,9 +155,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {});
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Correo actualizado: $changed')));
+      ).showSnackBar(SnackBar(content: Text(t.emailUpdated(changed))));
     }
   }
+
   Future<void> _changePassword() async {
     final changed = await Navigator.push<bool>(
       context,
@@ -160,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (changed == true && mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Contraseña actualizada.')));
+      ).showSnackBar(SnackBar(content: Text(t.passwordUpdated)));
     }
   }
 
@@ -168,10 +175,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final email = _auth.currentUser?.email ?? '';
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Perfil'),
-        backgroundColor: AppColors.fondo,
+        title: Text(t.profileTitle),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
       body: _perfil == null && _error == null
           ? const Center(child: CircularProgressIndicator())
@@ -185,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Theme.of(context).colorScheme.error,
                     ),
                   ),
-                  TextButton(onPressed: _load, child: const Text('Reintentar')),
+                  TextButton(onPressed: _load, child: Text(t.retry)),
                 ],
                 if (_perfil != null) ...[
                   const SizedBox(height: 16),
@@ -197,20 +204,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   TextField(
                     controller: _nombre,
                     maxLength: 80,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: t.profileName,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  ListTile(
-                    title: const Text('Correo electrónico'),
-                    subtitle: Text(email),
-                  ),
+                  ListTile(title: Text(t.profileEmail), subtitle: Text(email)),
+                  const SizedBox(height: 18),
+                  const PreferencesSection(),
                   const SizedBox(height: 18),
                   FilledButton(
                     onPressed: _saving ? null : _save,
-                    child: const Text('Guardar cambios'),
+                    child: Text(t.profileSave),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
@@ -223,29 +229,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                     icon: const Icon(Icons.privacy_tip_outlined),
-                    label: const Text('Privacidad y mis datos'),
+                    label: Text(t.privacyAndData),
                   ),
                   const SizedBox(height: 12),
                   if (_auth.supportsPasswordChange) ...[
                     OutlinedButton(
                       onPressed: _saving ? null : _changeEmail,
-                      child: const Text('Cambiar correo'),
+                      child: Text(t.changeEmail),
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton(
                       onPressed: _saving ? null : _changePassword,
-                      child: const Text('Cambiar contraseña'),
+                      child: Text(t.changePassword),
                     ),
                     const SizedBox(height: 12),
                   ],
                   OutlinedButton(
                     onPressed: _saving ? null : _signOut,
-                    child: const Text('Cerrar sesión'),
+                    child: Text(t.signOut),
                   ),
                   const SizedBox(height: 24),
                   TextButton(
                     onPressed: _saving ? null : _deleteAccount,
-                    child: const Text('Eliminar mi cuenta'),
+                    child: Text(t.deleteAccountButton),
                   ),
                 ],
               ],

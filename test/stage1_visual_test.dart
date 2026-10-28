@@ -1,10 +1,10 @@
+import 'package:pawlife/l10n/app_localizations.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pawlife/models/pawlife_models.dart';
 import 'package:pawlife/services/auth_service.dart';
@@ -66,12 +66,9 @@ void main() {
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 locale: const Locale('es'),
-                supportedLocales: const [Locale('es')],
-                localizationsDelegates: const [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
+                supportedLocales: AppLocalizations.supportedLocales,
+                localizationsDelegates:
+                    AppLocalizations.localizationsDelegates,
                 theme: ThemeData(
                   useMaterial3: true,
                   fontFamily: 'NunitoSans',

@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../../l10n/error_messages.dart';
 import '../../services/api_client.dart';
 import '../../services/pawlife_repository.dart';
 
@@ -20,6 +22,8 @@ class WeightEntryDialog extends StatefulWidget {
 }
 
 class _WeightEntryDialogState extends State<WeightEntryDialog> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   final _controller = TextEditingController();
   final _fecha = DateTime.now();
   final _id = List.generate(
@@ -40,7 +44,7 @@ class _WeightEntryDialogState extends State<WeightEntryDialog> {
     if (_saving) return;
     final kg = double.tryParse(_controller.text.trim().replaceAll(',', '.'));
     if (kg == null || !kg.isFinite || kg <= 0) {
-      setState(() => _error = 'Ingresá un peso mayor que cero.');
+      setState(() => _error = t.errWeightPositive);
       return;
     }
     // Un timeout permite reintentar la misma intención, con ID/fecha/valor estables.
@@ -65,14 +69,13 @@ class _WeightEntryDialogState extends State<WeightEntryDialog> {
           if (error.statusCode == 400 || error.statusCode == 422) {
             _pendingValue = null;
           }
-          _error = error.message;
+          _error = apiErrorText(AppLocalizations.of(context), error);
         });
       }
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error =
-              'No se pudo guardar el peso. Podés reintentar el mismo registro.',
+          () => _error = t.weightSaveRetry,
         );
       }
     } finally {
@@ -84,7 +87,7 @@ class _WeightEntryDialogState extends State<WeightEntryDialog> {
   Widget build(BuildContext context) => PopScope(
     canPop: !_saving,
     child: AlertDialog(
-      title: const Text('Registrar peso'),
+      title: Text(t.logWeight),
       content: TextField(
         controller: _controller,
         enabled: !_saving && _pendingValue == null,
@@ -104,11 +107,11 @@ class _WeightEntryDialogState extends State<WeightEntryDialog> {
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.pop(context, false),
-          child: const Text('Cancelar'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed: _saving ? null : _save,
-          child: Text(_saving ? 'Guardando…' : 'Guardar'),
+          child: Text(_saving ? t.saving : t.save),
         ),
       ],
     ),

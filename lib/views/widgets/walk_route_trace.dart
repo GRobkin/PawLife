@@ -7,15 +7,22 @@ import '../../theme/app_colors.dart';
 
 /// Traza sin calles ni coordenadas: sirve también sin conexión y en el PNG.
 class WalkRouteTrace extends StatelessWidget {
-  const WalkRouteTrace({super.key, required this.points});
+  const WalkRouteTrace({
+    super.key,
+    required this.points,
+    this.startColor = AppColors.verdeOscuro,
+  });
 
   final List<RoutePoint> points;
+
+  /// Color del punto de inicio. En superficies oscuras hay que aclararlo.
+  final Color startColor;
 
   @override
   Widget build(BuildContext context) => Semantics(
     label: points.isEmpty ? 'Sin ruta GPS' : 'Traza del recorrido',
     child: CustomPaint(
-      painter: WalkRoutePainter(points),
+      painter: WalkRoutePainter(points, startColor: startColor),
       child: points.isEmpty
           ? const Center(child: Icon(Icons.location_off_outlined, size: 36))
           : null,
@@ -24,8 +31,9 @@ class WalkRouteTrace extends StatelessWidget {
 }
 
 class WalkRoutePainter extends CustomPainter {
-  WalkRoutePainter(this.points);
+  WalkRoutePainter(this.points, {this.startColor = AppColors.verdeOscuro});
   final List<RoutePoint> points;
+  final Color startColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -75,7 +83,7 @@ class WalkRoutePainter extends CustomPainter {
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke,
     );
-    canvas.drawCircle(offsets.first, 8, Paint()..color = AppColors.verdeOscuro);
+    canvas.drawCircle(offsets.first, 8, Paint()..color = startColor);
     if (offsets.length > 1) {
       canvas.drawCircle(offsets.last, 8, Paint()..color = AppColors.alerta);
       canvas.drawCircle(offsets.last, 3, Paint()..color = Colors.white);
@@ -84,5 +92,5 @@ class WalkRoutePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(WalkRoutePainter oldDelegate) =>
-      oldDelegate.points != points;
+      oldDelegate.points != points || oldDelegate.startColor != startColor;
 }

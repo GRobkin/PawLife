@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
 
 /// Cambio de correo con verificación: no se modifica nada hasta que la
@@ -14,6 +16,8 @@ class ChangeEmailScreen extends StatefulWidget {
 }
 
 class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
+  AppLocalizations get t => AppLocalizations.of(context);
+
   final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
@@ -43,11 +47,11 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       );
       if (mounted) setState(() => _sentTo = target);
     } on AuthException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error = 'No se pudo enviar el enlace. Intentá otra vez.',
+          () => _error = t.emailLinkError,
         );
       }
     } finally {
@@ -68,15 +72,14 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
         Navigator.pop(context, current);
       } else {
         setState(
-          () => _error =
-              'Todavía no confirmaste el enlace. Abrí el correo que enviamos a $_sentTo.',
+          () => _error = t.notConfirmedYet('$_sentTo'),
         );
       }
     } on AuthException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) setState(() => _error = authErrorText(AppLocalizations.of(context), error));
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'No se pudo comprobar. Intentá otra vez.');
+        setState(() => _error = t.emailCheckError);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -89,9 +92,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       return ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            'Te enviamos un enlace a $_sentTo. Tu correo actual no cambia hasta que lo abras.',
-          ),
+          Text(t.linkSentTo('$_sentTo')),
           const SizedBox(height: 24),
           if (_error != null) ...[
             Text(_error!, style: errorStyle),
@@ -99,7 +100,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           ],
           FilledButton(
             onPressed: _saving ? null : _confirmed,
-            child: Text(_saving ? 'Comprobando…' : 'Ya abrí el enlace'),
+            child: Text(_saving ? t.checkingEllipsis : t.alreadyOpenedLink),
           ),
         ],
       );
@@ -115,12 +116,12 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
             enableSuggestions: false,
-            decoration: const InputDecoration(labelText: 'Correo nuevo'),
+            decoration: InputDecoration(labelText: t.newEmail),
             validator: (value) {
               final text = value?.trim() ?? '';
-              if (text.isEmpty) return 'Ingresá el correo nuevo.';
+              if (text.isEmpty) return t.errEnterNewEmail;
               if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$').hasMatch(text)) {
-                return 'Ingresá un correo válido.';
+                return t.errValidEmail;
               }
               return null;
             },
@@ -132,9 +133,9 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
             obscureText: true,
             autocorrect: false,
             enableSuggestions: false,
-            decoration: const InputDecoration(labelText: 'Contraseña actual'),
+            decoration: InputDecoration(labelText: t.currentPassword),
             validator: (value) => value == null || value.isEmpty
-                ? 'Ingresá tu contraseña actual.'
+                ? t.errEnterCurrentPassword
                 : null,
             onFieldSubmitted: (_) => _send(),
           ),
@@ -145,7 +146,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           ],
           FilledButton(
             onPressed: _saving ? null : _send,
-            child: Text(_saving ? 'Enviando…' : 'Enviar enlace'),
+            child: Text(_saving ? t.sendingEllipsis : t.sendLink),
           ),
         ],
       ),
@@ -156,13 +157,11 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   Widget build(BuildContext context) => PopScope(
     canPop: !_saving,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Cambiar correo')),
+      appBar: AppBar(title: Text(t.changeEmail)),
       body: !_auth.supportsPasswordChange
-          ? const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                'Tu cuenta utiliza Google. Gestioná tu correo desde tu cuenta de Google.',
-              ),
+          ? Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(t.googleEmailNote),
             )
           : _body(context),
     ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
@@ -41,7 +43,9 @@ class _TasksScreenState extends State<TasksScreen> {
       });
     } catch (e) {
       if (mounted) {
-        setState(() => _error = 'No se pudieron cargar las tareas: $e');
+        setState(
+          () => _error = AppLocalizations.of(context).tasksLoadError('$e'),
+        );
       }
     }
   }
@@ -76,15 +80,20 @@ class _TasksScreenState extends State<TasksScreen> {
 
   void _showError(Object e) {
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('No se pudo guardar: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).genericSaveError('$e')),
+        ),
+      );
     }
   }
 
   Future<void> _add() async {
+    final t = AppLocalizations.of(context);
     if (_mascotas.isEmpty) {
-      _showError('Agregá una mascota antes de crear una tarea.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).addPetFirst)),
+      );
       return;
     }
     var mensaje = '';
@@ -94,13 +103,13 @@ class _TasksScreenState extends State<TasksScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) => AlertDialog(
-          title: const Text('Nueva tarea'),
+          title: Text(t.newTask),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
                 initialValue: mascotaId,
-                decoration: const InputDecoration(labelText: 'Mascota'),
+                decoration: InputDecoration(labelText: t.petLabel),
                 items: _mascotas
                     .map(
                       (m) =>
@@ -114,17 +123,11 @@ class _TasksScreenState extends State<TasksScreen> {
               TextField(
                 onChanged: (value) => mensaje = value,
                 maxLength: 160,
-                decoration: const InputDecoration(
-                  labelText: '¿Qué hay que hacer?',
-                ),
+                decoration: InputDecoration(labelText: t.taskPrompt),
               ),
               TextButton.icon(
                 icon: const Icon(Icons.event),
-                label: Text(
-                  '${fecha.day}/${fecha.month}/${fecha.year} '
-                  '${fecha.hour.toString().padLeft(2, '0')}:'
-                  '${fecha.minute.toString().padLeft(2, '0')}',
-                ),
+                label: Text(formatDateTime(dialogContext, fecha)),
                 onPressed: () async {
                   final dia = await showDatePicker(
                     context: dialogContext,
@@ -154,7 +157,7 @@ class _TasksScreenState extends State<TasksScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancelar'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () {
@@ -163,7 +166,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 }
                 Navigator.pop(dialogContext, true);
               },
-              child: const Text('Guardar'),
+              child: Text(t.save),
             ),
           ],
         ),
@@ -189,12 +192,13 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final items = [...?_items]..sort((a, b) => a.fecha.compareTo(b.fecha));
     return Scaffold(
-      backgroundColor: AppColors.fondo,
+      backgroundColor: context.fondoPantalla,
       appBar: AppBar(
-        title: const Text('Tareas'),
-        backgroundColor: AppColors.fondo,
+        title: Text(t.tasksTitle),
+        backgroundColor: context.fondoPantalla,
       ),
       body: _error != null
           ? Center(
@@ -202,7 +206,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(_error!, textAlign: TextAlign.center),
-                  TextButton(onPressed: _load, child: const Text('Reintentar')),
+                  TextButton(onPressed: _load, child: Text(t.retry)),
                 ],
               ),
             )
@@ -212,9 +216,9 @@ class _TasksScreenState extends State<TasksScreen> {
               onRefresh: _load,
               child: items.isEmpty
                   ? ListView(
-                      children: const [
-                        SizedBox(height: 120),
-                        Center(child: Text('Todavía no hay tareas.')),
+                      children: [
+                        const SizedBox(height: 120),
+                        Center(child: Text(t.noTasks)),
                       ],
                     )
                   : ListView.builder(
@@ -226,7 +230,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           (m) => m.id == item.mascotaId,
                         );
                         final nombre = mascota.isEmpty
-                            ? 'Mascota'
+                            ? t.petLabel
                             : mascota.first.nombre;
                         return Card(
                           child: CheckboxListTile(
@@ -236,12 +240,10 @@ class _TasksScreenState extends State<TasksScreen> {
                                 : (v) => _change(item, v ?? false),
                             title: Text(item.mensaje),
                             subtitle: Text(
-                              '$nombre · ${item.fecha.day}/${item.fecha.month}/${item.fecha.year} '
-                              '${item.fecha.hour.toString().padLeft(2, '0')}:'
-                              '${item.fecha.minute.toString().padLeft(2, '0')}',
+                              '$nombre · ${formatDateTime(context, item.fecha)}',
                             ),
                             secondary: IconButton(
-                              tooltip: 'Eliminar tarea',
+                              tooltip: t.deleteTask,
                               icon: const Icon(Icons.delete_outline),
                               onPressed: _working ? null : () => _delete(item),
                             ),
@@ -252,8 +254,8 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _working ? null : _add,
-        backgroundColor: AppColors.verdeOscuro,
-        foregroundColor: Colors.white,
+        backgroundColor: context.botonFondo,
+        foregroundColor: context.botonTexto,
         child: const Icon(Icons.add),
       ),
       bottomNavigationBar: PawLifeBottomNav(
