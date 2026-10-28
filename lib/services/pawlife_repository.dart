@@ -28,6 +28,10 @@ class PawLifeRepository {
 
   Future<Map<String, dynamic>> fetchPrivacy() =>
       client.getOne('/api/me/privacy');
+
+  /// Estado de Premium calculado por el servidor (la app no lo decide).
+  Future<Map<String, dynamic>> fetchPremium() =>
+      client.getOne('/api/me/premium');
   Future<List<Map<String, dynamic>>> fetchPrivacyRequests() =>
       client.getList('/api/me/privacy-requests');
   Future<Map<String, dynamic>> updatePreferences(Map<String, Object> values) =>

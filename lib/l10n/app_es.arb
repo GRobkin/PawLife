@@ -816,5 +816,30 @@
     }
   },
   "inactivityIncludeNew": "Incluir mascotas sin paseos registrados",
-  "kindInactivity": "Sin paseos"
+  "kindInactivity": "Sin paseos",
+  "premiumTitle": "Premium",
+  "premiumActiveUntil": "Premium activo hasta {date}",
+  "@premiumActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumInactive": "Sin Premium activo",
+  "premiumSourceManual": "Concedido por el equipo de PawLife",
+  "premiumSourcePaid": "Suscripción",
+  "premiumNoPurchases": "Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app.",
+  "premiumLoadError": "No se pudo consultar tu estado de Premium.",
+  "apiAccountDeleting": "Tu cuenta se está eliminando.",
+  "apiAccountUnavailable": "La cuenta no está disponible.",
+  "apiRateLimited": "Hiciste demasiados cambios seguidos. Esperá un rato y probá de nuevo.",
+  "apiPhotoProcessor": "No se pudo procesar la foto ahora. Reintentá más tarde.",
+  "apiInvalidPhoto": "La foto no es válida.",
+  "apiTooLarge": "Los datos son demasiado grandes para guardarse.",
+  "apiExportExpired": "La exportación venció. Iniciá otra.",
+  "apiBillingReview": "Tu cuenta tiene una suscripción o compra que debe revisarse antes de eliminarla.",
+  "apiPrivacyUnavailable": "El canal de privacidad todavía no está disponible.",
+  "apiServiceBusy": "El servicio no está disponible en este momento. Reintentá en unos minutos.",
+  "apiDeviceConflict": "Este dispositivo ya está asociado a otra cuenta."
 }

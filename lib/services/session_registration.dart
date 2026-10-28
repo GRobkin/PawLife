@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
+import '../l10n/active_locale.dart';
 import 'api_client.dart';
 import 'pawlife_repository.dart';
 import 'push_service.dart';
@@ -44,6 +45,12 @@ class SessionRegistration {
     final client = _clientFactory(user.uid);
     _client = client;
     final repository = PawLifeRepository(client: client);
+    // El servidor usa el idioma de la persona en los avisos que genera él mismo.
+    unawaited(
+      repository
+          .updatePreferences({'idioma': ActiveLocale.current.languageCode})
+          .catchError((Object _) => <String, dynamic>{}),
+    );
     final mobile =
         !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||

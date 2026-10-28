@@ -1472,4 +1472,68 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get kindInactivity => 'Sem passeios';
+
+  @override
+  String get premiumTitle => 'Premium';
+
+  @override
+  String premiumActiveUntil(String date) {
+    return 'Premium ativo até $date';
+  }
+
+  @override
+  String get premiumInactive => 'Sem Premium ativo';
+
+  @override
+  String get premiumSourceManual => 'Concedido pela equipe PawLife';
+
+  @override
+  String get premiumSourcePaid => 'Assinatura';
+
+  @override
+  String get premiumNoPurchases =>
+      'Por enquanto o Premium é concedido pela equipe PawLife. Ainda não há compras dentro do app.';
+
+  @override
+  String get premiumLoadError =>
+      'Não foi possível consultar seu status Premium.';
+
+  @override
+  String get apiAccountDeleting => 'Sua conta está sendo excluída.';
+
+  @override
+  String get apiAccountUnavailable => 'A conta não está disponível.';
+
+  @override
+  String get apiRateLimited =>
+      'Muitas alterações seguidas. Aguarde um pouco e tente novamente.';
+
+  @override
+  String get apiPhotoProcessor =>
+      'Não foi possível processar a foto agora. Tente mais tarde.';
+
+  @override
+  String get apiInvalidPhoto => 'A foto não é válida.';
+
+  @override
+  String get apiTooLarge => 'Os dados são grandes demais para salvar.';
+
+  @override
+  String get apiExportExpired => 'A exportação expirou. Inicie outra.';
+
+  @override
+  String get apiBillingReview =>
+      'Sua conta tem uma assinatura ou compra que precisa ser revisada antes de ser excluída.';
+
+  @override
+  String get apiPrivacyUnavailable =>
+      'O canal de privacidade ainda não está disponível.';
+
+  @override
+  String get apiServiceBusy =>
+      'O serviço não está disponível no momento. Tente novamente em alguns minutos.';
+
+  @override
+  String get apiDeviceConflict =>
+      'Este dispositivo já está associado a outra conta.';
 }

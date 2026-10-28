@@ -54,6 +54,24 @@ String apiErrorText(AppLocalizations t, ApiException e) => switch (e.code) {
   'client-timeout' => t.apiTimeout,
   'client-offline' => t.apiOffline,
   'client-http-status' => t.apiHttpStatus('${e.statusCode ?? ''}'),
+  // Códigos estables del servidor: se traducen; lo demás conserva su mensaje.
+  'ACCOUNT_DELETING' => t.apiAccountDeleting,
+  'ACCOUNT_UNAVAILABLE' => t.apiAccountUnavailable,
+  'RATE_LIMITED' => t.apiRateLimited,
+  'PHOTO_PROCESSOR_UNAVAILABLE' => t.apiPhotoProcessor,
+  'INVALID_PHOTO' => t.apiInvalidPhoto,
+  'DOCUMENT_TOO_LARGE' ||
+  'EXPORT_TOO_LARGE' ||
+  'EXPORT_RECORD_TOO_LARGE' ||
+  'DELETION_TREE_TOO_LARGE' => t.apiTooLarge,
+  'EXPORT_EXPIRED' || 'EXPORT_CANCELLED' => t.apiExportExpired,
+  'ACCOUNT_BILLING_REVIEW_REQUIRED' => t.apiBillingReview,
+  'PRIVACY_CONTACT_UNAVAILABLE' ||
+  'PRIVACY_REVIEW_UNAVAILABLE' => t.apiPrivacyUnavailable,
+  'FIRESTORE_UNAVAILABLE' ||
+  'DEPENDENCY_RESPONSE_INVALID' ||
+  'COMMIT_RESULT_UNKNOWN' => t.apiServiceBusy,
+  'DEVICE_OWNERSHIP_CONFLICT' || 'DEVICE_TOKEN_CHANGED' => t.apiDeviceConflict,
   _ => e.message,
 };
 
