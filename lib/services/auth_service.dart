@@ -298,9 +298,9 @@ class AuthService {
         final user = result.user;
         if (user == null) {
           throw const AuthException(
-          'No se pudo iniciar sesión con Google.',
-          code: 'google-signin-failed',
-        );
+            'No se pudo iniciar sesión con Google.',
+            code: 'google-signin-failed',
+          );
         }
         return user;
       } on FirebaseAuthException catch (e) {

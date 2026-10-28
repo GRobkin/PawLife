@@ -119,7 +119,8 @@ class SessionRegistration {
           final key = message.data['tipo'] == 'manual'
               ? 'avisosEquipo'
               : 'recordatoriosCuidados';
-          if (preferences is! Map<String, dynamic> || preferences[key] != true) {
+          if (preferences is! Map<String, dynamic> ||
+              preferences[key] != true) {
             return;
           }
           await _reminders.showIncoming(
