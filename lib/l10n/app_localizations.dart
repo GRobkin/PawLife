@@ -2679,6 +2679,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'PRÓXIMA VACUNA'**
   String get cellNextVaccine;
+
+  /// No description provided for @homeTasksPending.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, one{{count} tarea pendiente hoy} other{{count} tareas pendientes hoy}}'**
+  String homeTasksPending(int count);
+
+  /// No description provided for @homeAllDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Todo al día'**
+  String get homeAllDone;
 }
 
 class _AppLocalizationsDelegate

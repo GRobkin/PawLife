@@ -240,7 +240,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               )
             else if (hoy!.isEmpty)
-              Text(t.noTasksToday)
+              Row(
+                children: [
+                  Icon(Icons.check_circle_outline, color: context.marca),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      t.noTasksToday,
+                      style: TextStyle(color: context.textoSuave),
+                    ),
+                  ),
+                ],
+              )
             else
               ...hoy.map(
                 (r) => Padding(
@@ -360,6 +371,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Tareas de hoy que todavía no se completaron.
+  int _pendientesHoy() {
+    final ahora = DateTime.now();
+    return (_recordatorios ?? const <Recordatorio>[])
+        .where(
+          (r) =>
+              !r.completado &&
+              r.fecha.year == ahora.year &&
+              r.fecha.month == ahora.month &&
+              r.fecha.day == ahora.day,
+        )
+        .length;
+  }
+
   /// Tarjeta de la mascota activa. Al pulsarla se cambia de mascota.
   ///
   /// Escucha `SeleccionMascota.id` en vez de guardarse la elegida en el estado:
@@ -385,6 +410,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 mascota: activa,
                 height: 184,
                 children: [
+                  if (_recordatorios != null)
+                    Positioned(
+                      top: 12,
+                      left: 14,
+                      child: _PastillaTareas(
+                        pendientes: _pendientesHoy(),
+                        textoPendientes: t.homeTasksPending(_pendientesHoy()),
+                        textoAlDia: t.homeAllDone,
+                      ),
+                    ),
                   Positioned(
                     left: 18,
                     right: 64,
@@ -517,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       t.readyForAdventure,
                       style: TextStyle(
-                        color: context.botonTexto.withValues(alpha: 0.75),
+                        color: context.botonTexto.withValues(alpha: 0.9),
                         fontSize: 13,
                       ),
                     ),
@@ -762,4 +797,50 @@ class _SummaryData {
   final String label;
   final String value;
   final String hint;
+}
+
+/// Resumen de las tareas del día, sobre la foto de la mascota.
+class _PastillaTareas extends StatelessWidget {
+  const _PastillaTareas({
+    required this.pendientes,
+    required this.textoPendientes,
+    required this.textoAlDia,
+  });
+
+  final int pendientes;
+  final String textoPendientes;
+  final String textoAlDia;
+
+  @override
+  Widget build(BuildContext context) {
+    final alDia = pendientes == 0;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              alDia ? Icons.check_circle : Icons.assignment_outlined,
+              size: 15,
+              color: alDia ? AppColors.verdeBadge : Colors.white,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              alDia ? textoAlDia : textoPendientes,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

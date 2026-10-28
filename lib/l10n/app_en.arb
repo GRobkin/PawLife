@@ -429,5 +429,7 @@
   "apiPrivacyUnavailable": "The privacy channel isn't available yet.",
   "apiServiceBusy": "The service isn't available right now. Try again in a few minutes.",
   "apiDeviceConflict": "This device is already linked to another account.",
-  "cellNextVaccine": "NEXT VACCINE"
+  "cellNextVaccine": "NEXT VACCINE",
+  "homeTasksPending": "{count, plural, one{{count} task left today} other{{count} tasks left today}}",
+  "homeAllDone": "All caught up"
 }
