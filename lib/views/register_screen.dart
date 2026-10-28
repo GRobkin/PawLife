@@ -146,21 +146,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Center(
                       child: Text(
                         'PawLife',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: context.marca,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(color: context.marca),
                       ),
                     ),
                     const SizedBox(height: 28),
                     Text(
                       t.createAccountTitle,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: context.texto,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineSmall?.copyWith(color: context.texto),
                     ),
                     const SizedBox(height: 6),
                     Text(

@@ -37,7 +37,11 @@ ImageProvider? proveedorDeFoto(String? fotoUrl) {
 
 /// Foto circular de la mascota, o un círculo con su inicial si no tiene.
 class AvatarMascota extends StatelessWidget {
-  const AvatarMascota({super.key, required this.mascota, required this.radio});
+  const AvatarMascota({
+    super.key,
+    required this.mascota,
+    required this.radio,
+  });
 
   final Mascota mascota;
   final double radio;

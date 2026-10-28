@@ -206,6 +206,52 @@ abstract final class AppTheme {
         side: BorderSide(color: border),
       ),
       dividerTheme: DividerThemeData(color: border, space: 1, thickness: 1),
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final plataforma in TargetPlatform.values)
+            plataforma: const _TransicionPagina(),
+        },
+      ),
+    );
+  }
+}
+
+/// Entrada de pantalla: fundido con un leve desplazamiento hacia arriba, y la
+/// anterior se desvanece un poco. Con "reducir movimiento" no anima.
+class _TransicionPagina extends PageTransitionsBuilder {
+  const _TransicionPagina();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
+
+    final entrada = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+    final salida = CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: Curves.easeOutCubic,
+    );
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(entrada),
+      child: FadeTransition(
+        opacity: Tween<double>(begin: 1.0, end: 0.85).animate(salida),
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.03),
+            end: Offset.zero,
+          ).animate(entrada),
+          child: child,
+        ),
+      ),
     );
   }
 }

@@ -98,11 +98,8 @@ class WelcomeScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         Text(
                           'PawLife',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: context.marca,
-                          ),
+                          style: Theme.of(context).textTheme.displaySmall
+                              ?.copyWith(color: context.marca),
                         ),
                         const SizedBox(height: 10),
                         Padding(
