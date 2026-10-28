@@ -1537,4 +1537,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get holdToFinish => 'Press and hold to finish';
+
+  @override
+  String get shareStyleForest => 'Forest';
+
+  @override
+  String get shareStyleMint => 'Mint';
+
+  @override
+  String get shareStyleStats => 'Stats';
+
+  @override
+  String get shareStyleLabel => 'Card style';
 }

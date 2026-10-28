@@ -851,5 +851,9 @@
     }
   },
   "homeAllDone": "Todo al día",
-  "holdToFinish": "Mantené pulsado para finalizar"
+  "holdToFinish": "Mantené pulsado para finalizar",
+  "shareStyleForest": "Bosque",
+  "shareStyleMint": "Menta",
+  "shareStyleStats": "Cifras",
+  "shareStyleLabel": "Estilo de la tarjeta"
 }

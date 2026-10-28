@@ -201,6 +201,30 @@ void main() {
         ),
       ),
     ),
+    'share-menta': () => Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: WalkShareCard(
+            paseo: walk('x'),
+            mascota: pet,
+            estilo: TarjetaEstilo.menta,
+          ),
+        ),
+      ),
+    ),
+    'share-cifras': () => Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: WalkShareCard(
+            paseo: walk('x'),
+            mascota: pet,
+            estilo: TarjetaEstilo.cifras,
+          ),
+        ),
+      ),
+    ),
     'vacios': () => Builder(
       builder: (context) {
         final t = AppLocalizations.of(context);
