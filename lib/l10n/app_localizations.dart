@@ -2673,6 +2673,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Este dispositivo ya está asociado a otra cuenta.'**
   String get apiDeviceConflict;
+
+  /// No description provided for @cellNextVaccine.
+  ///
+  /// In es, this message translates to:
+  /// **'PRÓXIMA VACUNA'**
+  String get cellNextVaccine;
 }
 
 class _AppLocalizationsDelegate

@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../models/pawlife_models.dart';
-import '../../theme/app_colors.dart';
+import '../../theme/app_palette.dart';
 
 /// Convierte el `fotoUrl` de una mascota en algo que Flutter pueda pintar.
 /// Devuelve null si no hay foto o si el valor no se entiende.
@@ -52,7 +52,7 @@ class AvatarMascota extends StatelessWidget {
 
     return CircleAvatar(
       radius: radio,
-      backgroundColor: AppColors.verdeSuave,
+      backgroundColor: context.mentaSuave,
       backgroundImage: foto,
       child: foto != null
           ? null
@@ -61,7 +61,7 @@ class AvatarMascota extends StatelessWidget {
               style: TextStyle(
                 fontSize: radio * 0.8,
                 fontWeight: FontWeight.bold,
-                color: AppColors.verdeOscuro,
+                color: context.marca,
               ),
             ),
     );
