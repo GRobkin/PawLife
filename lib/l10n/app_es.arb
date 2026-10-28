@@ -778,5 +778,31 @@
         "type": "String"
       }
     }
+  },
+  "photoOpenFailed": "No se pudo abrir la imagen. Probá otra vez.",
+  "photoTooLarge": "La imagen es demasiado grande. Probá con otra.",
+  "photoTooLargeAfter": "La foto es demasiado grande incluso después de reducirla. Probá con otra.",
+  "photoInvalidType": "Elegí una imagen JPEG o PNG.",
+  "photoInvalidOrLarge": "La imagen no es válida o es demasiado grande.",
+  "photoUnreadable": "No se pudo leer la imagen. Probá con otra.",
+  "exportCancelled": "Exportación cancelada.",
+  "exportSessionChanged": "La sesión cambió. No se preparó el archivo.",
+  "exportTooBig": "El archivo necesita asistencia por su tamaño.",
+  "exportStartFailed": "No se pudo iniciar una exportación válida.",
+  "exportInvalidResponse": "La exportación devolvió una respuesta inválida. Iniciá otra.",
+  "exportIncompleteService": "No se completó la exportación. Iniciá otra.",
+  "captureNotReady": "El mapa todavía no está listo.",
+  "captureUnreadable": "No se pudo leer la imagen del mapa.",
+  "captureTooLarge": "La captura del mapa salió demasiado grande. Probá con menos zoom.",
+  "locGpsOff": "El GPS está desactivado. Activalo para continuar.",
+  "locDenied": "Permiso de ubicación denegado.",
+  "locDeniedForever": "Permiso denegado permanentemente. Habilitalo desde ajustes del sistema.",
+  "locFailed": "No se pudo obtener la ubicación: {error}",
+  "@locFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

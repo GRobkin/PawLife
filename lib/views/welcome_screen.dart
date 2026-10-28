@@ -12,6 +12,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_palette.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
+import 'widgets/motion.dart';
 import 'widgets/preferences_section.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -78,44 +79,46 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 Align(
                   alignment: const Alignment(0, 0.55),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.botonFondo,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.pets,
-                          color: context.botonTexto,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'PawLife',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: context.marca,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Text(
-                          t.welcomeTagline,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: context.textoSuave,
-                            height: 1.4,
+                  child: AparecerAlEntrar(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: context.botonFondo,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.pets,
+                            color: context.botonTexto,
+                            size: 28,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        Text(
+                          'PawLife',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: context.marca,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Text(
+                            t.welcomeTagline,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: context.textoSuave,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -130,98 +133,106 @@ class WelcomeScreen extends StatelessWidget {
           // del sistema (la barrita de gestos).
           SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const RegisterScreen(),
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.botonFondo,
-                        foregroundColor: context.botonTexto,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            t.getStarted,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+            child: AparecerAlEntrar(
+              indice: 2,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward, size: 18),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: context.texto,
-                        backgroundColor: context.superficie,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: context.bordeSuave),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      child: Text(
-                        t.signIn,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.botonFondo,
+                          foregroundColor: context.botonTexto,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              t.getStarted,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward, size: 18),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: t.termsPrefix),
-                          TextSpan(
-                            text: t.termsOfService,
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: context.texto,
-                            ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
                           ),
-                          TextSpan(text: t.termsAnd),
-                          TextSpan(
-                            text: t.privacyPolicy,
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: context.texto,
-                            ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: context.texto,
+                          backgroundColor: context.superficie,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: context.bordeSuave),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const TextSpan(text: '.'),
-                        ],
+                        ),
+                        child: Text(
+                          t.signIn,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: context.textoTenue),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: t.termsPrefix),
+                            TextSpan(
+                              text: t.termsOfService,
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: context.texto,
+                              ),
+                            ),
+                            TextSpan(text: t.termsAnd),
+                            TextSpan(
+                              text: t.privacyPolicy,
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: context.texto,
+                              ),
+                            ),
+                            const TextSpan(text: '.'),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: context.textoTenue,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           ),

@@ -799,13 +799,16 @@ class _Portada extends StatelessWidget {
           SizedBox(
             height: 210,
             width: double.infinity,
-            child: foto == null
-                ? const _PortadaVacia()
-                : Image(
-                    image: foto,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const _PortadaVacia(),
-                  ),
+            child: Hero(
+              tag: 'foto-mascota-${mascota.id}',
+              child: foto == null
+                  ? const _PortadaVacia()
+                  : Image(
+                      image: foto,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => const _PortadaVacia(),
+                    ),
+            ),
           ),
           // Velo oscuro solo en la mitad inferior: sin él, el nombre en blanco
           // desaparece sobre una foto clara.

@@ -7,6 +7,7 @@ import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../theme/app_palette.dart';
 import 'widgets/iniciar_paseo.dart';
+import 'widgets/motion.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class TasksScreen extends StatefulWidget {
@@ -211,7 +212,16 @@ class _TasksScreenState extends State<TasksScreen> {
               ),
             )
           : _items == null
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(
+              padding: const EdgeInsets.all(12),
+              children: const [
+                Esqueleto(alto: 72, radio: 16),
+                SizedBox(height: 10),
+                Esqueleto(alto: 72, radio: 16),
+                SizedBox(height: 10),
+                Esqueleto(alto: 72, radio: 16),
+              ],
+            )
           : RefreshIndicator(
               onRefresh: _load,
               child: items.isEmpty

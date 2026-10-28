@@ -20,6 +20,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../models/route_point.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
@@ -147,7 +148,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
         ),
       );
     } on MapCaptureException catch (e) {
-      avisos.showSnackBar(SnackBar(content: Text(e.message)));
+      avisos.showSnackBar(SnackBar(content: Text(captureErrorText(t, e))));
     } catch (_) {
       // toImage puede fallar por motivos del motor gráfico que no son culpa
       // del usuario. Que no tumbe el paseo en curso: se avisa y se sigue.
@@ -237,7 +238,11 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                 Icon(Icons.location_off, size: 48, color: context.textoTenue),
                 const SizedBox(height: 12),
                 Text(
-                  vm.errorMessage ?? t.locationErrorDefault,
+                  locationErrorText(
+                    t,
+                    code: vm.errorCode,
+                    fallback: vm.errorMessage,
+                  ),
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16),
                 ),
@@ -631,8 +636,9 @@ class _StatBlock extends StatelessWidget {
               TextSpan(
                 text: value,
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
                   color: context.texto,
                 ),
               ),

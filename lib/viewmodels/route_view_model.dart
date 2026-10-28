@@ -32,6 +32,10 @@ class RouteViewModel extends ChangeNotifier {
   RouteScreenStatus status = RouteScreenStatus.loading;
   String? errorMessage;
 
+  /// Código estable del error (`gps-off`, `denied`, `denied-forever`,
+  /// `location-failed`) para traducirlo en la interfaz.
+  String? errorCode;
+
   LatLng? currentPosition;
   final List<LatLng> routePoints = [];
   final List<RoutePoint> _rawPoints = [];
@@ -60,20 +64,22 @@ class RouteViewModel extends ChangeNotifier {
   Future<void> init() async {
     status = RouteScreenStatus.loading;
     errorMessage = null;
+    errorCode = null;
     notifyListeners();
 
     final access = await _locationService.ensurePermission();
 
     switch (access) {
       case LocationAccessStatus.serviceDisabled:
-        _fail('El GPS está desactivado. Activalo para continuar.');
+        _fail('El GPS está desactivado. Activalo para continuar.', 'gps-off');
         return;
       case LocationAccessStatus.permissionDenied:
-        _fail('Permiso de ubicación denegado.');
+        _fail('Permiso de ubicación denegado.', 'denied');
         return;
       case LocationAccessStatus.permissionDeniedForever:
         _fail(
           'Permiso denegado permanentemente. Habilitalo desde ajustes del sistema.',
+          'denied-forever',
         );
         return;
       case LocationAccessStatus.granted:
@@ -88,13 +94,14 @@ class RouteViewModel extends ChangeNotifier {
 
       await startWalk();
     } catch (e) {
-      _fail('No se pudo obtener la ubicación: $e');
+      _fail('No se pudo obtener la ubicación: $e', 'location-failed');
     }
   }
 
-  void _fail(String message) {
+  void _fail(String message, String code) {
     status = RouteScreenStatus.error;
     errorMessage = message;
+    errorCode = code;
     notifyListeners();
   }
 

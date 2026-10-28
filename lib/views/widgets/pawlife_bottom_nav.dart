@@ -69,15 +69,19 @@ class PawLifeBottomNav extends StatelessWidget {
             ),
             // Botón central de paseo. No es una sección: es una acción, y por
             // eso nunca se pinta como activa.
-            GestureDetector(
-              onTap: onPaseo,
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: context.botonFondo,
-                child: Icon(
-                  Icons.directions_walk,
-                  color: context.botonTexto,
-                  size: 20,
+            Semantics(
+              button: true,
+              label: t.startWalk,
+              child: GestureDetector(
+                onTap: onPaseo,
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: context.botonFondo,
+                  child: Icon(
+                    Icons.directions_walk,
+                    color: context.botonTexto,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
@@ -160,25 +164,39 @@ class _Item extends StatelessWidget {
     final esActiva = seccion == activa;
     final color = esActiva ? context.marca : context.textoTenue;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(esActiva ? iconoActivo : icono, color: color, size: 22),
-            const SizedBox(height: 2),
-            Text(
-              etiqueta,
-              style: TextStyle(
-                fontSize: 10,
-                color: color,
-                fontWeight: esActiva ? FontWeight.w600 : FontWeight.normal,
-              ),
+    return Semantics(
+      button: true,
+      selected: esActiva,
+      label: etiqueta,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 56, minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(esActiva ? iconoActivo : icono, color: color, size: 22),
+                const SizedBox(height: 2),
+                // Sin pasar de 1.3x: con más escala el rótulo desborda la barra.
+                MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: 1.3,
+                  child: Text(
+                    etiqueta,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: color,
+                      fontWeight: esActiva ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

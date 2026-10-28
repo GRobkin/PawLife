@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/local_reminder_service.dart';
@@ -170,7 +171,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       if (mounted) {
         setState(
           () => _error = error is PrivacyExportException
-              ? error.message
+              ? exportErrorText(t, error)
               : t.exportIncomplete,
         );
       }

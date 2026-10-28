@@ -20,6 +20,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import '../models/pawlife_models.dart';
 import 'walk_share_screen.dart';
+import 'widgets/motion.dart';
 import 'widgets/foto_mascota.dart';
 import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
@@ -387,7 +388,11 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
             children: [
               _CardLabel(icon: Icons.route, label: t.distanceCaps),
               const SizedBox(height: 10),
-              _BigValue(value: _formattedDistance, unit: 'km'),
+              _BigValue(
+                value: _formattedDistance,
+                unit: 'km',
+                count: session.distanceMeters / 1000,
+              ),
             ],
           ),
         ),
@@ -623,13 +628,47 @@ class _CardLabel extends StatelessWidget {
 }
 
 class _BigValue extends StatelessWidget {
-  const _BigValue({required this.value, this.unit});
+  const _BigValue({required this.value, this.unit, this.count});
 
   final String value;
   final String? unit;
 
+  /// Si se indica, la cifra cuenta desde cero hasta este valor (2 decimales).
+  final double? count;
+
   @override
   Widget build(BuildContext context) {
+    final cuenta = count;
+    if (cuenta != null) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            CifraAnimada(
+              valor: cuenta,
+              formato: (v) => v.toStringAsFixed(2),
+              estilo: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: context.texto,
+              ),
+            ),
+            if (unit != null)
+              Text(
+                ' $unit',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: context.textoSuave,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerLeft,

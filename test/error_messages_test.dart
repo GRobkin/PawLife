@@ -4,6 +4,9 @@ import 'package:pawlife/l10n/app_localizations.dart';
 import 'package:pawlife/l10n/error_messages.dart';
 import 'package:pawlife/services/api_client.dart';
 import 'package:pawlife/services/auth_service.dart';
+import 'package:pawlife/services/map_capture_service.dart';
+import 'package:pawlife/services/photo_service.dart';
+import 'package:pawlife/services/privacy_export_service.dart';
 
 void main() {
   final en = lookupAppLocalizations(const Locale('en'));
@@ -34,5 +37,32 @@ void main() {
     expect(en.ageDays(1), '1 day');
     expect(en.ageDays(3), '3 days');
     expect(pt.relDaysAgo(2), 'há 2 dias');
+  });
+
+  test('errores de foto, exportación, captura y ubicación', () {
+    expect(
+      photoErrorText(en, const PhotoException('x', code: 'invalid-type')),
+      'Choose a JPEG or PNG image.',
+    );
+    expect(
+      exportErrorText(pt, const PrivacyExportException('x', code: 'cancelled')),
+      'Exportação cancelada.',
+    );
+    expect(
+      captureErrorText(en, const MapCaptureException('x', code: 'not-ready')),
+      "The map isn't ready yet.",
+    );
+    expect(
+      locationErrorText(en, code: 'gps-off', fallback: 'x'),
+      'GPS is off. Turn it on to continue.',
+    );
+    expect(
+      locationErrorText(
+        en,
+        code: 'location-failed',
+        fallback: 'No se pudo obtener la ubicación: timeout',
+      ),
+      "Couldn't get the location: timeout",
+    );
   });
 }

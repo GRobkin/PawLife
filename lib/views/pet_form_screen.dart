@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/error_messages.dart';
 import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
 import '../services/pawlife_repository.dart';
@@ -129,7 +130,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
       setState(() => _foto = foto);
     } on PhotoException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.message);
+      setState(() => _error = photoErrorText(t, e));
     }
   }
 

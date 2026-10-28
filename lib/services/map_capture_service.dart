@@ -20,9 +20,12 @@ import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as img;
 
 class MapCaptureException implements Exception {
-  const MapCaptureException(this.message);
+  const MapCaptureException(this.message, {this.code});
 
   final String message;
+
+  /// Código estable para traducir el mensaje en la interfaz.
+  final String? code;
 
   @override
   String toString() => message;
@@ -52,7 +55,10 @@ class MapCaptureService {
   }) async {
     final tamano = limite.size;
     if (tamano.isEmpty) {
-      throw const MapCaptureException('El mapa todavía no está listo.');
+      throw const MapCaptureException(
+        'El mapa todavía no está listo.',
+        code: 'not-ready',
+      );
     }
 
     for (final escala in const [1.0, 0.75, 0.5]) {
@@ -71,7 +77,10 @@ class MapCaptureService {
       imagen.dispose();
 
       if (datos == null) {
-        throw const MapCaptureException('No se pudo leer la imagen del mapa.');
+        throw const MapCaptureException(
+          'No se pudo leer la imagen del mapa.',
+          code: 'unreadable',
+        );
       }
 
       final rgba = datos.buffer.asUint8List(
@@ -97,6 +106,7 @@ class MapCaptureService {
 
     throw const MapCaptureException(
       'La captura del mapa salió demasiado grande. Probá con menos zoom.',
+      code: 'too-large',
     );
   }
 }

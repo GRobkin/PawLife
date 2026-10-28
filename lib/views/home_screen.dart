@@ -17,20 +17,35 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'pets_screen.dart';
-import 'widgets/foto_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
+import 'widgets/motion.dart';
+import 'widgets/portada_mascota.dart';
 import 'widgets/selector_mascota.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    this.repository,
+    this.walkRepository,
+    this.auth,
+  });
+
+  /// Para pruebas: dependencias inyectadas.
+  final PawLifeRepository? repository;
+  final WalkRepository? walkRepository;
+  final AuthService? auth;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final _repo = widget.repository ?? PawLifeRepository();
+  late final _walks = widget.walkRepository ?? WalkRepository();
+  late final _auth = widget.auth ?? AuthService();
+
   /// Las mascotas del usuario. null mientras se cargan; vacía si no tiene.
   List<Mascota>? _mascotas;
 
@@ -57,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _cargarMascotas() async {
     try {
-      final mascotas = await PawLifeRepository().fetchMascotas();
+      final mascotas = await _repo.fetchMascotas();
       if (!mounted) return;
       setState(() => _mascotas = mascotas);
       await _cargarPaseos();
@@ -88,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       // 20 basta: el resumen solo mira el último paseo y los de hoy.
-      final paseos = await WalkRepository().fetchPaseos(activa.id, limite: 20);
+      final paseos = await _walks.fetchPaseos(activa.id, limite: 20);
       if (!mounted) return;
       setState(() => _paseos = paseos);
     } catch (_) {
@@ -99,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _cargarRecordatorios() async {
     try {
-      final items = await PawLifeRepository().fetchRecordatorios();
+      final items = await _repo.fetchRecordatorios();
       if (mounted) setState(() => _recordatorios = items);
     } catch (_) {
       if (mounted) setState(() => _recordatorios = const []);
@@ -108,11 +123,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _marcarRecordatorio(Recordatorio item) async {
     try {
-      await PawLifeRepository().marcarRecordatorio(
-        item.id,
-        completado: !item.completado,
-      );
-      await LocalReminderService.instance.syncBestEffort(PawLifeRepository());
+      await _repo.marcarRecordatorio(item.id, completado: !item.completado);
+      await LocalReminderService.instance.syncBestEffort(_repo);
       await _cargarRecordatorios();
     } catch (e) {
       if (mounted) {
@@ -192,10 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _buildTopBar(context),
             const SizedBox(height: 20),
-            Text(
-              _saludo(),
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+            Text(_saludo(), style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 4),
             Text(t.todayAgenda, style: TextStyle(color: context.textoSuave)),
             const SizedBox(height: 20),
@@ -205,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 24),
             Text(
               t.activitySummary,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
             _buildActivitySummary(),
@@ -220,13 +229,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              t.todayTitle,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            Text(t.todayTitle, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
             if (_recordatorios == null)
-              const Center(child: CircularProgressIndicator())
+              const Column(
+                children: [
+                  Esqueleto(alto: 64, radio: 14),
+                  SizedBox(height: 10),
+                  Esqueleto(alto: 64, radio: 14),
+                ],
+              )
             else if (hoy!.isEmpty)
               Text(t.noTasksToday)
             else
@@ -263,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// ninguno (cuentas creadas antes de pedir el nombre), se saluda sin él.
   String _saludo() {
     final t = AppLocalizations.of(context);
-    final usuario = AuthService().currentUser;
+    final usuario = _auth.currentUser;
     final nombre = usuario?.displayName?.trim();
 
     final hora = DateTime.now().hour;
@@ -288,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    final usuario = AuthService().currentUser;
+    final usuario = _auth.currentUser;
     final fotoUrl = usuario?.photoURL;
 
     return Row(
@@ -309,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
           tooltip: AppLocalizations.of(context).yourAccount,
           offset: const Offset(0, 40),
           onSelected: (valor) {
-            if (valor == 'salir') AuthService().signOut();
+            if (valor == 'salir') _auth.signOut();
           },
           itemBuilder: (_) => [
             PopupMenuItem<String>(
@@ -362,40 +374,100 @@ class _HomeScreenState extends State<HomeScreen> {
             ? null
             : SeleccionMascota.resolver(mascotas);
 
+        if (activa != null) {
+          return Material(
+            color: context.superficie,
+            borderRadius: BorderRadius.circular(22),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: _cambiarMascota,
+              child: PortadaMascota(
+                mascota: activa,
+                height: 184,
+                children: [
+                  Positioned(
+                    left: 18,
+                    right: 64,
+                    bottom: 16,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          activa.nombre,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          activa.subtituloLocalizado(t),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // La flecha solo tiene sentido si hay entre qué elegir.
+                  if (mascotas != null && mascotas.length > 1)
+                    Positioned(
+                      right: 14,
+                      bottom: 16,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (mascotas == null) {
+          return const Esqueleto(alto: 184, radio: 22);
+        }
+
+        // Sin mascotas: tarjeta compacta.
         return Material(
           color: context.superficie,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           child: InkWell(
             onTap: _cambiarMascota,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  if (activa != null)
-                    AvatarMascota(mascota: activa, radio: 22)
-                  else
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: context.bordeSuave,
-                      child: Icon(Icons.pets, color: context.textoTenue),
-                    ),
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: context.bordeSuave,
+                    child: Icon(Icons.pets, color: context.textoTenue),
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          activa?.nombre ??
-                              (mascotas == null ? t.loadingEllipsis : t.noPets),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                          t.noPets,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Text(
-                          activa?.subtituloLocalizado(t) ??
-                              (mascotas == null ? '' : t.tapToAddFirst),
+                          t.tapToAddFirst,
                           style: TextStyle(
                             color: context.textoSuave,
                             fontSize: 13,
@@ -404,11 +476,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  // La flecha solo tiene sentido si hay entre qué elegir.
-                  if (mascotas != null && mascotas.length > 1)
-                    const Icon(Icons.keyboard_arrow_down)
-                  else if (mascotas != null && mascotas.isEmpty)
-                    Icon(Icons.add, color: context.textoTenue),
+                  Icon(Icons.add, color: context.textoTenue),
                 ],
               ),
             ),
@@ -486,28 +554,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final paseos = _paseos;
 
     if (paseos == null) {
-      return Row(
-        children: [
-          Expanded(
-            child: _buildSummaryCard(
-              icon: Icons.map_outlined,
-              iconColor: Colors.green,
-              label: t.lastWalk,
-              value: '…',
-              hint: t.loadingShort,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildSummaryCard(
-              icon: Icons.timer_outlined,
-              iconColor: Colors.blueGrey,
-              label: t.activeTime,
-              value: '…',
-              hint: t.loadingShort,
-            ),
-          ),
-        ],
+      return _summaryBand(
+        left: _SummaryData(Icons.map_outlined, t.lastWalk, '…', t.loadingShort),
+        right: _SummaryData(
+          Icons.timer_outlined,
+          t.activeTime,
+          '…',
+          t.loadingShort,
+        ),
       );
     }
 
@@ -518,30 +572,21 @@ class _HomeScreenState extends State<HomeScreen> {
         deHoy.fold<int>(0, (t, p) => t + p.duracionSegundos) ~/ 60;
     final cuantosHoy = deHoy.length;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _buildSummaryCard(
-            icon: Icons.map_outlined,
-            iconColor: Colors.green,
-            label: t.lastWalk,
-            value: ultimo == null
-                ? '—'
-                : '${(ultimo.distanciaMetros / 1000).toStringAsFixed(2)} km',
-            hint: ultimo == null ? t.noWalks : _cuando(ultimo.fechaInicio),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildSummaryCard(
-            icon: Icons.timer_outlined,
-            iconColor: Colors.blueGrey,
-            label: t.activeTime,
-            value: cuantosHoy == 0 ? '—' : t.minutesShort(minutosHoy),
-            hint: cuantosHoy == 0 ? t.noWalksToday : t.walksToday(cuantosHoy),
-          ),
-        ),
-      ],
+    return _summaryBand(
+      left: _SummaryData(
+        Icons.map_outlined,
+        t.lastWalk,
+        ultimo == null
+            ? '—'
+            : '${(ultimo.distanciaMetros / 1000).toStringAsFixed(2)} km',
+        ultimo == null ? t.noWalks : _cuando(ultimo.fechaInicio),
+      ),
+      right: _SummaryData(
+        Icons.timer_outlined,
+        t.activeTime,
+        cuantosHoy == 0 ? '—' : t.minutesShort(minutosHoy),
+        cuantosHoy == 0 ? t.noWalksToday : t.walksToday(cuantosHoy),
+      ),
     );
   }
 
@@ -570,40 +615,68 @@ class _HomeScreenState extends State<HomeScreen> {
     return formatDayMonthTime(context, fecha);
   }
 
-  Widget _buildSummaryCard({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-    required String hint,
+  /// Las dos cifras de actividad en una sola banda, con los números grandes
+  /// como protagonistas.
+  Widget _summaryBand({
+    required _SummaryData left,
+    required _SummaryData right,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.superficie,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    Widget cell(_SummaryData d) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: iconColor),
+              Icon(d.icon, size: 16, color: context.marca),
               const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(fontSize: 12, color: context.textoSuave),
+              Flexible(
+                child: Text(
+                  d.label,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelMedium?.copyWith(color: context.textoSuave),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              d.value,
+              style: Theme.of(
+                context,
+              ).textTheme.displaySmall?.copyWith(color: context.texto),
+            ),
           ),
-          const SizedBox(height: 2),
-          Text(hint, style: TextStyle(fontSize: 11, color: context.textoTenue)),
+          const SizedBox(height: 4),
+          Text(
+            d.hint,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.textoTenue),
+          ),
         ],
+      ),
+    );
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      decoration: BoxDecoration(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            cell(left),
+            VerticalDivider(color: context.bordeSuave, width: 28),
+            cell(right),
+          ],
+        ),
       ),
     );
   }
@@ -639,12 +712,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 220),
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
+                    color: checked ? context.textoTenue : context.texto,
+                    decoration: checked ? TextDecoration.lineThrough : null,
                   ),
+                  child: Text(title),
                 ),
                 Text(
                   subtitle,
@@ -659,13 +736,30 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             tooltip: checked ? t.markPending : t.markDone,
             onPressed: onTap,
-            icon: Icon(
-              checked ? Icons.check_box : Icons.check_box_outline_blank,
-              color: checked ? context.marca : context.textoTenue,
+            icon: AnimatedSwitcher(
+              duration: reducirMovimiento(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 200),
+              transitionBuilder: (hijo, animacion) =>
+                  ScaleTransition(scale: animacion, child: hijo),
+              child: Icon(
+                checked ? Icons.check_box : Icons.check_box_outline_blank,
+                key: ValueKey(checked),
+                color: checked ? context.marca : context.textoTenue,
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+class _SummaryData {
+  const _SummaryData(this.icon, this.label, this.value, this.hint);
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String hint;
 }
