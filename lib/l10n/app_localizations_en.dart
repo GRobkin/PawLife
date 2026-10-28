@@ -1534,4 +1534,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeAllDone => 'All caught up';
+
+  @override
+  String get holdToFinish => 'Press and hold to finish';
 }

@@ -431,5 +431,6 @@
   "apiDeviceConflict": "Este dispositivo já está associado a outra conta.",
   "cellNextVaccine": "PRÓXIMA VACINA",
   "homeTasksPending": "{count, plural, one{{count} tarefa pendente hoje} other{{count} tarefas pendentes hoje}}",
-  "homeAllDone": "Tudo em dia"
+  "homeAllDone": "Tudo em dia",
+  "holdToFinish": "Mantenha pressionado para finalizar"
 }

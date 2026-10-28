@@ -12,6 +12,7 @@
 //
 // PERMISOS: ver comentario en location_service.dart / README del proyecto.
 
+import 'widgets/boton_mantener.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -373,27 +374,11 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _onFinishPressed(context, vm),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: context.botonFondo,
-                            foregroundColor: context.botonTexto,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.stop_circle_outlined,
-                            size: 20,
-                          ),
-                          label: Text(
-                            t.finishWalk,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                        child: BotonMantener(
+                          icono: Icons.stop_circle_outlined,
+                          texto: t.finishWalk,
+                          pista: t.holdToFinish,
+                          onCompletar: () => _onFinishPressed(context, vm),
                         ),
                       ),
                     ],

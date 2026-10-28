@@ -2,7 +2,7 @@
 
 Fecha: 28/10/2026. Fuente: `lib/l10n/app_{es,en,pt}.arb` (rama `feature/us28-us29-idiomas-tema`). El español es el original; el inglés y el portugués los redacté yo y **nadie los revisó**.
 
-Total: 429 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecución y no se deben traducir ni quitar; `⏎` es un salto de línea. Los plurales usan sintaxis ICU (`{count, plural, one{...} other{...}}`): hay que revisar ambas formas.
+Total: 433 cadenas. Los marcadores `{nombre}` se reemplazan en tiempo de ejecución y no se deben traducir ni quitar; `⏎` es un salto de línea. Los plurales usan sintaxis ICU (`{count, plural, one{...} other{...}}`): hay que revisar ambas formas.
 
 ## Qué revisar
 

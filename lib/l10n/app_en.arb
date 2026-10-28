@@ -431,5 +431,6 @@
   "apiDeviceConflict": "This device is already linked to another account.",
   "cellNextVaccine": "NEXT VACCINE",
   "homeTasksPending": "{count, plural, one{{count} task left today} other{{count} tasks left today}}",
-  "homeAllDone": "All caught up"
+  "homeAllDone": "All caught up",
+  "holdToFinish": "Press and hold to finish"
 }

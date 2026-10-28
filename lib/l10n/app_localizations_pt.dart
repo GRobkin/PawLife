@@ -1550,4 +1550,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get homeAllDone => 'Tudo em dia';
+
+  @override
+  String get holdToFinish => 'Mantenha pressionado para finalizar';
 }
