@@ -20,6 +20,7 @@ import 'pets_screen.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
+import 'widgets/carrusel_hoy.dart';
 import 'widgets/motion.dart';
 import 'widgets/portada_mascota.dart';
 import 'widgets/selector_mascota.dart';
@@ -302,38 +303,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               )
             else
-              Container(
-                decoration: BoxDecoration(
-                  color: context.superficie,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    for (var i = 0; i < hoy.length; i++) ...[
-                      if (i > 0)
-                        Divider(
-                          height: 1,
-                          indent: 62,
-                          color: context.bordeSuave,
-                        ),
-                      _buildTaskTile(
-                        icon: switch (hoy[i].tipo) {
-                          'vacuna' => Icons.vaccines_outlined,
-                          'medicamento' => Icons.medication_outlined,
-                          _ => Icons.assignment_outlined,
-                        },
-                        iconColor: context.marca,
-                        title: hoy[i].mensaje,
-                        subtitle: hoy[i].completado
-                            ? t.completedLabel
-                            : formatTime(context, hoy[i].fecha),
-                        checked: hoy[i].completado,
-                        onTap: () => _marcarRecordatorio(hoy[i]),
-                      ),
-                    ],
-                  ],
-                ),
+              CarruselHoy(
+                textoMarcar: t.markDone,
+                textoPendiente: t.markPending,
+                tareas: [
+                  for (final r in hoy)
+                    TareaVista(
+                      icono: switch (r.tipo) {
+                        'vacuna' => Icons.vaccines_outlined,
+                        'medicamento' => Icons.medication_outlined,
+                        _ => Icons.assignment_outlined,
+                      },
+                      titulo: r.mensaje,
+                      detalle: r.completado
+                          ? t.completedLabel
+                          : formatTime(context, r.fecha),
+                      hecha: r.completado,
+                      alTocar: () => _marcarRecordatorio(r),
+                    ),
+                ],
               ),
           ],
         ),
@@ -775,103 +763,6 @@ class _HomeScreenState extends State<HomeScreen> {
             cell(left),
             VerticalDivider(color: context.bordeSuave, width: 28),
             cell(right),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTaskTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required bool checked,
-    required VoidCallback onTap,
-    Color? subtitleColor,
-  }) {
-    final t = AppLocalizations.of(context);
-    final rapido = reducirMovimiento(context)
-        ? Duration.zero
-        : const Duration(milliseconds: 220);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 9, 14, 9),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: checked ? context.relleno : context.mentaSuave,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: checked ? context.textoTenue : iconColor,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AnimatedDefaultTextStyle(
-                    duration: rapido,
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: checked ? context.textoTenue : context.texto,
-                      decoration: checked ? TextDecoration.lineThrough : null,
-                    ),
-                    child: Text(title),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: subtitleColor ?? context.textoSuave,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Semantics(
-              button: true,
-              label: checked ? t.markPending : t.markDone,
-              excludeSemantics: true,
-              child: AnimatedContainer(
-                duration: rapido,
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: checked ? context.botonFondo : Colors.transparent,
-                  border: Border.all(
-                    color: checked ? context.marca : context.textoTenue,
-                    width: 2,
-                  ),
-                ),
-                child: AnimatedSwitcher(
-                  duration: rapido,
-                  transitionBuilder: (hijo, animacion) =>
-                      ScaleTransition(scale: animacion, child: hijo),
-                  child: checked
-                      ? Icon(
-                          Icons.check,
-                          key: const ValueKey(true),
-                          size: 17,
-                          color: context.botonTexto,
-                        )
-                      : const SizedBox.shrink(key: ValueKey(false)),
-                ),
-              ),
-            ),
           ],
         ),
       ),

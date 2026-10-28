@@ -37,9 +37,7 @@ class LocationService {
 
   Future<Position> getCurrentPosition() {
     return Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     );
   }
 
@@ -53,12 +51,7 @@ class LocationService {
     return Geolocator.getPositionStream(locationSettings: settings);
   }
 
-  double distanceBetween(
-    double lat1,
-    double lng1,
-    double lat2,
-    double lng2,
-  ) {
+  double distanceBetween(double lat1, double lng1, double lat2, double lng2) {
     return Geolocator.distanceBetween(lat1, lng1, lat2, lng2);
   }
 }

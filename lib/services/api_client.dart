@@ -276,10 +276,7 @@ class ApiClient {
         code: 'client-offline',
       );
     } on http.ClientException catch (e) {
-      throw ApiException(
-        'Fallo de red: ${e.message}',
-        code: 'client-offline',
-      );
+      throw ApiException('Fallo de red: ${e.message}', code: 'client-offline');
     }
   }
 
