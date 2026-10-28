@@ -205,11 +205,9 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
             child: Center(
               child: Text(
                 AppLocalizations.of(context).walkInProgress,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: context.texto,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: context.texto),
               ),
             ),
           ),

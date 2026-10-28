@@ -205,11 +205,8 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
                         const SizedBox(height: 6),
                         Text(
                           '${(walk.distanciaMetros / 1000).toStringAsFixed(2)} km · ${t.durationMinSec(walk.duracion.inMinutes, walk.duracion.inSeconds % 60)}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: context.marca,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(color: context.marca),
                         ),
                       ],
                     ),
