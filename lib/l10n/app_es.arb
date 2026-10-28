@@ -840,5 +840,6 @@
   "apiBillingReview": "Tu cuenta tiene una suscripción o compra que debe revisarse antes de eliminarla.",
   "apiPrivacyUnavailable": "El canal de privacidad todavía no está disponible.",
   "apiServiceBusy": "El servicio no está disponible en este momento. Reintentá en unos minutos.",
-  "apiDeviceConflict": "Este dispositivo ya está asociado a otra cuenta."
+  "apiDeviceConflict": "Este dispositivo ya está asociado a otra cuenta.",
+  "cellNextVaccine": "PRÓXIMA VACUNA"
 }

@@ -1517,4 +1517,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get apiDeviceConflict =>
       'This device is already linked to another account.';
+
+  @override
+  String get cellNextVaccine => 'NEXT VACCINE';
 }

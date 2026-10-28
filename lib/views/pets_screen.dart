@@ -24,8 +24,8 @@ import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/motion.dart';
+import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
-import 'widgets/portada_mascota.dart';
 
 class PetsScreen extends StatefulWidget {
   const PetsScreen({super.key, this.repository, this.userPhotoUrl});
@@ -252,6 +252,7 @@ class _PetsScreenState extends State<PetsScreen> {
             ),
             const SizedBox(height: 14),
           ],
+          _TarjetaAgregar(onTap: () => _abrirFormulario()),
         ],
       ),
     );
@@ -341,112 +342,233 @@ class _TarjetaMascota extends StatelessWidget {
     final mascota = resumen.mascota;
     final estado = _Estado.de(context, resumen.estado);
     final peso = resumen.ultimoPeso;
+    final vacuna = resumen.proximaVacuna;
 
     return Material(
       color: context.superficie,
       borderRadius: BorderRadius.circular(20),
-      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Column(
-          children: [
-            PortadaMascota(
-              mascota: mascota,
-              height: 156,
-              heroTag: 'foto-mascota-${mascota.id}',
-              children: [
-                Positioned(
-                  left: 16,
-                  right: 56,
-                  bottom: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 10, 16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  // El punto de color resume el estado de salud de un vistazo.
+                  Stack(
+                    clipBehavior: Clip.none,
                     children: [
-                      Text(
-                        mascota.nombre,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(color: Colors.white),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        mascota.subtituloLocalizado(t),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.white70,
+                      AvatarMascota(mascota: mascota, radio: 30),
+                      Positioned(
+                        right: -1,
+                        bottom: -1,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: estado.color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: context.superficie,
+                              width: 2.5,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.35),
-                      shape: BoxShape.circle,
-                    ),
-                    child: PopupMenuButton<String>(
-                      tooltip: t.options,
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
-                      onSelected: (valor) {
-                        if (valor == 'editar') onEditar();
-                        if (valor == 'eliminar') onEliminar();
-                      },
-                      itemBuilder: (_) => [
-                        PopupMenuItem(value: 'editar', child: Text(t.edit)),
-                        PopupMenuItem(
-                          value: 'eliminar',
-                          child: Text(
-                            t.delete,
-                            style: TextStyle(color: context.alertaTexto),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          mascota.nombre,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          mascota.subtituloLocalizado(t),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: context.textoSuave,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _Celda(
-                      rotulo: t.cellStatus,
-                      valor: estado.texto,
-                      icono: estado.icono,
-                      color: estado.color,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _Celda(
-                      rotulo: t.cellWeight,
-                      valor: peso == null
-                          ? t.noRecord
-                          : '${_formatearKg(peso.valorKg)} kg',
-                      icono: Icons.monitor_weight_outlined,
-                      color: peso == null ? context.textoTenue : context.texto,
-                    ),
-                  ),
+                  _MenuMascota(onEditar: onEditar, onEliminar: onEliminar),
                 ],
               ),
+              const SizedBox(height: 14),
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: _Celda(
+                            rotulo: t.cellStatus,
+                            valor: estado.texto,
+                            icono: estado.icono,
+                            color: estado.color,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 2,
+                          child: _Celda(
+                            rotulo: t.cellWeight,
+                            valor: peso == null
+                                ? t.noRecord
+                                : '${_formatearKg(peso.valorKg)} kg',
+                            icono: Icons.monitor_weight_outlined,
+                            color: peso == null
+                                ? context.textoTenue
+                                : context.texto,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (vacuna != null) ...[
+                      const SizedBox(height: 10),
+                      _Celda(
+                        rotulo: t.cellNextVaccine,
+                        valor:
+                            '${vacuna.nombre} · '
+                            '${_cuando(t, vacuna.proximaFecha)}',
+                        icono: Icons.vaccines_outlined,
+                        color: context.texto,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// "hoy", "mañana", "en 3 días", "vencida hace 2 días".
+  static String _cuando(AppLocalizations t, DateTime fecha) {
+    final dias = fecha.difference(DateTime.now()).inDays;
+    if (dias < 0) return t.relOverdueDays(-dias);
+    if (dias == 0) return t.relToday;
+    if (dias == 1) return t.relTomorrow;
+    return t.relInDays(dias);
+  }
+
+  /// 4.2 en vez de 4.20, pero 32 en vez de 32.0.
+  static String _formatearKg(double kg) =>
+      kg == kg.roundToDouble() ? kg.toStringAsFixed(0) : kg.toStringAsFixed(1);
+}
+
+/// Menú de la tarjeta: un botón circular suave en lugar de los tres puntos
+/// sueltos, y un panel redondeado con iconos.
+class _MenuMascota extends StatelessWidget {
+  const _MenuMascota({required this.onEditar, required this.onEliminar});
+
+  final VoidCallback onEditar;
+  final VoidCallback onEliminar;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return PopupMenuButton<String>(
+      tooltip: t.options,
+      position: PopupMenuPosition.under,
+      offset: const Offset(0, 4),
+      elevation: 8,
+      color: context.superficie,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: context.bordeSuave),
+      ),
+      padding: const EdgeInsets.all(6),
+      onSelected: (valor) {
+        if (valor == 'editar') onEditar();
+        if (valor == 'eliminar') onEliminar();
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(
+          value: 'editar',
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 19, color: context.texto),
+              const SizedBox(width: 12),
+              Text(t.edit),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'eliminar',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline, size: 19, color: context.alertaTexto),
+              const SizedBox(width: 12),
+              Text(t.delete, style: TextStyle(color: context.alertaTexto)),
+            ],
+          ),
+        ),
+      ],
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: context.relleno,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(Icons.more_horiz, size: 22, color: context.textoSuave),
+      ),
+    );
+  }
+}
+
+/// Última «tarjeta» de la lista: invita a agregar otra mascota.
+class _TarjetaAgregar extends StatelessWidget {
+  const _TarjetaAgregar({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        height: 76,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: context.bordeSuave, width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_circle_outline, color: context.marca),
+            const SizedBox(width: 10),
+            Text(
+              t.addPet,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: context.marca),
             ),
           ],
         ),
       ),
     );
   }
-
-  /// 4.2 en vez de 4.20, pero 32 en vez de 32.0.
-  static String _formatearKg(double kg) =>
-      kg == kg.roundToDouble() ? kg.toStringAsFixed(0) : kg.toStringAsFixed(1);
 }
 
 /// Recuadro con rótulo arriba y un valor con icono debajo.

@@ -1533,4 +1533,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get apiDeviceConflict =>
       'Este dispositivo já está associado a outra conta.';
+
+  @override
+  String get cellNextVaccine => 'PRÓXIMA VACINA';
 }

@@ -428,5 +428,6 @@
   "apiBillingReview": "Your account has a subscription or purchase that must be reviewed before it can be deleted.",
   "apiPrivacyUnavailable": "The privacy channel isn't available yet.",
   "apiServiceBusy": "The service isn't available right now. Try again in a few minutes.",
-  "apiDeviceConflict": "This device is already linked to another account."
+  "apiDeviceConflict": "This device is already linked to another account.",
+  "cellNextVaccine": "NEXT VACCINE"
 }
