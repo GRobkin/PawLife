@@ -744,6 +744,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       switch (tipo) {
         'vacuna' => t.kindVaccine,
         'tarea' => t.kindTask,
+        'inactividad' => t.kindInactivity,
         'medicamento' => t.medicationLabel,
         _ => tipo,
       };

@@ -803,5 +803,18 @@
         "type": "String"
       }
     }
-  }
+  },
+  "inactivityTitle": "Aviso por falta de paseos",
+  "inactivityHint": "Te avisamos si pasa el plazo que elegís sin registrar un paseo.",
+  "inactivityAfter": "Avisar tras",
+  "inactivityDays": "{count, plural, one{{count} día} other{{count} días}}",
+  "@inactivityDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inactivityIncludeNew": "Incluir mascotas sin paseos registrados",
+  "kindInactivity": "Sin paseos"
 }

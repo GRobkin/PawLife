@@ -405,5 +405,11 @@
   "locGpsOff": "O GPS está desativado. Ative-o para continuar.",
   "locDenied": "Permissão de localização negada.",
   "locDeniedForever": "Permissão negada permanentemente. Ative-a nas configurações do sistema.",
-  "locFailed": "Não foi possível obter a localização: {error}"
+  "locFailed": "Não foi possível obter a localização: {error}",
+  "inactivityTitle": "Aviso por falta de passeios",
+  "inactivityHint": "Avisamos se o prazo escolhido passar sem um passeio registrado.",
+  "inactivityAfter": "Avisar após",
+  "inactivityDays": "{count, plural, one{{count} dia} other{{count} dias}}",
+  "inactivityIncludeNew": "Incluir pets sem passeios registrados",
+  "kindInactivity": "Sem passeios"
 }

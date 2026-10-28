@@ -2535,6 +2535,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo obtener la ubicación: {error}'**
   String locFailed(String error);
+
+  /// No description provided for @inactivityTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Aviso por falta de paseos'**
+  String get inactivityTitle;
+
+  /// No description provided for @inactivityHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Te avisamos si pasa el plazo que elegís sin registrar un paseo.'**
+  String get inactivityHint;
+
+  /// No description provided for @inactivityAfter.
+  ///
+  /// In es, this message translates to:
+  /// **'Avisar tras'**
+  String get inactivityAfter;
+
+  /// No description provided for @inactivityDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, one{{count} día} other{{count} días}}'**
+  String inactivityDays(int count);
+
+  /// No description provided for @inactivityIncludeNew.
+  ///
+  /// In es, this message translates to:
+  /// **'Incluir mascotas sin paseos registrados'**
+  String get inactivityIncludeNew;
+
+  /// No description provided for @kindInactivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin paseos'**
+  String get kindInactivity;
 }
 
 class _AppLocalizationsDelegate

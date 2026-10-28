@@ -30,7 +30,7 @@ class PawLifeRepository {
       client.getOne('/api/me/privacy');
   Future<List<Map<String, dynamic>>> fetchPrivacyRequests() =>
       client.getList('/api/me/privacy-requests');
-  Future<Map<String, dynamic>> updatePreferences(Map<String, bool> values) =>
+  Future<Map<String, dynamic>> updatePreferences(Map<String, Object> values) =>
       client.patch('/api/me/preferences', values);
   Future<Map<String, dynamic>> startExport() =>
       client.post('/api/me/exports', {});

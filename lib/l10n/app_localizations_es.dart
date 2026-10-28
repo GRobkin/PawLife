@@ -1443,4 +1443,31 @@ class AppLocalizationsEs extends AppLocalizations {
   String locFailed(String error) {
     return 'No se pudo obtener la ubicación: $error';
   }
+
+  @override
+  String get inactivityTitle => 'Aviso por falta de paseos';
+
+  @override
+  String get inactivityHint =>
+      'Te avisamos si pasa el plazo que elegís sin registrar un paseo.';
+
+  @override
+  String get inactivityAfter => 'Avisar tras';
+
+  @override
+  String inactivityDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count días',
+      one: '$count día',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get inactivityIncludeNew => 'Incluir mascotas sin paseos registrados';
+
+  @override
+  String get kindInactivity => 'Sin paseos';
 }
