@@ -22,6 +22,7 @@ import 'package:pawlife/views/change_password_screen.dart';
 import 'package:pawlife/views/home_screen.dart';
 import 'package:pawlife/views/pet_detail_screen.dart';
 import 'package:pawlife/views/pets_screen.dart';
+import 'package:pawlife/views/premium_screen.dart';
 import 'package:pawlife/views/walk_history_screen.dart';
 import 'package:pawlife/views/walk_share_screen.dart';
 import 'package:pawlife/views/weight_history_screen.dart';
@@ -134,6 +135,18 @@ class PetsFixture implements PawLifeRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class PremiumGalleryFixture implements PawLifeRepository {
+  @override
+  Future<Map<String, dynamic>> fetchPremium() async => {
+    'activo': false,
+    'estado': 'inactivo',
+    'venceEn': null,
+    'fuentes': {'manual': false, 'pago': false, 'prueba': false},
+  };
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class WalksFixture implements WalkRepository {
   @override
   Future<List<Paseo>> fetchPaseos(String mascotaId, {int? limite}) async => [
@@ -200,6 +213,7 @@ void main() {
       repository: PetsFixture(),
       walkRepository: WalksFixture(),
     ),
+    'premium': () => PremiumScreen(repository: PremiumGalleryFixture()),
     'pets': () => PetsScreen(repository: PetsFixture(), userPhotoUrl: ''),
     'weight': () =>
         WeightHistoryScreen(mascota: pet, repository: PetsFixture()),
@@ -266,6 +280,7 @@ void main() {
       final cellHeight = switch (entry.key) {
         'home' => 860.0,
         'detalle' => 1500.0,
+        'premium' => 1000.0,
         _ => 760.0,
       };
       tester.view.physicalSize = Size(1170, cellHeight * 2);
