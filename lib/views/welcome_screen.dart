@@ -98,7 +98,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           Expanded(
             child: LayoutBuilder(
               builder: (context, caja) => _Escena(
-                ancho: caja.maxWidth,
+                ancho: math.min(caja.maxWidth, 560),
                 alto: caja.maxHeight,
                 lineas: lineas,
                 titular: _tramo(0, 0.7),
@@ -147,127 +147,137 @@ class _Escena extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tamTitular = (ancho * 0.17).clamp(48.0, 96.0);
-    final anchoFoto = math.min(ancho * 0.86, alto * 0.7);
+    final anchoFoto = math.min(ancho * 0.8, alto * 0.64);
     final altoFoto = anchoFoto * 1.06;
     return ClipRect(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // "pawlife" gigante de fondo, como en el panel.
-          Positioned(
-            top: alto * 0.1,
-            left: -ancho * 0.04,
-            child: Text(
-              'pawlife',
-              maxLines: 1,
-              softWrap: false,
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontSize: ancho * 0.42,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -ancho * 0.42 * 0.09,
-                height: 1,
-                color: _menta.withValues(alpha: 0.24),
-              ),
-            ),
-          ),
-          const Positioned.fill(
-            child: IgnorePointer(child: CustomPaint(painter: _PintorOrbitas())),
-          ),
-          // Foto en forma orgánica, girada, con sombra menta sólida.
-          Positioned(
-            right: ancho * 0.02,
-            bottom: -altoFoto * 0.06,
-            width: anchoFoto,
-            height: altoFoto,
-            child: AnimatedBuilder(
-              animation: foto,
-              builder: (_, hijo) => Opacity(
-                opacity: foto.value.clamp(0.0, 1.0),
-                child: Transform.translate(
-                  offset: Offset(0, (1 - foto.value) * 50),
-                  child: Transform.scale(
-                    scale: 0.9 + 0.1 * foto.value,
-                    child: hijo,
+      child: Center(
+        child: SizedBox(
+          width: ancho,
+          height: alto,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // "pawlife" gigante de fondo, como en el panel.
+              Positioned(
+                top: alto * 0.1,
+                left: -ancho * 0.04,
+                child: Text(
+                  'pawlife',
+                  maxLines: 1,
+                  softWrap: false,
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontSize: ancho * 0.42,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -ancho * 0.42 * 0.09,
+                    height: 1,
+                    color: _menta.withValues(alpha: 0.24),
                   ),
                 ),
               ),
-              child: const _FotoOrganica(),
-            ),
-          ),
-          // Medalla con la huella: se arrastra y vuelve con un resorte.
-          Positioned(
-            left: ancho * 0.04,
-            bottom: altoFoto * 0.1,
-            width: (ancho * 0.26).clamp(86.0, 140.0),
-            child: AnimatedBuilder(
-              animation: medalla,
-              builder: (_, hijo) => Opacity(
-                opacity: medalla.value.clamp(0.0, 1.0),
-                child: Transform.translate(
-                  offset: Offset(
-                    -30 * (1 - medalla.value),
-                    40 * (1 - medalla.value),
-                  ),
-                  child: Transform.rotate(
-                    angle: -0.6 * (1 - medalla.value),
-                    child: hijo,
-                  ),
+              const Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(painter: _PintorOrbitas()),
                 ),
               ),
-              child: const _MedallaArrastrable(),
-            ),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 14, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+              // Foto en forma orgánica, girada, con sombra menta sólida.
+              Positioned(
+                right: ancho * 0.03,
+                bottom: 28,
+                width: anchoFoto,
+                height: altoFoto,
+                child: AnimatedBuilder(
+                  animation: foto,
+                  builder: (_, hijo) => Opacity(
+                    opacity: foto.value.clamp(0.0, 1.0),
+                    child: Transform.translate(
+                      offset: Offset(0, (1 - foto.value) * 50),
+                      child: Transform.scale(
+                        scale: 0.9 + 0.1 * foto.value,
+                        child: hijo,
+                      ),
+                    ),
+                  ),
+                  child: const _FotoOrganica(),
+                ),
+              ),
+              // Medalla con la huella: se arrastra y vuelve con un resorte.
+              Positioned(
+                left: ancho * 0.05,
+                bottom: 28 + altoFoto * 0.04,
+                width: (ancho * 0.3).clamp(96.0, 150.0),
+                child: AnimatedBuilder(
+                  animation: medalla,
+                  builder: (_, hijo) => Opacity(
+                    opacity: medalla.value.clamp(0.0, 1.0),
+                    child: Transform.translate(
+                      offset: Offset(
+                        -30 * (1 - medalla.value),
+                        40 * (1 - medalla.value),
+                      ),
+                      child: Transform.rotate(
+                        angle: -0.6 * (1 - medalla.value),
+                        child: hijo,
+                      ),
+                    ),
+                  ),
+                  child: const _MedallaArrastrable(),
+                ),
+              ),
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 14, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _LogoMinusculas(),
-                      const Spacer(),
-                      _BotonIdioma(
-                        codigo: Localizations.localeOf(
-                          context,
-                        ).languageCode.toUpperCase(),
-                        tooltip: idioma,
+                      Row(
+                        children: [
+                          const _LogoMinusculas(),
+                          const Spacer(),
+                          _BotonIdioma(
+                            codigo: Localizations.localeOf(
+                              context,
+                            ).languageCode.toUpperCase(),
+                            tooltip: idioma,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: alto * 0.04),
+                      Semantics(
+                        header: true,
+                        label: lineas.join(' '),
+                        excludeSemantics: true,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (var i = 0; i < lineas.length; i++)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: i == 0 ? 0 : ancho * 0.12,
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: _LineaQueSube(
+                                    texto: lineas[i],
+                                    tam: tamTitular,
+                                    animacion: i == 0
+                                        ? titular
+                                        : titularSegunda,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: alto * 0.04),
-                  Semantics(
-                    header: true,
-                    label: lineas.join(' '),
-                    excludeSemantics: true,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (var i = 0; i < lineas.length; i++)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: i == 0 ? 0 : ancho * 0.12,
-                            ),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: _LineaQueSube(
-                                texto: lineas[i],
-                                tam: tamTitular,
-                                animacion: i == 0 ? titular : titularSegunda,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -672,7 +682,7 @@ class _Hoja extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 520),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 26, 24, 10),
+                padding: const EdgeInsets.fromLTRB(24, 22, 24, 8),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

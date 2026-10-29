@@ -40,6 +40,7 @@ class PreferencesSection extends StatelessWidget {
       color: context.textoSuave,
     );
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(t.language, style: etiqueta),
