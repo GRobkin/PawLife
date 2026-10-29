@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pawlife/l10n/app_localizations.dart';
 import 'package:pawlife/l10n/error_messages.dart';
 import 'package:pawlife/services/api_client.dart';
 import 'package:pawlife/services/pawlife_repository.dart';
-import 'package:pawlife/services/premium_simulado.dart';
 import 'package:pawlife/views/premium_screen.dart';
 
 class PremiumFixture implements PawLifeRepository {
   PremiumFixture(this.state);
-  final Map<String, dynamic> state;
+  Map<String, dynamic> state;
   @override
   Future<Map<String, dynamic>> fetchPremium() async => state;
+  @override
+  Future<Map<String, dynamic>> comprarPremiumDePrueba(String plan) async =>
+      state = {
+        'activo': true,
+        'estado': 'activo',
+        'venceEn': '2030-01-15T12:00:00+00:00',
+        'fuentes': {'manual': false, 'pago': false, 'prueba': true},
+      };
+  @override
+  Future<void> cancelarPremiumDePrueba() async => state = {
+    'activo': false,
+    'estado': 'inactivo',
+    'venceEn': null,
+    'fuentes': {'manual': false, 'pago': false, 'prueba': false},
+  };
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -21,12 +34,10 @@ Widget _app(PawLifeRepository repo, String lang) => MaterialApp(
   locale: Locale(lang),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
-  home: PremiumScreen(repository: repo, simulado: PremiumSimulado('test')),
+  home: PremiumScreen(repository: repo),
 );
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
-
   testWidgets('muestra Premium activo con su fuente, sin compras en la app', (
     tester,
   ) async {
@@ -47,7 +58,7 @@ void main() {
     expect(find.text('Suscripción'), findsNothing);
     // Con Premium real no se ofrece comprar.
     expect(find.text('Suscribirme'), findsNothing);
-    expect(find.text('Informe para el veterinario'), findsOneWidget);
+    expect(find.text('Sin límite'), findsOneWidget);
   });
 
   testWidgets('sin Premium y en inglés', (tester) async {
@@ -64,7 +75,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('More to care better'), findsOneWidget);
-    expect(find.text('Vet report'), findsOneWidget);
+    expect(find.text('Up to 2'), findsOneWidget);
+    expect(find.text('Unlimited'), findsOneWidget);
+    expect(find.text('1 style'), findsOneWidget);
+    expect(find.text('3 styles'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.textContaining('nothing is charged'),
       200,

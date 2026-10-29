@@ -38,6 +38,14 @@ class PawLifeRepository {
   /// Estado de Premium calculado por el servidor (la app no lo decide).
   Future<Map<String, dynamic>> fetchPremium() =>
       client.getOne('/api/me/premium');
+
+  /// Compra de prueba (sin cobro): el servidor registra Premium para esta
+  /// cuenta, así que levanta los límites de verdad. [plan]: 'mensual' | 'anual'.
+  Future<Map<String, dynamic>> comprarPremiumDePrueba(String plan) =>
+      client.post('/api/me/premium/test-purchase', {'plan': plan});
+
+  Future<void> cancelarPremiumDePrueba() =>
+      client.delete('/api/me/premium/test-purchase');
   Future<List<Map<String, dynamic>>> fetchPrivacyRequests() =>
       client.getList('/api/me/privacy-requests');
   Future<Map<String, dynamic>> updatePreferences(Map<String, Object> values) =>
