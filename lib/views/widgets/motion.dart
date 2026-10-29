@@ -59,7 +59,7 @@ class _EsqueletoState extends State<Esqueleto>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controlador = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1500),
+    duration: const Duration(milliseconds: 1700),
   );
 
   @override
@@ -68,6 +68,12 @@ class _EsqueletoState extends State<Esqueleto>
     if (reducirMovimiento(context)) {
       _controlador.stop();
     } else if (!_controlador.isAnimating) {
+      // Todos los bloques comparten la misma fase (según el reloj), así el
+      // brillo cruza la pantalla como una sola ola en vez de cada uno a su
+      // ritmo.
+      final periodo = _controlador.duration!.inMilliseconds;
+      _controlador.value =
+          (DateTime.now().millisecondsSinceEpoch % periodo) / periodo;
       _controlador.repeat();
     }
   }
@@ -88,9 +94,8 @@ class _EsqueletoState extends State<Esqueleto>
         animation: _controlador,
         builder: (context, _) {
           // El brillo entra desde fuera por la izquierda y sale por la derecha.
-          final x = quieto
-              ? 0.0
-              : Curves.easeInOutSine.transform(_controlador.value) * 3 - 1.5;
+          // Velocidad constante: una ola pareja, sin acelerones.
+          final x = quieto ? 0.0 : _controlador.value * 4 - 2;
           return Container(
             height: widget.alto,
             width: widget.ancho,
@@ -100,10 +105,16 @@ class _EsqueletoState extends State<Esqueleto>
               gradient: quieto
                   ? null
                   : LinearGradient(
-                      begin: Alignment(x - 1, -0.3),
-                      end: Alignment(x + 1, 0.3),
-                      colors: [base, brillo, base],
-                      stops: const [0.25, 0.5, 0.75],
+                      begin: Alignment(x - 1.4, 0),
+                      end: Alignment(x + 1.4, 0),
+                      colors: [
+                        base,
+                        Color.lerp(base, brillo, 0.5)!,
+                        brillo,
+                        Color.lerp(base, brillo, 0.5)!,
+                        base,
+                      ],
+                      stops: const [0.2, 0.38, 0.5, 0.62, 0.8],
                     ),
             ),
           );

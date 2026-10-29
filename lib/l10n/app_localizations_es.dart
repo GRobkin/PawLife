@@ -1487,7 +1487,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get premiumNoPurchases =>
-      'Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app.';
+      'Modo de prueba: la compra es simulada y no se cobra nada.';
 
   @override
   String get premiumLoadError => 'No se pudo consultar tu estado de Premium.';
@@ -1644,4 +1644,86 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get errVisitNextBefore =>
       'La próxima visita debe ser posterior a la fecha.';
+
+  @override
+  String get premiumHeadline => 'Más para cuidar mejor';
+
+  @override
+  String get premiumBenefitsTitle => 'Qué incluye';
+
+  @override
+  String get premiumBenefitPdf => 'Informe para el veterinario';
+
+  @override
+  String get premiumBenefitPdfDesc =>
+      'Vacunas, peso y paseos en un PDF listo para la consulta.';
+
+  @override
+  String get premiumBenefitStats => 'Estadísticas de paseos';
+
+  @override
+  String get premiumBenefitStatsDesc =>
+      'Distancia y tiempo por semana y por mes.';
+
+  @override
+  String get premiumBenefitPets => 'Mascotas sin límite';
+
+  @override
+  String get premiumBenefitPetsDesc => 'Toda la familia peluda en una cuenta.';
+
+  @override
+  String get premiumBenefitCards => 'Tarjetas exclusivas';
+
+  @override
+  String get premiumBenefitCardsDesc =>
+      'Estilos nuevos para compartir cada paseo.';
+
+  @override
+  String get premiumBenefitReminders => 'Recordatorios avanzados';
+
+  @override
+  String get premiumBenefitRemindersDesc =>
+      'Repeticiones y avisos para toda la familia.';
+
+  @override
+  String get premiumPlanMonthly => 'Mensual';
+
+  @override
+  String get premiumPlanYearly => 'Anual';
+
+  @override
+  String get premiumPerMonth => '/mes';
+
+  @override
+  String get premiumPerYear => '/año';
+
+  @override
+  String get premiumSave => 'Ahorrá 33 %';
+
+  @override
+  String get premiumSubscribe => 'Suscribirme';
+
+  @override
+  String get premiumConfirmTitle => 'Confirmar suscripción';
+
+  @override
+  String get premiumConfirm => 'Confirmar compra';
+
+  @override
+  String get premiumTestBadge => 'Prueba';
+
+  @override
+  String get premiumSuccess => '¡Listo! Ya tenés Premium.';
+
+  @override
+  String premiumSimulatedActive(String date) {
+    return 'Premium de prueba activo hasta $date';
+  }
+
+  @override
+  String get premiumCancelSimulated => 'Cancelar suscripción de prueba';
+
+  @override
+  String get premiumPurchaseError =>
+      'No se pudo completar la compra. Probá de nuevo.';
 }
