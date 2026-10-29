@@ -13,6 +13,7 @@ import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
+import 'widgets/boton_google.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -287,35 +288,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: _cargando ? null : _onGooglePressed,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: context.texto,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              side: BorderSide(color: context.bordeSuave),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            // Logo oficial de Google. Sus guías de marca
-                            // exigen usar este, no una versión dibujada a
-                            // mano, en cualquier botón de "Acceder con
-                            // Google".
-                            icon: Image.asset(
-                              'assets/images/google_logo.png',
-                              width: 20,
-                              height: 20,
-                            ),
-                            label: Text(
-                              t.continueWithGoogle,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
+                        BotonGoogle(
+                          onPressed: _cargando ? null : _onGooglePressed,
                         ),
                         const SizedBox(height: 18),
 

@@ -61,7 +61,7 @@ void main() {
     expect(find.textContaining('no in-app purchases'), findsOneWidget);
   });
 
-  test('códigos estables del servidor se traducen; los desconocidos no', () {
+  test('códigos estables se traducen; los desconocidos quedan genéricos', () {
     final en = lookupAppLocalizations(const Locale('en'));
     final pt = lookupAppLocalizations(const Locale('pt'));
     expect(
@@ -73,8 +73,22 @@ void main() {
       contains('Muitas alterações'),
     );
     expect(
-      apiErrorText(en, const ApiException('Texto del servidor', code: 'OTRO')),
-      'Texto del servidor',
+      apiErrorText(
+        en,
+        const ApiException(
+          'No se pudo realizar la operación solicitada.',
+          code: 'FIRESTORE_INVALID_OPERATION',
+          statusCode: 400,
+        ),
+      ),
+      "The service isn't available right now. Try again in a few minutes.",
+    );
+    expect(
+      apiErrorText(
+        en,
+        const ApiException('Texto del servidor', code: 'OTRO', statusCode: 503),
+      ),
+      "The service isn't available right now. Try again in a few minutes.",
     );
   });
 }

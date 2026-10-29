@@ -10,6 +10,8 @@
     {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},
     {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"completado","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},
     {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"completado","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},
+    {"collectionGroup":"premiumGrants","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"creadoEn","order":"DESCENDING"}]},
+    {"collectionGroup":"subscriptions","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"creadoEn","order":"DESCENDING"}]},
     {"collectionGroup":"dispositivos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"actualizadoEn","order":"DESCENDING"}]}
   ],
   "fieldOverrides": []

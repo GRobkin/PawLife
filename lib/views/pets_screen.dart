@@ -167,22 +167,27 @@ class _PetsScreenState extends State<PetsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Row(
         children: [
-          const Icon(Icons.menu),
           Expanded(
-            child: Center(
-              child: Text(
-                'PawLife',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+            child: Text(
+              'PawLife',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           CircleAvatar(
             radius: 16,
-            backgroundColor: context.bordeSuave,
-            backgroundImage: fotoUrl == null ? null : NetworkImage(fotoUrl),
-            child: fotoUrl != null
-                ? null
-                : Icon(Icons.person, size: 18, color: context.textoTenue),
+            backgroundColor: context.mentaSuave,
+            child: ClipOval(
+              child: fotoUrl == null
+                  ? Icon(Icons.person, size: 18, color: context.marca)
+                  : Image.network(
+                      fotoUrl,
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) =>
+                          Icon(Icons.person, size: 18, color: context.marca),
+                    ),
+            ),
           ),
         ],
       ),

@@ -69,9 +69,17 @@ String apiErrorText(AppLocalizations t, ApiException e) => switch (e.code) {
   'PRIVACY_CONTACT_UNAVAILABLE' ||
   'PRIVACY_REVIEW_UNAVAILABLE' => t.apiPrivacyUnavailable,
   'FIRESTORE_UNAVAILABLE' ||
+  'FIRESTORE_INVALID_OPERATION' ||
+  'FIRESTORE_PERMISSION_ERROR' ||
   'DEPENDENCY_RESPONSE_INVALID' ||
   'COMMIT_RESULT_UNKNOWN' => t.apiServiceBusy,
   'DEVICE_OWNERSHIP_CONFLICT' || 'DEVICE_TOKEN_CHANGED' => t.apiDeviceConflict,
+  // El servidor escribe sus mensajes en español. En otro idioma, un error sin
+  // código conocido se muestra genérico en vez de mezclar idiomas.
+  _ when !t.localeName.startsWith('es') =>
+    (e.statusCode ?? 500) >= 500
+        ? t.apiServiceBusy
+        : t.apiHttpStatus('${e.statusCode ?? ''}'),
   _ => e.message,
 };
 

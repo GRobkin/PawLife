@@ -33,7 +33,12 @@ void main() {
       addTearDown(t.view.reset);
       await t.pumpWidget(_app(const WelcomeScreen(), const Locale('en'), mode));
       expect(find.text('Get started'), findsOneWidget);
-      expect(find.text('Sign in'), findsOneWidget);
+      expect(find.text('Continue with Google'), findsOneWidget);
+      expect(
+        find.textContaining('Sign in', findRichText: true),
+        findsOneWidget,
+      );
+      expect(t.takeException(), isNull);
     });
   }
 }
