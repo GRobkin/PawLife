@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../l10n/formatting.dart';
 import '../services/api_client.dart';
+import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
 import '../services/premium_simulado.dart';
 import '../theme/app_palette.dart';
@@ -31,7 +32,10 @@ const _precioAnual = 'USD 23.99';
 class _PremiumScreenState extends State<PremiumScreen> {
   late final _repo = widget.repository ?? PawLifeRepository();
   late final _simulado =
-      widget.simulado ?? PremiumSimulado(_repo.client.expectedUid ?? 'local');
+      widget.simulado ??
+      PremiumSimulado(
+        AuthService().currentUser?.uid ?? _repo.client.expectedUid ?? 'local',
+      );
   Map<String, dynamic>? _state;
   DateTime? _pruebaHasta;
   String? _error;
