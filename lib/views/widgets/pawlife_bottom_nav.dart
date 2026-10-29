@@ -14,6 +14,7 @@ import '../../theme/app_palette.dart';
 import '../pets_screen.dart';
 import '../tasks_screen.dart';
 import '../profile_screen.dart';
+import 'motion.dart';
 
 enum SeccionNav { inicio, mascotas, tareas, perfil }
 
@@ -74,13 +75,15 @@ class PawLifeBottomNav extends StatelessWidget {
               label: t.startWalk,
               child: GestureDetector(
                 onTap: onPaseo,
-                child: CircleAvatar(
-                  radius: 24,
-                  backgroundColor: context.botonFondo,
-                  child: Icon(
-                    Icons.directions_walk,
-                    color: context.botonTexto,
-                    size: 20,
+                child: Presionable(
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: context.botonFondo,
+                    child: Icon(
+                      Icons.directions_walk,
+                      color: context.botonTexto,
+                      size: 20,
+                    ),
                   ),
                 ),
               ),
@@ -180,7 +183,19 @@ class _Item extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(esActiva ? iconoActivo : icono, color: color, size: 22),
+                if (esActiva && !reducirMovimiento(context))
+                  // Al llegar a la sección, su icono se asienta con un
+                  // pequeño rebote. Solo el activo, y una vez.
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.75, end: 1),
+                    duration: const Duration(milliseconds: 320),
+                    curve: Curves.easeOutBack,
+                    builder: (_, s, hijo) =>
+                        Transform.scale(scale: s, child: hijo),
+                    child: Icon(iconoActivo, color: color, size: 22),
+                  )
+                else
+                  Icon(esActiva ? iconoActivo : icono, color: color, size: 22),
                 const SizedBox(height: 2),
                 // Sin pasar de 1.3x: con más escala el rótulo desborda la barra.
                 MediaQuery.withClampedTextScaling(

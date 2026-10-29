@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../models/pawlife_models.dart';
 import '../../theme/app_palette.dart';
 import 'foto_mascota.dart';
+import 'motion.dart';
 
 class PortadaMascota extends StatelessWidget {
   const PortadaMascota({
@@ -17,6 +18,7 @@ class PortadaMascota extends StatelessWidget {
     required this.height,
     this.children = const [],
     this.heroTag,
+    this.scroll,
   });
 
   final Mascota mascota;
@@ -27,6 +29,11 @@ class PortadaMascota extends StatelessWidget {
 
   /// Si se indica, la foto vuela hacia el detalle con la misma etiqueta.
   final Object? heroTag;
+
+  /// Si se indica, la foto se desplaza más lento que la página al hacer
+  /// scroll y da sensación de profundidad. Solo mueve la foto (transform),
+  /// sin reconstruir el resto de la tarjeta.
+  final ScrollController? scroll;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +46,25 @@ class PortadaMascota extends StatelessWidget {
             errorBuilder: (_, _, _) => _FondoSinFoto(inicial: mascota.inicial),
           );
     if (heroTag != null) fondo = Hero(tag: heroTag!, child: fondo);
+    final scroll = this.scroll;
+    if (scroll != null && !reducirMovimiento(context)) {
+      fondo = RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: scroll,
+          child: fondo,
+          builder: (context, hijo) {
+            final y = scroll.hasClients
+                ? scroll.offset.clamp(0.0, height)
+                : 0.0;
+            // Escala 1.12 para que al bajar la foto no aparezca un hueco.
+            return Transform.translate(
+              offset: Offset(0, y * 0.35),
+              child: Transform.scale(scale: 1.12, child: hijo),
+            );
+          },
+        ),
+      );
+    }
 
     return SizedBox(
       height: height,

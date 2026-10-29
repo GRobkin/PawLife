@@ -69,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     SeleccionMascota.id.removeListener(_cargarPaseos);
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -205,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, caja) {
             _alturaPortada = (caja.maxHeight - 640).clamp(160.0, 360.0);
             return ListView(
+              controller: _scroll,
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
               children: [
                 _buildTopBar(context),
@@ -272,9 +274,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: context.mentaSuave,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(
+                        child: TextoGiratorio(
                           '${hoy.where((r) => r.completado).length}/${hoy.length}',
-                          style: TextStyle(
+                          estilo: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: context.marca,
@@ -463,6 +465,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// así cambiarla desde cualquier otro sitio también repinta esta tarjeta.
   /// La foto crece cuando la pantalla es alta, para no dejar un hueco abajo.
   double _alturaPortada = 160;
+  final _scroll = ScrollController();
 
   Widget _buildPetCard() {
     return ValueListenableBuilder<String?>(
@@ -475,73 +478,76 @@ class _HomeScreenState extends State<HomeScreen> {
             : SeleccionMascota.resolver(mascotas);
 
         if (activa != null) {
-          return Material(
-            color: context.superficie,
-            borderRadius: BorderRadius.circular(22),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: _cambiarMascota,
-              child: PortadaMascota(
-                mascota: activa,
-                height: _alturaPortada,
-                children: [
-                  if (_recordatorios != null)
-                    Positioned(
-                      top: 12,
-                      left: 14,
-                      child: _PastillaTareas(
-                        pendientes: _pendientesHoy(),
-                        textoPendientes: t.homeTasksPending(_pendientesHoy()),
-                        textoAlDia: t.homeAllDone,
+          return Presionable(
+            child: Material(
+              color: context.superficie,
+              borderRadius: BorderRadius.circular(22),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: _cambiarMascota,
+                child: PortadaMascota(
+                  mascota: activa,
+                  height: _alturaPortada,
+                  scroll: _scroll,
+                  children: [
+                    if (_recordatorios != null)
+                      Positioned(
+                        top: 12,
+                        left: 14,
+                        child: _PastillaTareas(
+                          pendientes: _pendientesHoy(),
+                          textoPendientes: t.homeTasksPending(_pendientesHoy()),
+                          textoAlDia: t.homeAllDone,
+                        ),
                       ),
-                    ),
-                  Positioned(
-                    left: 18,
-                    right: 64,
-                    bottom: 16,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          activa.nombre,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(color: Colors.white),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          activa.subtituloLocalizado(t),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // La flecha solo tiene sentido si hay entre qué elegir.
-                  if (mascotas != null && mascotas.length > 1)
                     Positioned(
-                      right: 14,
+                      left: 18,
+                      right: 64,
                       bottom: 16,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.35),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(6),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.white,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            activa.nombre,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.headlineMedium
+                                ?.copyWith(color: Colors.white),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            activa.subtituloLocalizado(t),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // La flecha solo tiene sentido si hay entre qué elegir.
+                    if (mascotas != null && mascotas.length > 1)
+                      Positioned(
+                        right: 14,
+                        bottom: 16,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.35),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(6),
+                            child: Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -601,52 +607,57 @@ class _HomeScreenState extends State<HomeScreen> {
   // -------------------------------------------------------------------
   Widget _buildStartWalkCard(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return Material(
-      color: context.botonFondo,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
+    return Presionable(
+      child: Material(
+        color: context.botonFondo,
         borderRadius: BorderRadius.circular(18),
-        onTap: () => _onStartWalkPressed(context),
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.startWalk,
-                      style: TextStyle(
-                        color: context.botonTexto,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () => _onStartWalkPressed(context),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.startWalk,
+                        style: TextStyle(
+                          color: context.botonTexto,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      t.readyForAdventure,
-                      style: TextStyle(
-                        color: context.botonTexto.withValues(alpha: 0.9),
-                        fontSize: 13,
+                      const SizedBox(height: 4),
+                      Text(
+                        t.readyForAdventure,
+                        style: TextStyle(
+                          color: context.botonTexto.withValues(alpha: 0.9),
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
+                PulsoSuave(
                   color: context.botonTexto,
-                  shape: BoxShape.circle,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: context.botonTexto,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.directions_walk,
+                      color: context.botonFondo,
+                      size: 20,
+                    ),
+                  ),
                 ),
-                child: Icon(
-                  Icons.directions_walk,
-                  color: context.botonFondo,
-                  size: 20,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
