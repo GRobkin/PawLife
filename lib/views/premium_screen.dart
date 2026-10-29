@@ -189,10 +189,22 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     t.premiumRowTasksPremium,
                   ),
                   (
+                    Icons.history,
+                    t.premiumRowHistory,
+                    t.premiumRowHistoryFree,
+                    t.premiumRowHistoryPremium,
+                  ),
+                  (
                     Icons.style_outlined,
                     t.premiumRowCards,
                     t.premiumRowCardsFree,
                     t.premiumRowCardsPremium,
+                  ),
+                  (
+                    Icons.watch_outlined,
+                    t.premiumRowWatch,
+                    t.premiumRowWatchFree,
+                    t.premiumRowWatchPremium,
                   ),
                 ],
               ),

@@ -8,6 +8,7 @@ import '../services/pawlife_repository.dart';
 import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
+import 'premium_screen.dart';
 import 'walk_detail_screen.dart';
 import 'widgets/estado_vacio.dart';
 import 'widgets/foto_mascota.dart';
@@ -37,6 +38,7 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
   String? _cursor;
   String? _error;
   bool _loading = true;
+  bool _premium = true;
   int _generation = 0;
 
   @override
@@ -45,7 +47,17 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
     _initialize();
   }
 
+  Future<void> _consultarPlan() async {
+    try {
+      final estado = await _pets.fetchPremium();
+      if (mounted) setState(() => _premium = estado['activo'] == true);
+    } catch (_) {
+      // Sin dato del plan no se muestra el aviso.
+    }
+  }
+
   Future<void> _initialize() async {
+    _consultarPlan();
     setState(() {
       _loading = true;
       _error = null;
@@ -233,6 +245,41 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
                 onPressed: () => _load(reset: false),
                 child: Text(t.loadMoreWalks),
               ),
+            if (!_premium && !_loading && _items.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => PremiumScreen(repository: _pets),
+                  ),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: context.mentaSuave,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.workspace_premium, color: context.marca),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          t.walkHistoryFreeNote,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: context.marca,
+                          ),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right, color: context.marca),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

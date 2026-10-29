@@ -3243,6 +3243,60 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tareas pendientes'**
   String get premiumUsageTasks;
+
+  /// No description provided for @premiumRowHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de paseos'**
+  String get premiumRowHistory;
+
+  /// No description provided for @premiumRowHistoryFree.
+  ///
+  /// In es, this message translates to:
+  /// **'30 días'**
+  String get premiumRowHistoryFree;
+
+  /// No description provided for @premiumRowHistoryPremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Completo'**
+  String get premiumRowHistoryPremium;
+
+  /// No description provided for @premiumRowWatch.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo reloj'**
+  String get premiumRowWatch;
+
+  /// No description provided for @premiumRowWatchFree.
+  ///
+  /// In es, this message translates to:
+  /// **'No'**
+  String get premiumRowWatchFree;
+
+  /// No description provided for @premiumRowWatchPremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Incluido'**
+  String get premiumRowWatchPremium;
+
+  /// No description provided for @premiumLockedWatch.
+  ///
+  /// In es, this message translates to:
+  /// **'El modo reloj es de Premium.'**
+  String get premiumLockedWatch;
+
+  /// No description provided for @premiumSee.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver'**
+  String get premiumSee;
+
+  /// No description provided for @walkHistoryFreeNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Plan gratuito: se muestran los últimos 30 días de paseos.'**
+  String get walkHistoryFreeNote;
 }
 
 class _AppLocalizationsDelegate
