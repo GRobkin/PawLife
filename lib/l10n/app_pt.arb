@@ -502,5 +502,8 @@
   "vaccinesOverdue": "{count, plural, =0{Nada vencido} =1{1 vencida} other{{count} vencidas}}",
   "petViewProfile": "Ver perfil",
   "petSwitch": "Trocar de pet",
-  "editTask": "Editar tarefa"
+  "editTask": "Editar tarefa",
+  "apiPlanPetLimit": "O plano gratuito permite até 2 pets. Assine o Premium para adicionar mais.",
+  "premiumLockedCard": "Este estilo é Premium.",
+  "premiumFreeLimits": "Plano gratuito: até 2 pets e o cartão de passeio clássico."
 }

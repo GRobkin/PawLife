@@ -216,6 +216,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
             ],
+            if (!activo) ...[
+              const SizedBox(height: 12),
+              Text(
+                t.premiumFreeLimits,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: context.textoSuave),
+              ),
+            ],
             const SizedBox(height: 14),
             Text(
               t.premiumNoPurchases,

@@ -956,5 +956,8 @@
   },
   "petViewProfile": "Ver perfil",
   "petSwitch": "Cambiar de mascota",
-  "editTask": "Editar tarea"
+  "editTask": "Editar tarea",
+  "apiPlanPetLimit": "El plan gratuito permite hasta 2 mascotas. Pasate a Premium para agregar más.",
+  "premiumLockedCard": "Este estilo es de Premium.",
+  "premiumFreeLimits": "Plan gratuito: hasta 2 mascotas y tarjeta de paseo clásica."
 }

@@ -15,6 +15,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
+import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../services/photo_service.dart';
 import '../theme/app_colors.dart';
@@ -227,7 +228,11 @@ class _PetFormScreenState extends State<PetFormScreen> {
       if (!mounted) return;
       setState(() {
         _guardando = false;
-        _error = e.toString();
+        // Los errores del servidor (p. ej. el tope del plan gratuito) se
+        // muestran traducidos, no como texto crudo.
+        _error = e is ApiException
+            ? apiErrorText(AppLocalizations.of(context), e)
+            : e.toString();
       });
     }
   }

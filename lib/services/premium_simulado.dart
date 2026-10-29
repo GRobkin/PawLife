@@ -37,3 +37,17 @@ class PremiumSimulado {
     await prefs.remove(_clave);
   }
 }
+
+/// ¿Tiene esta persona Premium? Cuenta el que concede el servidor y, mientras
+/// no haya tienda, la compra de prueba hecha en este dispositivo. Ante un
+/// error (sin conexión, por ejemplo) se asume plan gratuito.
+Future<bool> tienePremium(
+  Future<Map<String, dynamic>> Function() consultarServidor,
+  PremiumSimulado simulado,
+) async {
+  try {
+    final estado = await consultarServidor();
+    if (estado['activo'] == true) return true;
+  } catch (_) {}
+  return await simulado.vigenteHasta() != null;
+}
