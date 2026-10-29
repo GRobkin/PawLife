@@ -237,16 +237,18 @@ class _PetsScreenState extends State<PetsScreen> {
           for (final (indice, resumen) in mascotas.indexed) ...[
             AparecerAlEntrar(
               indice: indice,
-              child: _TarjetaMascota(
-                resumen: resumen,
-                onTap: () => _abrirDetalle(resumen.mascota),
-                onEditar: () => _abrirFormulario(mascota: resumen.mascota),
-                onEliminar: () => _confirmarBorrado(resumen.mascota),
+              child: Presionable(
+                child: _TarjetaMascota(
+                  resumen: resumen,
+                  onTap: () => _abrirDetalle(resumen.mascota),
+                  onEditar: () => _abrirFormulario(mascota: resumen.mascota),
+                  onEliminar: () => _confirmarBorrado(resumen.mascota),
+                ),
               ),
             ),
             const SizedBox(height: 14),
           ],
-          _TarjetaAgregar(onTap: () => _abrirFormulario()),
+          Presionable(child: _TarjetaAgregar(onTap: () => _abrirFormulario())),
         ],
       ),
     );

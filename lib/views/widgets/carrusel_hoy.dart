@@ -132,82 +132,89 @@ class _Tarjeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hecha = tarea.hecha;
-    return Material(
-      color: hecha ? context.relleno : context.superficie,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
+    return Presionable(
+      child: Material(
+        color: hecha ? context.relleno : context.superficie,
         borderRadius: BorderRadius.circular(20),
-        onTap: tarea.alTocar,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: context.mentaSuave,
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Icon(tarea.icono, size: 19, color: context.marca),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      tarea.detalle,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: hecha ? context.textoTenue : context.marca,
-                      ),
-                    ),
-                  ),
-                  Semantics(
-                    button: true,
-                    label: hecha ? textoPendiente : textoMarcar,
-                    excludeSemantics: true,
-                    child: AnimatedContainer(
-                      duration: rapido,
-                      width: 28,
-                      height: 28,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: tarea.alTocar,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: hecha ? context.botonFondo : Colors.transparent,
-                        border: Border.all(
-                          color: hecha
-                              ? context.botonFondo
-                              : context.textoTenue,
-                          width: 2,
+                        color: context.mentaSuave,
+                        borderRadius: BorderRadius.circular(11),
+                      ),
+                      child: Icon(tarea.icono, size: 19, color: context.marca),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        tarea.detalle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: hecha ? context.textoTenue : context.marca,
                         ),
                       ),
-                      child: hecha
-                          ? Icon(
-                              Icons.check,
-                              size: 17,
-                              color: context.botonTexto,
-                            )
-                          : null,
                     ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                tarea.titulo,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: hecha ? context.textoTenue : context.texto,
-                  decoration: hecha ? TextDecoration.lineThrough : null,
+                    Semantics(
+                      button: true,
+                      label: hecha ? textoPendiente : textoMarcar,
+                      excludeSemantics: true,
+                      child: ReboteAlActivar(
+                        activo: hecha,
+                        child: AnimatedContainer(
+                          duration: rapido,
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: hecha
+                                ? context.botonFondo
+                                : Colors.transparent,
+                            border: Border.all(
+                              color: hecha
+                                  ? context.botonFondo
+                                  : context.textoTenue,
+                              width: 2,
+                            ),
+                          ),
+                          child: hecha
+                              ? Icon(
+                                  Icons.check,
+                                  size: 17,
+                                  color: context.botonTexto,
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const Spacer(),
+                Text(
+                  tarea.titulo,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: hecha ? context.textoTenue : context.texto,
+                    decoration: hecha ? TextDecoration.lineThrough : null,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -532,14 +532,24 @@ class _MapHeader extends StatelessWidget {
               userAgentPackageName: 'com.example.pawlife',
             ),
             if (points.length > 1)
-              PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: points,
-                    strokeWidth: 5,
-                    color: AppColors.verdeAcento,
-                  ),
-                ],
+              // La ruta se dibuja desde el inicio hasta el final una sola vez,
+              // al llegar al resumen. Solo se reconstruye la capa de la línea.
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: reducirMovimiento(context) ? 1 : 0, end: 1),
+                duration: const Duration(milliseconds: 1100),
+                curve: Curves.easeInOutCubic,
+                builder: (context, avance, _) => PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: points.sublist(
+                        0,
+                        (points.length * avance).ceil().clamp(2, points.length),
+                      ),
+                      strokeWidth: 5,
+                      color: AppColors.verdeAcento,
+                    ),
+                  ],
+                ),
               ),
             // Si solo hay un punto (paseo muy corto), al menos lo marcamos.
             if (points.length == 1)
