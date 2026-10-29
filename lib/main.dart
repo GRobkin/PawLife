@@ -101,6 +101,9 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
   final SessionRegistration _registration = SessionRegistration();
   late final Stream<User?> _sesion = AuthService().authStateChanges.map((user) {
     _registration.start(user);
+    // Sesión cerrada: el aviso de borrado de la cuenta anterior ya no aplica
+    // a la siguiente. Se limpia aquí, al llegar el evento, y no en build().
+    if (user == null) cuentaEliminandose.value = false;
     return user;
   });
 
@@ -137,9 +140,6 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
         }
 
         if (snapshot.data == null) {
-          // Sesión cerrada: el aviso de borrado de la cuenta anterior ya no
-          // aplica a la siguiente.
-          cuentaEliminandose.value = false;
           return const WelcomeScreen();
         }
         return ValueListenableBuilder<bool>(
