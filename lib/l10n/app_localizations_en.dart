@@ -1722,4 +1722,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errTaskPast => 'Pick a future date and time.';
+
+  @override
+  String get welcomeHeadline => 'Closer.\nAlways.';
 }

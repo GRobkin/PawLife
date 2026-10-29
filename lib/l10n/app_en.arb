@@ -491,5 +491,6 @@
   "premiumPurchaseError": "Couldn't complete the purchase. Try again.",
   "taskTimeLabel": "Time",
   "errTaskEmpty": "Write what needs to be done.",
-  "errTaskPast": "Pick a future date and time."
+  "errTaskPast": "Pick a future date and time.",
+  "welcomeHeadline": "Closer.\nAlways."
 }

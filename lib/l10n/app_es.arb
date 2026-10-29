@@ -917,5 +917,6 @@
   },
   "taskTimeLabel": "Hora",
   "errTaskEmpty": "Escribí qué hay que hacer.",
-  "errTaskPast": "Elegí una fecha y hora futuras."
+  "errTaskPast": "Elegí una fecha y hora futuras.",
+  "welcomeHeadline": "Más cerca.\nSiempre."
 }

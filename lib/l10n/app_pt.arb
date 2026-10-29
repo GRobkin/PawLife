@@ -491,5 +491,6 @@
   "premiumPurchaseError": "Não foi possível concluir a compra. Tente de novo.",
   "taskTimeLabel": "Hora",
   "errTaskEmpty": "Escreva o que precisa ser feito.",
-  "errTaskPast": "Escolha uma data e hora futuras."
+  "errTaskPast": "Escolha uma data e hora futuras.",
+  "welcomeHeadline": "Mais perto.\nSempre."
 }

@@ -1739,4 +1739,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get errTaskPast => 'Escolha uma data e hora futuras.';
+
+  @override
+  String get welcomeHeadline => 'Mais perto.\nSempre.';
 }
