@@ -378,10 +378,17 @@ class AuthService {
     // Se cierra también la sesión de Google: si no, el siguiente "Continuar
     // con Google" volvería a entrar con la misma cuenta sin preguntar, y no
     // habría forma de cambiar de usuario.
-    try {
-      await GoogleSignIn.instance.signOut();
-    } catch (_) {
-      // Si Google nunca se inicializó, esto falla y da igual.
+    // En web se entra con la ventana de Firebase y el plugin de Google nunca
+    // se inicializa: esperarlo dejaba el cierre de sesión colgado. En móvil,
+    // un tope de tiempo evita lo mismo si el plugin no responde.
+    if (!kIsWeb) {
+      try {
+        await GoogleSignIn.instance.signOut().timeout(
+          const Duration(seconds: 3),
+        );
+      } catch (_) {
+        // Si Google nunca se inicializó, esto falla y da igual.
+      }
     }
 
     await _auth.signOut();

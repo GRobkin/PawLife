@@ -175,10 +175,10 @@ class _PetsScreenState extends State<PetsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              'PawLife',
-              style: Theme.of(context).textTheme.titleLarge,
+          const Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: MarcaPawLife(),
             ),
           ),
           CircleAvatar(
