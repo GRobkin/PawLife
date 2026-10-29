@@ -169,6 +169,18 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     if (guardada == true && mounted) await _cargar();
   }
 
+  /// Registra otra dosis de la misma vacuna como un registro nuevo: la
+  /// anterior queda en el historial en lugar de pisarse.
+  Future<void> _nuevaDosis(Vacuna anterior) async {
+    final guardada = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) =>
+            VaccineFormScreen(mascotaId: _mascota.id, plantilla: anterior),
+      ),
+    );
+    if (guardada == true && mounted) await _cargar();
+  }
+
   Future<void> _abrirMedicamento([Medicamento? medicamento]) async {
     final guardado = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
@@ -618,7 +630,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       );
     }
 
-    final ordenadas = [...vacunas]
+    final ordenadas = dosisVigentes(vacunas)
       ..sort((a, b) => a.proximaFecha.compareTo(b.proximaFecha));
 
     return ListView(
@@ -633,17 +645,30 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         const SizedBox(height: 14),
         if (ordenadas.isEmpty)
           _Vacio(icono: Icons.vaccines_outlined, texto: t.noVaccinesRecorded),
-        for (final vacuna in ordenadas)
-          _FilaCuidado(
-            icono: Icons.vaccines_outlined,
-            titulo: vacuna.nombre,
+        // Una tarjeta por vacuna: arriba la dosis vigente, debajo las
+        // anteriores, que se conservan como historial.
+        for (final vigente in ordenadas)
+          _GrupoVacuna(
+            vigente: vigente,
+            anteriores:
+                vacunas
+                    .where(
+                      (v) =>
+                          v.id != vigente.id &&
+                          v.nombre.trim().toLowerCase() ==
+                              vigente.nombre.trim().toLowerCase(),
+                    )
+                    .toList()
+                  ..sort(
+                    (a, b) => b.fechaAplicacion.compareTo(a.fechaAplicacion),
+                  ),
             detalle: t.appliedOnNext(
-              formatDate(context, vacuna.fechaAplicacion),
-              _cuandoToca(vacuna.proximaFecha),
+              formatDate(context, vigente.fechaAplicacion),
+              _cuandoToca(vigente.proximaFecha),
             ),
-            alerta: vacuna.proximaFecha.isBefore(DateTime.now()),
-            onTap: () => _abrirVacuna(vacuna),
-            onDelete: () => _borrarVacuna(vacuna),
+            onEditar: _abrirVacuna,
+            onBorrar: _borrarVacuna,
+            onNuevaDosis: () => _nuevaDosis(vigente),
           ),
       ],
     );
@@ -799,7 +824,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     final vacunas = _vacunas;
     if (vacunas == null || vacunas.isEmpty) return null;
 
-    final ordenadas = [...vacunas]
+    final ordenadas = dosisVigentes(vacunas)
       ..sort((a, b) => a.proximaFecha.compareTo(b.proximaFecha));
 
     return ordenadas.first;
@@ -1182,12 +1207,218 @@ class _TituloSeccion extends StatelessWidget {
   }
 }
 
+/// Tarjeta de una vacuna con su dosis vigente, el botón para registrar otra
+/// dosis y el historial de las anteriores, desplegable.
+class _GrupoVacuna extends StatefulWidget {
+  const _GrupoVacuna({
+    required this.vigente,
+    required this.anteriores,
+    required this.detalle,
+    required this.onEditar,
+    required this.onBorrar,
+    required this.onNuevaDosis,
+  });
+
+  final Vacuna vigente;
+  final List<Vacuna> anteriores;
+  final String detalle;
+  final void Function(Vacuna) onEditar;
+  final void Function(Vacuna) onBorrar;
+  final VoidCallback onNuevaDosis;
+
+  @override
+  State<_GrupoVacuna> createState() => _GrupoVacunaState();
+}
+
+class _GrupoVacunaState extends State<_GrupoVacuna> {
+  bool _abierto = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final vencida = widget.vigente.proximaFecha.isBefore(DateTime.now());
+    final duracion = reducirMovimiento(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 260);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+        border: vencida
+            ? Border.all(color: context.alertaTexto.withValues(alpha: 0.6))
+            : null,
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            onTap: () => widget.onEditar(widget.vigente),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 6, 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: context.mentaSuave,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.vaccines_outlined,
+                      size: 20,
+                      color: context.marca,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.vigente.nombre,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: context.texto,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          widget.detalle,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.35,
+                            color: vencida
+                                ? context.alertaTexto
+                                : context.textoSuave,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: t.delete,
+                    icon: Icon(Icons.delete_outline, color: context.textoTenue),
+                    onPressed: () => widget.onBorrar(widget.vigente),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+            child: Row(
+              children: [
+                Presionable(
+                  child: FilledButton.tonalIcon(
+                    onPressed: widget.onNuevaDosis,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: context.mentaSuave,
+                      foregroundColor: context.marca,
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(
+                      t.vaccineNewDose,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                if (widget.anteriores.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () => setState(() => _abierto = !_abierto),
+                    icon: AnimatedRotation(
+                      turns: _abierto ? 0.5 : 0,
+                      duration: duracion,
+                      child: const Icon(Icons.expand_more, size: 20),
+                    ),
+                    label: Text(
+                      _abierto
+                          ? t.vaccineHideHistory
+                          : t.vaccinePreviousDoses(widget.anteriores.length),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          AnimatedSize(
+            duration: duracion,
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: !_abierto
+                ? const SizedBox(width: double.infinity)
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 0, 6, 10),
+                    child: Column(
+                      children: [
+                        for (final dosis in widget.anteriores)
+                          // Línea de tiempo: punto y texto de cada dosis.
+                          Row(
+                            children: [
+                              const SizedBox(width: 14),
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: context.textoTenue,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 22),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => widget.onEditar(dosis),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                    child: Text(
+                                      t.vaccineDoseOn(
+                                        formatDate(
+                                          context,
+                                          dosis.fechaAplicacion,
+                                        ),
+                                      ),
+                                      style: TextStyle(
+                                        color: context.textoSuave,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: t.delete,
+                                visualDensity: VisualDensity.compact,
+                                icon: Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: context.textoTenue,
+                                ),
+                                onPressed: () => widget.onBorrar(dosis),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FilaCuidado extends StatelessWidget {
   const _FilaCuidado({
     required this.icono,
     required this.titulo,
     required this.detalle,
-    this.alerta = false,
     this.atenuada = false,
     this.onTap,
     this.onDelete,
@@ -1196,7 +1427,6 @@ class _FilaCuidado extends StatelessWidget {
   final IconData icono;
   final String titulo;
   final String detalle;
-  final bool alerta;
   final bool atenuada;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
@@ -1218,14 +1448,10 @@ class _FilaCuidado extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: alerta ? context.errorFondo : context.relleno,
+                color: context.relleno,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icono,
-                size: 18,
-                color: alerta ? context.errorIcono : context.marca,
-              ),
+              child: Icon(icono, size: 18, color: context.marca),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1242,10 +1468,7 @@ class _FilaCuidado extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     detalle,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: alerta ? context.errorIcono : context.textoSuave,
-                    ),
+                    style: TextStyle(fontSize: 12.5, color: context.textoSuave),
                   ),
                 ],
               ),

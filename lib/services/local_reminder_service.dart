@@ -140,7 +140,8 @@ class LocalReminderService {
     }
 
     for (final pet in pets) {
-      final vaccines = await repository.fetchVacunas(pet.id);
+      // Solo la dosis vigente de cada vacuna: las anteriores son historial.
+      final vaccines = dosisVigentes(await repository.fetchVacunas(pet.id));
       for (final vaccine in vaccines) {
         final due = vaccine.proximaFecha;
         final notice = DateTime(

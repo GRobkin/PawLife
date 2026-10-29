@@ -3057,6 +3057,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Más cerca.\nSiempre.'**
   String get welcomeHeadline;
+
+  /// No description provided for @vaccineNewDose.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva dosis'**
+  String get vaccineNewDose;
+
+  /// No description provided for @vaccineDoseOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicada el {date}'**
+  String vaccineDoseOn(String date);
+
+  /// No description provided for @vaccinePreviousDoses.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 dosis anterior} other{{count} dosis anteriores}}'**
+  String vaccinePreviousDoses(int count);
+
+  /// No description provided for @vaccineHideHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar historial'**
+  String get vaccineHideHistory;
 }
 
 class _AppLocalizationsDelegate

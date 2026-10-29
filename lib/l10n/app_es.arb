@@ -918,5 +918,23 @@
   "taskTimeLabel": "Hora",
   "errTaskEmpty": "Escribí qué hay que hacer.",
   "errTaskPast": "Elegí una fecha y hora futuras.",
-  "welcomeHeadline": "Más cerca.\nSiempre."
+  "welcomeHeadline": "Más cerca.\nSiempre.",
+  "vaccineNewDose": "Nueva dosis",
+  "vaccineDoseOn": "Aplicada el {date}",
+  "vaccinePreviousDoses": "{count, plural, =1{1 dosis anterior} other{{count} dosis anteriores}}",
+  "vaccineHideHistory": "Ocultar historial",
+  "@vaccineDoseOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@vaccinePreviousDoses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

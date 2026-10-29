@@ -96,7 +96,7 @@ class _PetsScreenState extends State<PetsScreen> {
   static Vacuna? _proximaVacuna(List<Vacuna> vacunas) {
     if (vacunas.isEmpty) return null;
 
-    final ordenadas = [...vacunas]
+    final ordenadas = dosisVigentes(vacunas)
       ..sort((a, b) => a.proximaFecha.compareTo(b.proximaFecha));
 
     return ordenadas.first;

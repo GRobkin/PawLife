@@ -352,6 +352,21 @@ class Alimentacion {
   };
 }
 
+/// Una vacuna puede tener varias dosis (un registro por dosis). Devuelve la
+/// dosis más reciente de cada vacuna, agrupando por nombre sin distinguir
+/// mayúsculas: es la que manda para la próxima fecha y los avisos.
+List<Vacuna> dosisVigentes(Iterable<Vacuna> vacunas) {
+  final porNombre = <String, Vacuna>{};
+  for (final v in vacunas) {
+    final clave = v.nombre.trim().toLowerCase();
+    final actual = porNombre[clave];
+    if (actual == null || v.fechaAplicacion.isAfter(actual.fechaAplicacion)) {
+      porNombre[clave] = v;
+    }
+  }
+  return porNombre.values.toList();
+}
+
 class RegistroPeso {
   const RegistroPeso({
     required this.id,

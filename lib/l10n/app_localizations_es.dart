@@ -1738,4 +1738,26 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get welcomeHeadline => 'Más cerca.\nSiempre.';
+
+  @override
+  String get vaccineNewDose => 'Nueva dosis';
+
+  @override
+  String vaccineDoseOn(String date) {
+    return 'Aplicada el $date';
+  }
+
+  @override
+  String vaccinePreviousDoses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dosis anteriores',
+      one: '1 dosis anterior',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaccineHideHistory => 'Ocultar historial';
 }
