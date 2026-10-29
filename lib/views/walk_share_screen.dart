@@ -8,9 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
-import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
-import '../services/premium_simulado.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'widgets/foto_mascota.dart';
@@ -48,14 +46,14 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
 
   Future<void> _consultarPremium() async {
     final repo = PawLifeRepository();
-    final premium = await tienePremium(
-      repo.fetchPremium,
-      PremiumSimulado(
-        AuthService().currentUser?.uid ?? repo.client.expectedUid ?? 'local',
-      ),
-    );
-    repo.client.close();
-    if (mounted) setState(() => _premium = premium);
+    try {
+      final estado = await repo.fetchPremium();
+      if (mounted) setState(() => _premium = estado['activo'] == true);
+    } catch (_) {
+      // Sin conexión o con error: se trata como plan gratuito.
+    } finally {
+      repo.client.close();
+    }
   }
 
   Future<void> _prepare() async {

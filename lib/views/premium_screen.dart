@@ -5,9 +5,8 @@ import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../l10n/formatting.dart';
 import '../services/api_client.dart';
-import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
-import '../services/premium_simulado.dart';
+import '../services/plan_premium.dart';
 import '../theme/app_palette.dart';
 import 'widgets/motion.dart';
 import 'widgets/esqueletos.dart';
@@ -16,10 +15,9 @@ import 'widgets/esqueletos.dart';
 /// Premium real (concedido por el equipo); la compra de esta pantalla es
 /// SIMULADA, se guarda solo en el dispositivo y no cobra nada.
 class PremiumScreen extends StatefulWidget {
-  const PremiumScreen({super.key, this.repository, this.simulado});
+  const PremiumScreen({super.key, this.repository});
 
   final PawLifeRepository? repository;
-  final PremiumSimulado? simulado;
 
   @override
   State<PremiumScreen> createState() => _PremiumScreenState();
@@ -31,13 +29,7 @@ const _precioAnual = 'USD 23.99';
 
 class _PremiumScreenState extends State<PremiumScreen> {
   late final _repo = widget.repository ?? PawLifeRepository();
-  late final _simulado =
-      widget.simulado ??
-      PremiumSimulado(
-        AuthService().currentUser?.uid ?? _repo.client.expectedUid ?? 'local',
-      );
   Map<String, dynamic>? _state;
-  DateTime? _pruebaHasta;
   String? _error;
   PlanPremium _plan = PlanPremium.anual;
 
@@ -52,15 +44,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _load() async {
     setState(() => _error = null);
     try {
-      final resultados = await Future.wait<Object?>([
-        _repo.fetchPremium(),
-        _simulado.vigenteHasta(),
-      ]);
-      if (!mounted) return;
-      setState(() {
-        _state = resultados[0] as Map<String, dynamic>;
-        _pruebaHasta = resultados[1] as DateTime?;
-      });
+      final state = await _repo.fetchPremium();
+      if (mounted) setState(() => _state = state);
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = apiErrorText(t, e));
     } catch (_) {
@@ -69,22 +54,30 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Future<void> _comprar() async {
-    final hasta = await showModalBottomSheet<DateTime>(
+    final estado = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (_) => _HojaCompra(plan: _plan, simulado: _simulado),
+      builder: (_) => _HojaCompra(plan: _plan, repo: _repo),
     );
-    if (hasta == null || !mounted) return;
-    setState(() => _pruebaHasta = hasta);
+    if (estado == null || !mounted) return;
+    setState(() => _state = estado);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(t.premiumSuccess)));
   }
 
   Future<void> _cancelarPrueba() async {
-    await _simulado.cancelar();
-    if (mounted) setState(() => _pruebaHasta = null);
+    try {
+      await _repo.cancelarPremiumDePrueba();
+      await _load();
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(apiErrorText(t, e))));
+      }
+    }
   }
 
   @override
@@ -114,11 +107,15 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _contenido(Map<String, dynamic> state) {
-    final activoReal = state['activo'] == true;
-    final hastaReal = DateTime.tryParse('${state['venceEn'] ?? ''}')?.toLocal();
     final fuentes = state['fuentes'];
-    final prueba = _pruebaHasta;
-    final activo = activoReal || prueba != null;
+    final activo = state['activo'] == true;
+    final hasta = DateTime.tryParse('${state['venceEn'] ?? ''}')?.toLocal();
+    final soloPrueba =
+        activo &&
+        fuentes is Map &&
+        fuentes['prueba'] == true &&
+        fuentes['manual'] != true &&
+        fuentes['pago'] != true;
     return Center(
       key: const ValueKey('premium'),
       child: ConstrainedBox(
@@ -129,28 +126,28 @@ class _PremiumScreenState extends State<PremiumScreen> {
             AparecerAlEntrar(
               child: _Cabecera(
                 activo: activo,
-                titulo: activoReal
-                    ? (hastaReal != null
-                          ? t.premiumActiveUntil(
-                              formatDateTime(context, hastaReal),
+                titulo: activo && hasta != null
+                    ? (soloPrueba
+                          ? t.premiumSimulatedActive(
+                              formatDateTime(context, hasta),
                             )
-                          : t.premiumTitle)
-                    : prueba != null
-                    ? t.premiumSimulatedActive(formatDateTime(context, prueba))
+                          : t.premiumActiveUntil(
+                              formatDateTime(context, hasta),
+                            ))
                     : t.premiumHeadline,
-                detalle: activoReal && fuentes is Map
+                detalle: activo && fuentes is Map && !soloPrueba
                     ? [
                         if (fuentes['manual'] == true) t.premiumSourceManual,
                         if (fuentes['pago'] == true) t.premiumSourcePaid,
                       ].join(' · ')
                     : null,
-                prueba: !activoReal && prueba != null,
+                prueba: soloPrueba,
                 textoPrueba: t.premiumTestBadge,
               ),
             ),
             const SizedBox(height: 26),
             Text(
-              t.premiumTodayTitle,
+              t.premiumBenefitsTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -176,14 +173,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 22),
-            Text(
-              t.premiumComingSoon,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            for (final (i, b) in _proximamente(t).indexed)
-              AparecerAlEntrar(indice: i + 2, child: b),
             if (!activo) ...[
               const SizedBox(height: 22),
               Row(
@@ -235,14 +224,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
             ],
-            if (!activoReal && prueba != null) ...[
+            if (soloPrueba) ...[
               const SizedBox(height: 12),
-              Text(
-                t.premiumTestScope,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: context.textoSuave),
-              ),
-              const SizedBox(height: 4),
               Center(
                 child: TextButton(
                   onPressed: _cancelarPrueba,
@@ -261,25 +244,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
       ),
     );
   }
-
-  /// Lo que todavía no existe: se anuncia como próximo, sin prometerlo ya.
-  List<Widget> _proximamente(AppLocalizations t) => [
-    _Beneficio(
-      icono: Icons.picture_as_pdf_outlined,
-      titulo: t.premiumBenefitPdf,
-      detalle: t.premiumBenefitPdfDesc,
-    ),
-    _Beneficio(
-      icono: Icons.insights_outlined,
-      titulo: t.premiumBenefitStats,
-      detalle: t.premiumBenefitStatsDesc,
-    ),
-    _Beneficio(
-      icono: Icons.notifications_active_outlined,
-      titulo: t.premiumBenefitReminders,
-      detalle: t.premiumBenefitRemindersDesc,
-    ),
-  ];
 }
 
 /// Comparación lado a lado de lo que cambia entre el plan gratuito y Premium.
@@ -479,64 +443,6 @@ class _Cabecera extends StatelessWidget {
   }
 }
 
-class _Beneficio extends StatelessWidget {
-  const _Beneficio({
-    required this.icono,
-    required this.titulo,
-    required this.detalle,
-  });
-
-  final IconData icono;
-  final String titulo;
-  final String detalle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: context.mentaSuave,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icono, size: 21, color: context.marca),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: context.texto,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  detalle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.35,
-                    color: context.textoSuave,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _TarjetaPlan extends StatelessWidget {
   const _TarjetaPlan({
     required this.nombre,
@@ -663,10 +569,10 @@ class _TarjetaPlan extends StatelessWidget {
 
 /// Hoja de confirmación al estilo de la tienda, pero simulada.
 class _HojaCompra extends StatefulWidget {
-  const _HojaCompra({required this.plan, required this.simulado});
+  const _HojaCompra({required this.plan, required this.repo});
 
   final PlanPremium plan;
-  final PremiumSimulado simulado;
+  final PawLifeRepository repo;
 
   @override
   State<_HojaCompra> createState() => _HojaCompraState();
@@ -684,10 +590,18 @@ class _HojaCompraState extends State<_HojaCompra> {
     try {
       // Una pausa breve, como haría la tienda, para que el recorrido se
       // sienta real al probarlo.
-      await Future<void>.delayed(const Duration(milliseconds: 900));
-      final hasta = await widget.simulado.comprar(widget.plan);
+      final estado = await widget.repo.comprarPremiumDePrueba(
+        widget.plan == PlanPremium.anual ? 'anual' : 'mensual',
+      );
       HapticFeedback.mediumImpact();
-      if (mounted) Navigator.pop(context, hasta);
+      if (mounted) Navigator.pop(context, estado);
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _procesando = false;
+          _error = apiErrorText(AppLocalizations.of(context), e);
+        });
+      }
     } catch (_) {
       if (mounted) {
         setState(() {
