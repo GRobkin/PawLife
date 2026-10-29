@@ -17,6 +17,7 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'pets_screen.dart';
+import 'profile_screen.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
@@ -398,37 +399,13 @@ class _HomeScreenState extends State<HomeScreen> {
         // El avatar es el único sitio desde el que se puede cerrar sesión.
         // Al hacerlo no hay que navegar a ningún lado: el AuthGate de
         // main.dart ve que la sesión se fue y vuelve solo a la bienvenida.
-        PopupMenuButton<String>(
-          tooltip: AppLocalizations.of(context).yourAccount,
-          offset: const Offset(0, 40),
-          onSelected: (valor) {
-            if (valor == 'salir') _auth.signOut();
-          },
-          itemBuilder: (_) => [
-            PopupMenuItem<String>(
-              enabled: false,
-              child: Text(
-                usuario?.email ??
-                    usuario?.displayName ??
-                    AppLocalizations.of(context).signedIn,
-                style: TextStyle(fontSize: 13, color: context.textoSuave),
-              ),
-            ),
-            const PopupMenuDivider(),
-            PopupMenuItem<String>(
-              value: 'salir',
-              child: Row(
-                children: [
-                  Icon(Icons.logout, size: 18, color: context.textoSuave),
-                  const SizedBox(width: 10),
-                  Text(AppLocalizations.of(context).logout),
-                ],
-              ),
-            ),
-          ],
-          // Google trae foto de perfil; con email y contraseña no hay. Si la
-          // foto no carga (sin red, o Google limita las descargas), queda el
-          // icono en vez de un círculo vacío.
+        // Igual que en Mascotas: el avatar abre el perfil, donde también
+        // está cerrar sesión.
+        InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
           child: CircleAvatar(
             radius: 16,
             backgroundColor: context.mentaSuave,
