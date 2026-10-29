@@ -23,6 +23,7 @@ import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
+import 'profile_screen.dart';
 import 'widgets/esqueletos.dart';
 import 'widgets/motion.dart';
 import 'widgets/estado_vacio.dart';
@@ -181,20 +182,36 @@ class _PetsScreenState extends State<PetsScreen> {
               child: MarcaPawLife(),
             ),
           ),
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: context.mentaSuave,
-            child: ClipOval(
-              child: fotoUrl == null
-                  ? Icon(Icons.person, size: 18, color: context.marca)
-                  : Image.network(
-                      fotoUrl,
-                      width: 32,
-                      height: 32,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          Icon(Icons.person, size: 18, color: context.marca),
-                    ),
+          // Igual que en el Home: el avatar lleva al perfil.
+          Tooltip(
+            message: AppLocalizations.of(context).profileTitle,
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: context.mentaSuave,
+                  child: ClipOval(
+                    child: fotoUrl == null
+                        ? Icon(Icons.person, size: 18, color: context.marca)
+                        : Image.network(
+                            fotoUrl,
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => Icon(
+                              Icons.person,
+                              size: 18,
+                              color: context.marca,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

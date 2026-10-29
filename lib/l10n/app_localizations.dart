@@ -3051,6 +3051,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Elegí una fecha y hora futuras.'**
   String get errTaskPast;
+
+  /// No description provided for @welcomeHeadline.
+  ///
+  /// In es, this message translates to:
+  /// **'Más cerca.\nSiempre.'**
+  String get welcomeHeadline;
 }
 
 class _AppLocalizationsDelegate

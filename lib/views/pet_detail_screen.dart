@@ -274,6 +274,10 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     return futuras.isEmpty ? null : futuras.first;
   }
 
+  void _iniciarPaseo() => Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => RouteScreen(mascotaId: _mascota.id)),
+  );
+
   Future<void> _abrirVisitas() async {
     await Navigator.push<void>(
       context,
@@ -362,6 +366,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                           fontSize: 14,
                         ),
                         dividerColor: Colors.transparent,
+                        indicatorAnimation: TabIndicatorAnimation.elastic,
                         indicatorSize: TabBarIndicatorSize.tab,
                         indicatorPadding: const EdgeInsets.symmetric(
                           vertical: 7,
@@ -402,11 +407,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
             ),
       bottomNavigationBar: PawLifeBottomNav(
         activa: SeccionNav.mascotas,
-        onPaseo: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => RouteScreen(mascotaId: _mascota.id),
-          ),
-        ),
+        onPaseo: _iniciarPaseo,
       ),
     );
   }
@@ -586,7 +587,12 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         _TituloSeccion(t.recentActivity),
         const SizedBox(height: 12),
         if (paseos.isEmpty)
-          _Vacio(icono: Icons.directions_walk, texto: t.noWalksRecorded)
+          _Vacio(
+            icono: Icons.directions_walk,
+            texto: t.noWalksRecorded,
+            accion: t.startWalk,
+            onAccion: _iniciarPaseo,
+          )
         else
           for (final paseo in paseos.take(5))
             _FilaCuidado(
@@ -739,7 +745,15 @@ class _PetDetailScreenState extends State<PetDetailScreen>
       // de añadir, y por eso solo esta se desbordaba.
       return _CuerpoPestana(
         clave: "paseos",
-        child: _Vacio(icono: Icons.directions_walk, texto: t.noWalksYetHint),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: _Vacio(
+            icono: Icons.directions_walk,
+            texto: t.noWalksYetHint,
+            accion: t.startWalk,
+            onAccion: _iniciarPaseo,
+          ),
+        ),
       );
     }
 
@@ -1316,29 +1330,67 @@ class _CuerpoPestana extends StatelessWidget {
 }
 
 class _Vacio extends StatelessWidget {
-  const _Vacio({required this.icono, required this.texto});
+  const _Vacio({
+    required this.icono,
+    required this.texto,
+    this.accion,
+    this.onAccion,
+  });
 
   final IconData icono;
   final String texto;
 
+  /// Si hay algo que hacer para salir del vacío, se ofrece aquí mismo.
+  final String? accion;
+  final VoidCallback? onAccion;
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icono, size: 40, color: context.textoTenue),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+      decoration: BoxDecoration(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: context.mentaSuave,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icono, size: 26, color: context.marca),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            texto,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: context.textoSuave, height: 1.4),
+          ),
+          if (accion != null && onAccion != null) ...[
             const SizedBox(height: 14),
-            Text(
-              texto,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: context.textoSuave, height: 1.4),
+            Presionable(
+              child: FilledButton.icon(
+                onPressed: onAccion,
+                style: FilledButton.styleFrom(
+                  backgroundColor: context.botonFondo,
+                  foregroundColor: context.botonTexto,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.directions_walk, size: 18),
+                label: Text(
+                  accion!,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
             ),
           ],
-        ),
+        ],
       ),
     );
   }

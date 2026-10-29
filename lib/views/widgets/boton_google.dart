@@ -71,11 +71,14 @@ class BotonGoogle extends StatelessWidget {
                       height: 20,
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      t.continueWithGoogle,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Text(
+                        t.continueWithGoogle,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
