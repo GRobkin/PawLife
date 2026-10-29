@@ -3081,6 +3081,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ocultar historial'**
   String get vaccineHideHistory;
+
+  /// No description provided for @healthAtAGlance.
+  ///
+  /// In es, this message translates to:
+  /// **'Salud de un vistazo'**
+  String get healthAtAGlance;
+
+  /// No description provided for @vaccinesUpToDate.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Sin vacunas} =1{1 al día} other{{count} al día}}'**
+  String vaccinesUpToDate(int count);
+
+  /// No description provided for @vaccinesOverdue.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Nada vencido} =1{1 vencida} other{{count} vencidas}}'**
+  String vaccinesOverdue(int count);
 }
 
 class _AppLocalizationsDelegate
