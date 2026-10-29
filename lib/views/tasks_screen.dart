@@ -68,6 +68,34 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  Future<void> _edit(Recordatorio item) async {
+    final tarea = await mostrarHojaNuevaTarea(
+      context,
+      _mascotas,
+      inicial: NuevaTarea(
+        mascotaId: item.mascotaId,
+        mensaje: item.mensaje,
+        fecha: item.fecha,
+      ),
+    );
+    if (tarea == null || !mounted) return;
+    setState(() => _working = true);
+    try {
+      await _repo.updateRecordatorio(
+        item.id,
+        mascotaId: tarea.mascotaId,
+        fecha: tarea.fecha,
+        mensaje: tarea.mensaje,
+      );
+      await LocalReminderService.instance.syncBestEffort(_repo);
+      await _load();
+    } catch (e) {
+      _showError(e);
+    } finally {
+      if (mounted) setState(() => _working = false);
+    }
+  }
+
   Future<void> _delete(Recordatorio item) async {
     if (_working) return;
     setState(() => _working = true);
@@ -175,6 +203,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                 bloqueada: _working,
                                 tooltipBorrar: t.deleteTask,
                                 onCambio: (v) => _change(item, v),
+                                onEditar: () => _edit(item),
                                 onBorrar: () => _delete(item),
                               ),
                             );
@@ -207,6 +236,7 @@ class _FilaTarea extends StatelessWidget {
     required this.bloqueada,
     required this.tooltipBorrar,
     required this.onCambio,
+    required this.onEditar,
     required this.onBorrar,
   });
 
@@ -216,6 +246,7 @@ class _FilaTarea extends StatelessWidget {
   final bool bloqueada;
   final String tooltipBorrar;
   final ValueChanged<bool> onCambio;
+  final VoidCallback onEditar;
   final VoidCallback onBorrar;
 
   @override
@@ -230,36 +261,44 @@ class _FilaTarea extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
-          onTap: bloqueada ? null : () => onCambio(!hecha),
+          // La tarjeta abre la edición; el círculo marca o desmarca.
+          onTap: bloqueada ? null : onEditar,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
             child: Row(
               children: [
                 Semantics(
                   checked: hecha,
-                  child: ReboteAlActivar(
-                    activo: hecha,
-                    child: AnimatedContainer(
-                      duration: rapido,
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: hecha ? context.botonFondo : Colors.transparent,
-                        border: Border.all(
+                  button: true,
+                  child: InkResponse(
+                    radius: 22,
+                    onTap: bloqueada ? null : () => onCambio(!hecha),
+                    child: ReboteAlActivar(
+                      activo: hecha,
+                      child: AnimatedContainer(
+                        duration: rapido,
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
                           color: hecha
                               ? context.botonFondo
-                              : context.textoTenue,
-                          width: 2,
+                              : Colors.transparent,
+                          border: Border.all(
+                            color: hecha
+                                ? context.botonFondo
+                                : context.textoTenue,
+                            width: 2,
+                          ),
                         ),
+                        child: hecha
+                            ? Icon(
+                                Icons.check,
+                                size: 17,
+                                color: context.botonTexto,
+                              )
+                            : null,
                       ),
-                      child: hecha
-                          ? Icon(
-                              Icons.check,
-                              size: 17,
-                              color: context.botonTexto,
-                            )
-                          : null,
                     ),
                   ),
                 ),

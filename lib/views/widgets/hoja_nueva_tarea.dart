@@ -24,28 +24,36 @@ class NuevaTarea {
 
 Future<NuevaTarea?> mostrarHojaNuevaTarea(
   BuildContext context,
-  List<Mascota> mascotas,
-) => showModalBottomSheet<NuevaTarea>(
+  List<Mascota> mascotas, {
+  NuevaTarea? inicial,
+}) => showModalBottomSheet<NuevaTarea>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
   backgroundColor: context.fondoPantalla,
-  builder: (_) => _HojaNuevaTarea(mascotas: mascotas),
+  builder: (_) => _HojaNuevaTarea(mascotas: mascotas, inicial: inicial),
 );
 
 class _HojaNuevaTarea extends StatefulWidget {
-  const _HojaNuevaTarea({required this.mascotas});
+  const _HojaNuevaTarea({required this.mascotas, this.inicial});
 
   final List<Mascota> mascotas;
+
+  /// Si viene, la hoja edita esa tarea en vez de crear una.
+  final NuevaTarea? inicial;
 
   @override
   State<_HojaNuevaTarea> createState() => _HojaNuevaTareaState();
 }
 
 class _HojaNuevaTareaState extends State<_HojaNuevaTarea> {
-  late String _mascotaId = widget.mascotas.first.id;
-  final _texto = TextEditingController();
-  DateTime _fecha = DateTime.now().add(const Duration(days: 1));
+  late String _mascotaId =
+      widget.mascotas.any((m) => m.id == widget.inicial?.mascotaId)
+      ? widget.inicial!.mascotaId
+      : widget.mascotas.first.id;
+  late final _texto = TextEditingController(text: widget.inicial?.mensaje);
+  late DateTime _fecha =
+      widget.inicial?.fecha ?? DateTime.now().add(const Duration(days: 1));
   String? _error;
 
   @override
@@ -77,6 +85,8 @@ class _HojaNuevaTareaState extends State<_HojaNuevaTarea> {
     final hora = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_fecha),
+      // Siempre vertical: en pantallas anchas el apaisado se veía desarmado.
+      orientation: Orientation.portrait,
     );
     if (hora == null || !mounted) return;
     setState(
@@ -121,7 +131,7 @@ class _HojaNuevaTareaState extends State<_HojaNuevaTarea> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                t.newTask,
+                widget.inicial == null ? t.newTask : t.editTask,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,

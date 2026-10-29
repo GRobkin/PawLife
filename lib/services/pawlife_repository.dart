@@ -419,6 +419,21 @@ class PawLifeRepository {
     return Recordatorio.fromJson(actualizado);
   }
 
+  /// Cambia el texto, la mascota o la fecha de una tarea existente.
+  Future<Recordatorio> updateRecordatorio(
+    String id, {
+    required String mascotaId,
+    required DateTime fecha,
+    required String mensaje,
+  }) async {
+    final actualizado = await client.patch('/api/recordatorios/$id', {
+      'mascotaId': mascotaId,
+      'fecha': fecha.toUtc().toIso8601String(),
+      'mensaje': mensaje,
+    });
+    return Recordatorio.fromJson(actualizado);
+  }
+
   Future<void> deleteRecordatorio(String id) =>
       client.delete('/api/recordatorios/$id');
 

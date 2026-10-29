@@ -216,6 +216,7 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
     );
     if (fecha == null || !mounted) return;
     final hora = await showTimePicker(
+      orientation: Orientation.portrait,
       context: context,
       initialTime: TimeOfDay.fromDateTime(_fechaHora),
     );

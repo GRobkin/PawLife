@@ -501,5 +501,6 @@
   "vaccinesUpToDate": "{count, plural, =0{Sem vacinas} =1{1 em dia} other{{count} em dia}}",
   "vaccinesOverdue": "{count, plural, =0{Nada vencido} =1{1 vencida} other{{count} vencidas}}",
   "petViewProfile": "Ver perfil",
-  "petSwitch": "Trocar de pet"
+  "petSwitch": "Trocar de pet",
+  "editTask": "Editar tarefa"
 }

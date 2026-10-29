@@ -955,5 +955,6 @@
     }
   },
   "petViewProfile": "Ver perfil",
-  "petSwitch": "Cambiar de mascota"
+  "petSwitch": "Cambiar de mascota",
+  "editTask": "Editar tarea"
 }

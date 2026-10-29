@@ -3111,6 +3111,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cambiar de mascota'**
   String get petSwitch;
+
+  /// No description provided for @editTask.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar tarea'**
+  String get editTask;
 }
 
 class _AppLocalizationsDelegate

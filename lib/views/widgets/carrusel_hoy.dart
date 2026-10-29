@@ -81,7 +81,9 @@ class _CarruselHoyState extends State<CarruselHoy> {
           child: PageView.builder(
             controller: _controller,
             padEnds: false,
-            clipBehavior: Clip.none,
+            // Recortado: en pantallas anchas la tarjeta siguiente se salía
+            // del ancho de la página.
+            clipBehavior: Clip.hardEdge,
             itemCount: n,
             itemBuilder: (context, i) {
               final cerca = (1 - (_pagina - i).abs()).clamp(0.0, 1.0);
