@@ -150,13 +150,6 @@ class _PetsScreenState extends State<PetsScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _abrirFormulario(),
-        backgroundColor: context.botonFondo,
-        foregroundColor: context.botonTexto,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        child: const Icon(Icons.add),
-      ),
       bottomNavigationBar: PawLifeBottomNav(
         activa: SeccionNav.mascotas,
         onPaseo: _iniciarPaseo,
