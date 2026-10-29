@@ -1807,4 +1807,38 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get premiumFreeLimits =>
       'Plan gratuito: hasta 2 mascotas y tarjeta de paseo clásica.';
+
+  @override
+  String get premiumCompareFree => 'Gratis';
+
+  @override
+  String get premiumComparePremium => 'Premium';
+
+  @override
+  String get premiumRowPets => 'Mascotas';
+
+  @override
+  String get premiumRowPetsFree => 'Hasta 2';
+
+  @override
+  String get premiumRowPetsPremium => 'Sin límite';
+
+  @override
+  String get premiumRowCards => 'Tarjetas de paseo';
+
+  @override
+  String get premiumRowCardsFree => '1 estilo';
+
+  @override
+  String get premiumRowCardsPremium => '3 estilos';
+
+  @override
+  String get premiumComingSoon => 'Próximamente en Premium';
+
+  @override
+  String get premiumTodayTitle => 'Hoy, Premium incluye';
+
+  @override
+  String get premiumTestScope =>
+      'En modo de prueba se desbloquean los estilos de tarjeta; el tope de mascotas solo lo levanta un Premium real del servidor.';
 }

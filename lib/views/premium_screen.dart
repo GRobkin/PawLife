@@ -150,12 +150,40 @@ class _PremiumScreenState extends State<PremiumScreen> {
             ),
             const SizedBox(height: 26),
             Text(
-              t.premiumBenefitsTitle,
+              t.premiumTodayTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            for (final (i, b) in _beneficios(t).indexed)
-              AparecerAlEntrar(indice: i + 1, child: b),
+            // Solo lo que de verdad cambia entre los planes.
+            AparecerAlEntrar(
+              indice: 1,
+              child: _TablaPlanes(
+                gratis: t.premiumCompareFree,
+                premium: t.premiumComparePremium,
+                filas: [
+                  (
+                    Icons.pets,
+                    t.premiumRowPets,
+                    t.premiumRowPetsFree,
+                    t.premiumRowPetsPremium,
+                  ),
+                  (
+                    Icons.style_outlined,
+                    t.premiumRowCards,
+                    t.premiumRowCardsFree,
+                    t.premiumRowCardsPremium,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              t.premiumComingSoon,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            for (final (i, b) in _proximamente(t).indexed)
+              AparecerAlEntrar(indice: i + 2, child: b),
             if (!activo) ...[
               const SizedBox(height: 22),
               Row(
@@ -208,20 +236,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
               ),
             ],
             if (!activoReal && prueba != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+              Text(
+                t.premiumTestScope,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: context.textoSuave),
+              ),
+              const SizedBox(height: 4),
               Center(
                 child: TextButton(
                   onPressed: _cancelarPrueba,
                   child: Text(t.premiumCancelSimulated),
                 ),
-              ),
-            ],
-            if (!activo) ...[
-              const SizedBox(height: 12),
-              Text(
-                t.premiumFreeLimits,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: context.textoSuave),
               ),
             ],
             const SizedBox(height: 14),
@@ -236,7 +262,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 
-  List<Widget> _beneficios(AppLocalizations t) => [
+  /// Lo que todavía no existe: se anuncia como próximo, sin prometerlo ya.
+  List<Widget> _proximamente(AppLocalizations t) => [
     _Beneficio(
       icono: Icons.picture_as_pdf_outlined,
       titulo: t.premiumBenefitPdf,
@@ -248,21 +275,111 @@ class _PremiumScreenState extends State<PremiumScreen> {
       detalle: t.premiumBenefitStatsDesc,
     ),
     _Beneficio(
-      icono: Icons.pets,
-      titulo: t.premiumBenefitPets,
-      detalle: t.premiumBenefitPetsDesc,
-    ),
-    _Beneficio(
-      icono: Icons.style_outlined,
-      titulo: t.premiumBenefitCards,
-      detalle: t.premiumBenefitCardsDesc,
-    ),
-    _Beneficio(
       icono: Icons.notifications_active_outlined,
       titulo: t.premiumBenefitReminders,
       detalle: t.premiumBenefitRemindersDesc,
     ),
   ];
+}
+
+/// Comparación lado a lado de lo que cambia entre el plan gratuito y Premium.
+class _TablaPlanes extends StatelessWidget {
+  const _TablaPlanes({
+    required this.gratis,
+    required this.premium,
+    required this.filas,
+  });
+
+  final String gratis;
+  final String premium;
+  final List<(IconData, String, String, String)> filas;
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle cab(Color c) =>
+        TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: c);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+      decoration: BoxDecoration(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Expanded(flex: 5, child: SizedBox.shrink()),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  gratis,
+                  textAlign: TextAlign.center,
+                  style: cab(context.textoSuave),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  premium,
+                  textAlign: TextAlign.center,
+                  style: cab(context.marca),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          for (final f in filas) ...[
+            Divider(height: 1, color: context.bordeSuave),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Row(
+                      children: [
+                        Icon(f.$1, size: 18, color: context.marca),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            f.$2,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: context.texto,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      f.$3,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: context.textoSuave),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      f.$4,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: context.marca,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _Cabecera extends StatelessWidget {

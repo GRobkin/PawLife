@@ -505,5 +505,16 @@
   "editTask": "Editar tarefa",
   "apiPlanPetLimit": "O plano gratuito permite até 2 pets. Assine o Premium para adicionar mais.",
   "premiumLockedCard": "Este estilo é Premium.",
-  "premiumFreeLimits": "Plano gratuito: até 2 pets e o cartão de passeio clássico."
+  "premiumFreeLimits": "Plano gratuito: até 2 pets e o cartão de passeio clássico.",
+  "premiumCompareFree": "Grátis",
+  "premiumComparePremium": "Premium",
+  "premiumRowPets": "Pets",
+  "premiumRowPetsFree": "Até 2",
+  "premiumRowPetsPremium": "Sem limite",
+  "premiumRowCards": "Cartões de passeio",
+  "premiumRowCardsFree": "1 estilo",
+  "premiumRowCardsPremium": "3 estilos",
+  "premiumComingSoon": "Em breve no Premium",
+  "premiumTodayTitle": "Hoje, o Premium inclui",
+  "premiumTestScope": "No modo de teste os estilos de cartão são liberados; o limite de pets só é removido por um Premium real do servidor."
 }

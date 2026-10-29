@@ -1794,4 +1794,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get premiumFreeLimits =>
       'Free plan: up to 2 pets and the classic walk card.';
+
+  @override
+  String get premiumCompareFree => 'Free';
+
+  @override
+  String get premiumComparePremium => 'Premium';
+
+  @override
+  String get premiumRowPets => 'Pets';
+
+  @override
+  String get premiumRowPetsFree => 'Up to 2';
+
+  @override
+  String get premiumRowPetsPremium => 'Unlimited';
+
+  @override
+  String get premiumRowCards => 'Walk cards';
+
+  @override
+  String get premiumRowCardsFree => '1 style';
+
+  @override
+  String get premiumRowCardsPremium => '3 styles';
+
+  @override
+  String get premiumComingSoon => 'Coming soon to Premium';
+
+  @override
+  String get premiumTodayTitle => 'Premium includes today';
+
+  @override
+  String get premiumTestScope =>
+      'In test mode the card styles unlock; the pet limit is only lifted by a real server-side Premium.';
 }
