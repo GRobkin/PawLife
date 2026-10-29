@@ -3117,6 +3117,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Editar tarea'**
   String get editTask;
+
+  /// No description provided for @apiPlanPetLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'El plan gratuito permite hasta 2 mascotas. Pasate a Premium para agregar más.'**
+  String get apiPlanPetLimit;
+
+  /// No description provided for @premiumLockedCard.
+  ///
+  /// In es, this message translates to:
+  /// **'Este estilo es de Premium.'**
+  String get premiumLockedCard;
+
+  /// No description provided for @premiumFreeLimits.
+  ///
+  /// In es, this message translates to:
+  /// **'Plan gratuito: hasta 2 mascotas y tarjeta de paseo clásica.'**
+  String get premiumFreeLimits;
 }
 
 class _AppLocalizationsDelegate

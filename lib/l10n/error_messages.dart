@@ -55,6 +55,7 @@ String apiErrorText(AppLocalizations t, ApiException e) => switch (e.code) {
   'client-offline' => t.apiOffline,
   'client-http-status' => t.apiHttpStatus('${e.statusCode ?? ''}'),
   // Códigos estables del servidor: se traducen; lo demás conserva su mensaje.
+  'PLAN_PET_LIMIT' => t.apiPlanPetLimit,
   'ACCOUNT_DELETING' => t.apiAccountDeleting,
   'ACCOUNT_UNAVAILABLE' => t.apiAccountUnavailable,
   'RATE_LIMITED' => t.apiRateLimited,

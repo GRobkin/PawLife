@@ -1783,4 +1783,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editTask => 'Edit task';
+
+  @override
+  String get apiPlanPetLimit =>
+      'The free plan allows up to 2 pets. Upgrade to Premium to add more.';
+
+  @override
+  String get premiumLockedCard => 'This style is Premium.';
+
+  @override
+  String get premiumFreeLimits =>
+      'Free plan: up to 2 pets and the classic walk card.';
 }

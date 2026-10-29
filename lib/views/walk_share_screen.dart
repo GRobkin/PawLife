@@ -8,6 +8,9 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
+import '../services/auth_service.dart';
+import '../services/pawlife_repository.dart';
+import '../services/premium_simulado.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'widgets/foto_mascota.dart';
@@ -34,11 +37,25 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
   String? _error;
   bool _sharing = false;
   TarjetaEstilo _estilo = TarjetaEstilo.bosque;
+  bool _premium = false;
 
   @override
   void initState() {
     super.initState();
+    _consultarPremium();
     WidgetsBinding.instance.addPostFrameCallback((_) => _prepare());
+  }
+
+  Future<void> _consultarPremium() async {
+    final repo = PawLifeRepository();
+    final premium = await tienePremium(
+      repo.fetchPremium,
+      PremiumSimulado(
+        AuthService().currentUser?.uid ?? repo.client.expectedUid ?? 'local',
+      ),
+    );
+    repo.client.close();
+    if (mounted) setState(() => _premium = premium);
   }
 
   Future<void> _prepare() async {
@@ -138,10 +155,20 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
                       (TarjetaEstilo.cifras, t.shareStyleStats),
                     ])
                       ChoiceChip(
+                        avatar: e.$1 == TarjetaEstilo.bosque || _premium
+                            ? null
+                            : const Icon(Icons.lock_outline, size: 16),
                         label: Text(e.$2),
                         selected: _estilo == e.$1,
                         onSelected: (_) {
                           if (_estilo == e.$1) return;
+                          // Menta y Cifras son de Premium.
+                          if (e.$1 != TarjetaEstilo.bosque && !_premium) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(t.premiumLockedCard)),
+                            );
+                            return;
+                          }
                           setState(() => _estilo = e.$1);
                           WidgetsBinding.instance.addPostFrameCallback(
                             (_) => _prepare(),
