@@ -20,6 +20,7 @@ import 'package:pawlife/services/walk_repository.dart';
 import 'package:pawlife/theme/app_theme.dart';
 import 'package:pawlife/views/change_password_screen.dart';
 import 'package:pawlife/views/home_screen.dart';
+import 'package:pawlife/views/pet_detail_screen.dart';
 import 'package:pawlife/views/pets_screen.dart';
 import 'package:pawlife/views/walk_history_screen.dart';
 import 'package:pawlife/views/walk_share_screen.dart';
@@ -119,7 +120,16 @@ class PetsFixture implements PawLifeRepository {
   Future<List<RegistroPeso>> fetchPesos(String mascotaId) async => [
     RegistroPeso(id: 'a', fecha: DateTime(2026, 10, 19, 10, 30), valorKg: 12.5),
     RegistroPeso(id: 'b', fecha: DateTime(2026, 9, 19, 10, 30), valorKg: 12.1),
+    RegistroPeso(id: 'c', fecha: DateTime(2026, 8, 19, 10, 30), valorKg: 11.4),
+    RegistroPeso(id: 'd', fecha: DateTime(2026, 7, 19, 10, 30), valorKg: 11.6),
+    RegistroPeso(id: 'e', fecha: DateTime(2026, 6, 19, 10, 30), valorKg: 10.8),
   ];
+  @override
+  Future<List<Medicamento>> fetchMedicamentos(String mascotaId) async => [];
+  @override
+  Future<List<Alimentacion>> fetchAlimentaciones(String mascotaId) async => [];
+  @override
+  Future<List<VisitaVeterinaria>> fetchVisitas(String mascotaId) async => [];
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -185,6 +195,11 @@ void main() {
       walkRepository: WalksFixture(),
       auth: AuthFixture(),
     ),
+    'detalle': () => PetDetailScreen(
+      mascota: pet,
+      repository: PetsFixture(),
+      walkRepository: WalksFixture(),
+    ),
     'pets': () => PetsScreen(repository: PetsFixture(), userPhotoUrl: ''),
     'weight': () =>
         WeightHistoryScreen(mascota: pet, repository: PetsFixture()),
@@ -248,7 +263,11 @@ void main() {
 
   for (final entry in screens.entries) {
     testWidgets('galería ${entry.key}', (tester) async {
-      final cellHeight = entry.key == 'home' ? 860.0 : 760.0;
+      final cellHeight = switch (entry.key) {
+        'home' => 860.0,
+        'detalle' => 1500.0,
+        _ => 760.0,
+      };
       tester.view.physicalSize = Size(1170, cellHeight * 2);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
