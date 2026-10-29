@@ -156,7 +156,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           ],
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index];
@@ -166,23 +166,16 @@ class _TasksScreenState extends State<TasksScreen> {
                             final nombre = mascota.isEmpty
                                 ? t.petLabel
                                 : mascota.first.nombre;
-                            return Card(
-                              child: CheckboxListTile(
-                                value: item.completado,
-                                onChanged: _working
-                                    ? null
-                                    : (v) => _change(item, v ?? false),
-                                title: Text(item.mensaje),
-                                subtitle: Text(
-                                  '$nombre · ${formatDateTime(context, item.fecha)}',
-                                ),
-                                secondary: IconButton(
-                                  tooltip: t.deleteTask,
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: _working
-                                      ? null
-                                      : () => _delete(item),
-                                ),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _FilaTarea(
+                                tarea: item,
+                                mascota: nombre,
+                                cuando: formatDateTime(context, item.fecha),
+                                bloqueada: _working,
+                                tooltipBorrar: t.deleteTask,
+                                onCambio: (v) => _change(item, v),
+                                onBorrar: () => _delete(item),
                               ),
                             );
                           },
@@ -199,6 +192,160 @@ class _TasksScreenState extends State<TasksScreen> {
       bottomNavigationBar: PawLifeBottomNav(
         activa: SeccionNav.tareas,
         onPaseo: () => iniciarPaseo(context),
+      ),
+    );
+  }
+}
+
+/// Tarea como tarjeta propia: check redondo que rebota al completar, texto
+/// tachado y atenuado si está hecha, mascota en una pastilla y la hora.
+class _FilaTarea extends StatelessWidget {
+  const _FilaTarea({
+    required this.tarea,
+    required this.mascota,
+    required this.cuando,
+    required this.bloqueada,
+    required this.tooltipBorrar,
+    required this.onCambio,
+    required this.onBorrar,
+  });
+
+  final Recordatorio tarea;
+  final String mascota;
+  final String cuando;
+  final bool bloqueada;
+  final String tooltipBorrar;
+  final ValueChanged<bool> onCambio;
+  final VoidCallback onBorrar;
+
+  @override
+  Widget build(BuildContext context) {
+    final hecha = tarea.completado;
+    final rapido = reducirMovimiento(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
+    return Presionable(
+      child: Material(
+        color: hecha ? context.relleno : context.superficie,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: bloqueada ? null : () => onCambio(!hecha),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+            child: Row(
+              children: [
+                Semantics(
+                  checked: hecha,
+                  child: ReboteAlActivar(
+                    activo: hecha,
+                    child: AnimatedContainer(
+                      duration: rapido,
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hecha ? context.botonFondo : Colors.transparent,
+                        border: Border.all(
+                          color: hecha
+                              ? context.botonFondo
+                              : context.textoTenue,
+                          width: 2,
+                        ),
+                      ),
+                      child: hecha
+                          ? Icon(
+                              Icons.check,
+                              size: 17,
+                              color: context.botonTexto,
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: rapido,
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: hecha ? context.textoTenue : context.texto,
+                          decoration: hecha ? TextDecoration.lineThrough : null,
+                        ),
+                        child: Text(
+                          tarea.mensaje,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: context.mentaSuave,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.pets,
+                                  size: 12,
+                                  color: context.marca,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  mascota,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: context.marca,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.schedule,
+                            size: 13,
+                            color: context.textoTenue,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              cuando,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.textoSuave,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: tooltipBorrar,
+                  onPressed: bloqueada ? null : onBorrar,
+                  icon: Icon(Icons.delete_outline, color: context.textoTenue),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

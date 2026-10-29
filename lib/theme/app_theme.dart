@@ -209,7 +209,7 @@ abstract final class AppTheme {
           fontSize: 52,
           fontWeight: FontWeight.w900,
         ),
-        dialBackgroundColor: field,
+        dialBackgroundColor: scheme.primary.withValues(alpha: 0.1),
         dialHandColor: scheme.primary,
         dialTextColor: WidgetStateColor.resolveWith(
           (estados) => estados.contains(WidgetState.selected)
