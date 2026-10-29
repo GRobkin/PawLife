@@ -229,7 +229,7 @@ void main() {
       walkRepository: WalksFixture(),
     ),
     'premium': () => PremiumScreen(repository: PremiumGalleryFixture()),
-    'pets': () => PetsScreen(repository: PetsFixture(), userPhotoUrl: ''),
+    'pets': () => PetsScreen(repository: PetsFixture()),
     'weight': () =>
         WeightHistoryScreen(mascota: pet, repository: PetsFixture()),
     'password': () => ChangePasswordScreen(auth: AuthFixture()),

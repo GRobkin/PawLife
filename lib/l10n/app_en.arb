@@ -525,12 +525,12 @@
   "premiumUsagePets": "Pets",
   "premiumUsageTasks": "Pending tasks",
   "premiumRowHistory": "Walk history",
-  "premiumRowHistoryFree": "30 days",
+  "premiumRowHistoryFree": "7 days",
   "premiumRowHistoryPremium": "Full",
   "premiumRowWatch": "Watch mode",
   "premiumRowWatchFree": "No",
   "premiumRowWatchPremium": "Included",
   "premiumLockedWatch": "Watch mode is Premium.",
   "premiumSee": "See",
-  "walkHistoryFreeNote": "Free plan: the last 30 days of walks are shown."
+  "walkHistoryFreeNote": "Free plan: the last 7 days of walks are shown."
 }

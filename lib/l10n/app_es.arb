@@ -979,12 +979,12 @@
   "premiumUsagePets": "Mascotas",
   "premiumUsageTasks": "Tareas pendientes",
   "premiumRowHistory": "Historial de paseos",
-  "premiumRowHistoryFree": "30 días",
+  "premiumRowHistoryFree": "7 días",
   "premiumRowHistoryPremium": "Completo",
   "premiumRowWatch": "Modo reloj",
   "premiumRowWatchFree": "No",
   "premiumRowWatchPremium": "Incluido",
   "premiumLockedWatch": "El modo reloj es de Premium.",
   "premiumSee": "Ver",
-  "walkHistoryFreeNote": "Plan gratuito: se muestran los últimos 30 días de paseos."
+  "walkHistoryFreeNote": "Plan gratuito: se muestran los últimos 7 días de paseos."
 }
