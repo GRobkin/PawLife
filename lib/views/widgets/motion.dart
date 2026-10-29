@@ -133,15 +133,34 @@ class TransicionCarga extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (reducirMovimiento(context)) return child;
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 280),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeOutCubic,
-      layoutBuilder: (actual, previos) => Stack(
-        alignment: Alignment.topCenter,
-        children: [...previos, ?actual],
+    // El esqueleto se va rápido; el contenido entra un instante después,
+    // subiendo apenas, y la altura se acomoda sin salto. Así nunca se ven
+    // los dos encimados ni la página pega un tirón.
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 520),
+        reverseDuration: const Duration(milliseconds: 180),
+        switchInCurve: const Interval(0.3, 1, curve: Curves.easeOutCubic),
+        switchOutCurve: Curves.easeOut,
+        transitionBuilder: (hijo, animacion) => FadeTransition(
+          opacity: animacion,
+          child: SlideTransition(
+            position: Tween(
+              begin: const Offset(0, 0.025),
+              end: Offset.zero,
+            ).animate(animacion),
+            child: hijo,
+          ),
+        ),
+        layoutBuilder: (actual, previos) => Stack(
+          alignment: Alignment.topCenter,
+          children: [...previos, ?actual],
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }

@@ -23,6 +23,7 @@ import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
+import 'widgets/esqueletos.dart';
 import 'widgets/motion.dart';
 import 'widgets/estado_vacio.dart';
 import 'widgets/foto_mascota.dart';
@@ -146,7 +147,14 @@ class _PetsScreenState extends State<PetsScreen> {
         child: Column(
           children: [
             _buildTopBar(),
-            Expanded(child: _buildContenido()),
+            Expanded(
+              child: TransicionCarga(
+                child: KeyedSubtree(
+                  key: ValueKey(_mascotas == null),
+                  child: _buildContenido(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -208,16 +216,7 @@ class _PetsScreenState extends State<PetsScreen> {
 
     final mascotas = _mascotas;
     if (mascotas == null) {
-      return ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 90),
-        children: const [
-          Esqueleto(alto: 32, ancho: 180),
-          SizedBox(height: 20),
-          Esqueleto(alto: 230, radio: 20),
-          SizedBox(height: 14),
-          Esqueleto(alto: 230, radio: 20),
-        ],
-      );
+      return const EsqueletoMascotas();
     }
 
     if (mascotas.isEmpty) {

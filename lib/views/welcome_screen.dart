@@ -8,6 +8,7 @@
 // La foto vive en assets/images/ y está declarada en pubspec.yaml.
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -84,21 +85,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-          // Lo que hace la app, dicho con iconos que flotan sobre la foto.
-          const _Burbuja(
-            alineacion: Alignment(0.8, -0.46),
-            icono: Icons.directions_walk,
-            indice: 0,
-          ),
-          const _Burbuja(
-            alineacion: Alignment(-0.84, -0.18),
-            icono: Icons.vaccines_outlined,
-            indice: 1,
-          ),
-          const _Burbuja(
-            alineacion: Alignment(0.66, 0.02),
-            icono: Icons.monitor_weight_outlined,
-            indice: 2,
+          // Destellos de luz cálida que suben despacio sobre la foto, como el
+          // sol de la tarde entre las hojas. No reciben toques.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: alto * 0.62,
+            child: const IgnorePointer(child: _Destellos()),
           ),
           SafeArea(
             child: Align(
@@ -122,7 +116,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(26, 0, 26, 10),
-                  child: _PanelQueSube(
+                  child: _SinEnvoltura(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,9 +125,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            'PawLife',
-                            style: TextStyle(
+                          child: _TituloLetras(
+                            texto: 'PawLife',
+                            estilo: TextStyle(
                               fontFamily: 'NunitoSans',
                               fontSize: 78,
                               fontWeight: FontWeight.w900,
@@ -144,93 +138,108 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 3),
-                              child: Icon(
-                                Icons.pets,
-                                size: 18,
-                                color: context.marca,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                t.welcomeTagline,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  height: 1.4,
-                                  color: context.textoSuave,
+                        _Entrada(
+                          retraso: 520,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: Icon(
+                                  Icons.pets,
+                                  size: 18,
+                                  color: context.marca,
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  t.welcomeTagline,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    height: 1.4,
+                                    color: context.textoSuave,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 28),
-                        BotonGoogle(cargando: _cargando, onPressed: _google),
+                        _Entrada(
+                          retraso: 640,
+                          child: BotonGoogle(
+                            cargando: _cargando,
+                            onPressed: _google,
+                          ),
+                        ),
                         const SizedBox(height: 12),
-                        Presionable(
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: FilledButton(
-                              onPressed: _cargando
-                                  ? null
-                                  : () => _abrir(const RegisterScreen()),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: context.botonFondo,
-                                foregroundColor: context.botonTexto,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    t.getStarted,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                    ),
+                        _Entrada(
+                          retraso: 720,
+                          child: Presionable(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: FilledButton(
+                                onPressed: _cargando
+                                    ? null
+                                    : () => _abrir(const RegisterScreen()),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: context.botonFondo,
+                                  foregroundColor: context.botonTexto,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
                                   ),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward, size: 18),
-                                ],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      t.getStarted,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.arrow_forward, size: 18),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Center(
-                          child: TextButton(
-                            onPressed: _cargando
-                                ? null
-                                : () => _abrir(const LoginScreen()),
-                            child: Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: t.hasAccountPrefix,
-                                    style: TextStyle(
-                                      color: context.textoSuave,
-                                      fontWeight: FontWeight.w400,
+                        _Entrada(
+                          retraso: 800,
+                          child: Center(
+                            child: TextButton(
+                              onPressed: _cargando
+                                  ? null
+                                  : () => _abrir(const LoginScreen()),
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: t.hasAccountPrefix,
+                                      style: TextStyle(
+                                        color: context.textoSuave,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: t.signIn,
-                                    style: TextStyle(
-                                      color: context.marca,
-                                      fontWeight: FontWeight.w800,
+                                    TextSpan(
+                                      text: t.signIn,
+                                      style: TextStyle(
+                                        color: context.marca,
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                                style: const TextStyle(fontSize: 15),
                               ),
-                              style: const TextStyle(fontSize: 15),
                             ),
                           ),
                         ),
@@ -268,98 +277,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Icono redondo que aparece con un pequeño salto y flota despacio unas pocas
-/// veces antes de quedarse quieto (no consume batería con la pantalla abierta).
-class _Burbuja extends StatefulWidget {
-  const _Burbuja({
-    required this.alineacion,
-    required this.icono,
-    required this.indice,
-  });
-
-  final Alignment alineacion;
-  final IconData icono;
-  final int indice;
-
-  @override
-  State<_Burbuja> createState() => _BurbujaState();
-}
-
-class _BurbujaState extends State<_Burbuja>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _flotar = AnimationController(
-    vsync: this,
-    duration: Duration(milliseconds: 2600 + widget.indice * 400),
-  );
-  bool _iniciado = false;
-  Timer? _espera;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_iniciado || reducirMovimiento(context)) return;
-    _iniciado = true;
-    _espera = Timer(Duration(milliseconds: 600 + widget.indice * 160), () {
-      if (mounted) _flotar.repeat(reverse: true, count: 6);
-    });
-  }
-
-  @override
-  void dispose() {
-    _espera?.cancel();
-    _flotar.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final burbuja = Container(
-      width: 54,
-      height: 54,
-      decoration: BoxDecoration(
-        color: context.superficie.withValues(alpha: 0.94),
-        shape: BoxShape.circle,
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x26000000),
-            blurRadius: 16,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Icon(widget.icono, color: context.marca, size: 26),
-    );
-    if (reducirMovimiento(context)) {
-      return Align(alignment: widget.alineacion, child: burbuja);
-    }
-    return Align(
-      alignment: widget.alineacion,
-      child: RepaintBoundary(
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: Duration(milliseconds: 560 + widget.indice * 170),
-          curve: Curves.easeOutBack,
-          builder: (_, entrada, hijo) => Opacity(
-            opacity: entrada.clamp(0.0, 1.0),
-            child: Transform.scale(scale: 0.6 + 0.4 * entrada, child: hijo),
-          ),
-          child: AnimatedBuilder(
-            animation: _flotar,
-            child: burbuja,
-            builder: (_, hijo) => Transform.translate(
-              offset: Offset(
-                0,
-                -8 * Curves.easeInOutSine.transform(_flotar.value),
-              ),
-              child: hijo,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -447,29 +364,215 @@ class _FotoConAcercamiento extends StatelessWidget {
   }
 }
 
-/// El contenido entra desde abajo con un leve desplazamiento y fundido.
-class _PanelQueSube extends StatelessWidget {
-  const _PanelQueSube({required this.child});
+/// El texto de abajo no se mueve en bloque: cada parte entra por su cuenta
+/// (letras del título, frase, botones). Esto solo deja pasar al hijo.
+class _SinEnvoltura extends StatelessWidget {
+  const _SinEnvoltura({required this.child});
 
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => child;
+}
+
+/// Entra con fundido y un leve ascenso después de [retraso] ms, para que las
+/// partes de la pantalla aparezcan en cascada y no todas a la vez.
+class _Entrada extends StatelessWidget {
+  const _Entrada({required this.retraso, required this.child});
+
+  final int retraso;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     if (reducirMovimiento(context)) return child;
+    const duracion = 520;
+    final total = retraso + duracion;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 620),
-      curve: Curves.easeOutCubic,
+      duration: Duration(milliseconds: total),
+      curve: Interval(retraso / total, 1, curve: Curves.easeOutCubic),
       builder: (_, v, hijo) => Opacity(
         opacity: v,
         child: Transform.translate(
-          offset: Offset(0, (1 - v) * 48),
+          offset: Offset(0, (1 - v) * 18),
           child: hijo,
         ),
       ),
       child: child,
     );
   }
+}
+
+/// Título que se arma letra por letra: cada una sube desde abajo, recortada
+/// por su propia línea, como tipografía de cartel. Una sola animación para
+/// todas las letras; después queda quieto.
+class _TituloLetras extends StatefulWidget {
+  const _TituloLetras({required this.texto, required this.estilo});
+
+  final String texto;
+  final TextStyle estilo;
+
+  @override
+  State<_TituloLetras> createState() => _TituloLetrasState();
+}
+
+class _TituloLetrasState extends State<_TituloLetras>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (reducirMovimiento(context)) {
+      _c.value = 1;
+    } else if (_c.value == 0 && !_c.isAnimating) {
+      _c.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final letras = widget.texto.characters.toList();
+    final n = letras.length;
+    return Semantics(
+      label: widget.texto,
+      excludeSemantics: true,
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (context, _) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < n; i++)
+              Builder(
+                builder: (context) {
+                  // Cada letra ocupa una franja del tiempo total, solapada
+                  // con la siguiente para que la ola sea continua.
+                  final inicio = i / (n + 2);
+                  final v = Interval(
+                    inicio,
+                    (inicio + 3 / (n + 2)).clamp(0.0, 1.0),
+                    curve: Curves.easeOutCubic,
+                  ).transform(_c.value);
+                  return ClipRect(
+                    child: Opacity(
+                      opacity: v.clamp(0.0, 1.0),
+                      child: FractionalTranslation(
+                        translation: Offset(0, 1 - v),
+                        child: Text(letras[i], style: widget.estilo),
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Puntos de luz cálida y difusa que suben despacio y titilan, sobre la foto.
+/// Pocos puntos, un solo controlador y un solo lienzo; se detiene después de
+/// unas vueltas para no gastar batería con la pantalla abierta.
+class _Destellos extends StatefulWidget {
+  const _Destellos();
+
+  @override
+  State<_Destellos> createState() => _DestellosState();
+}
+
+class _DestellosState extends State<_Destellos>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 16),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (reducirMovimiento(context)) {
+      _c.stop();
+    } else if (!_c.isAnimating) {
+      _c.repeat(count: 3);
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (reducirMovimiento(context)) return const SizedBox.shrink();
+    return RepaintBoundary(
+      child: CustomPaint(painter: _PintorDestellos(_c), size: Size.infinite),
+    );
+  }
+}
+
+class _PintorDestellos extends CustomPainter {
+  _PintorDestellos(this.tiempo) : super(repaint: tiempo);
+
+  final Animation<double> tiempo;
+
+  // Posición x (0..1), fase inicial (0..1), radio y velocidad de cada punto.
+  static const _puntos = [
+    (0.08, 0.10, 22.0, 1.0),
+    (0.22, 0.55, 12.0, 1.4),
+    (0.35, 0.30, 30.0, 0.8),
+    (0.48, 0.80, 10.0, 1.6),
+    (0.60, 0.15, 18.0, 1.1),
+    (0.72, 0.65, 26.0, 0.9),
+    (0.85, 0.40, 14.0, 1.3),
+    (0.93, 0.90, 20.0, 1.0),
+    (0.15, 0.75, 16.0, 1.2),
+    (0.55, 0.45, 8.0, 1.8),
+    (0.78, 0.05, 11.0, 1.5),
+    (0.42, 0.95, 24.0, 0.85),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = tiempo.value;
+    for (final (x, fase, radio, velocidad) in _puntos) {
+      // Sube en bucle y titila con una onda propia.
+      final avance = (fase + t * velocidad) % 1.0;
+      final y = size.height * (1.05 - avance * 1.1);
+      final dx = size.width * x + 10 * math.sin(avance * 6.283);
+      final brillo =
+          (0.5 + 0.5 * math.sin(avance * 12.566 + fase * 6.283)) *
+          (1 - (avance - 0.5).abs() * 2).clamp(0.0, 1.0);
+      if (brillo <= 0.01) continue;
+      final centro = Offset(dx, y);
+      canvas.drawCircle(
+        centro,
+        radio,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              Color.fromRGBO(255, 236, 190, 0.55 * brillo),
+              const Color.fromRGBO(255, 236, 190, 0),
+            ],
+          ).createShader(Rect.fromCircle(center: centro, radius: radio)),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PintorDestellos old) => false;
 }
 
 /// Respaldo por si la imagen de fondo no se puede cargar.

@@ -9,11 +9,17 @@
 // Los paseos tienen su propia clase (walk_repository.dart) porque además de
 // leerlos hay que convertir la WalkSession que produce el ViewModel.
 
+import 'package:flutter/foundation.dart';
 import '../models/pawlife_models.dart';
 import 'api_client.dart';
 
 class PawLifeRepository {
   PawLifeRepository({ApiClient? client}) : client = client ?? ApiClient();
+
+  /// Avisa cuando se crea, edita o borra una mascota desde cualquier pantalla,
+  /// para que las demás (el Home, sobre todo) se actualicen sin esperar a
+  /// volver a abrirse.
+  static final ValueNotifier<int> mascotasCambiaron = ValueNotifier(0);
 
   final ApiClient client;
 
@@ -119,6 +125,7 @@ class PawLifeRepository {
       'notas': notas,
     });
 
+    mascotasCambiaron.value++;
     return Mascota.fromJson(creada);
   }
 
@@ -158,11 +165,15 @@ class PawLifeRepository {
       mascota.toJson(),
     );
 
+    mascotasCambiaron.value++;
     return Mascota.fromJson(actualizada);
   }
 
   /// Borra la mascota y, con ella, sus vacunas, medicamentos, pesos y paseos.
-  Future<void> deleteMascota(String id) => client.delete('/api/mascotas/$id');
+  Future<void> deleteMascota(String id) async {
+    await client.delete('/api/mascotas/$id');
+    mascotasCambiaron.value++;
+  }
 
   // ----------------------------------------------------------------- vacunas
 

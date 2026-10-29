@@ -16,6 +16,7 @@ import 'widgets/boton_mantener.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'widgets/esqueletos.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
@@ -225,7 +226,7 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
     final t = AppLocalizations.of(context);
     switch (vm.status) {
       case RouteScreenStatus.loading:
-        return const Center(child: CircularProgressIndicator());
+        return const EsqueletoPaseo();
 
       case RouteScreenStatus.error:
         return Center(

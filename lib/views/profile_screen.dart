@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'widgets/esqueletos.dart';
+import 'widgets/motion.dart';
 
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
@@ -168,114 +170,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text(t.profileTitle),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: _perfil == null && _error == null
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                if (_error != null) ...[
-                  Text(
-                    _error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  TextButton(onPressed: _load, child: Text(t.retry)),
-                ],
-                if (_perfil != null) ...[
-                  const SizedBox(height: 16),
-                  const CircleAvatar(
-                    radius: 38,
-                    child: Icon(Icons.person, size: 38),
-                  ),
-                  const SizedBox(height: 28),
-                  TextField(
-                    controller: _nombre,
-                    maxLength: 80,
-                    decoration: InputDecoration(
-                      labelText: t.profileName,
-                      border: const OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ListTile(title: Text(t.profileEmail), subtitle: Text(email)),
-                  const SizedBox(height: 18),
-                  const PreferencesSection(),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _saving ? null : _save,
-                      child: Text(t.profileSave),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  _GrupoOpciones(
-                    children: [
-                      _Opcion(
-                        icono: Icons.workspace_premium_outlined,
-                        texto: t.premiumTitle,
-                        onTap: _saving
-                            ? null
-                            : () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      PremiumScreen(repository: _repo),
-                                ),
-                              ),
+      body: TransicionCarga(
+        child: _perfil == null && _error == null
+            ? const EsqueletoPerfil(key: ValueKey('cargando'))
+            : ListView(
+                key: const ValueKey('perfil'),
+                padding: const EdgeInsets.all(20),
+                children: [
+                  if (_error != null) ...[
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
                       ),
-                      _Opcion(
-                        icono: Icons.shield_outlined,
-                        texto: t.privacyAndData,
-                        onTap: _saving
-                            ? null
-                            : () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PrivacyScreen(auth: _auth),
-                                ),
-                              ),
+                    ),
+                    TextButton(onPressed: _load, child: Text(t.retry)),
+                  ],
+                  if (_perfil != null) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: _AvatarPerfil(
+                        fotoUrl: _auth.currentUser?.photoURL,
+                        nombre: _auth.currentUser?.displayName ?? email,
                       ),
-                      if (_auth.supportsPasswordChange) ...[
+                    ),
+                    const SizedBox(height: 28),
+                    TextField(
+                      controller: _nombre,
+                      maxLength: 80,
+                      decoration: InputDecoration(
+                        labelText: t.profileName,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ListTile(
+                      title: Text(t.profileEmail),
+                      subtitle: Text(email),
+                    ),
+                    const SizedBox(height: 18),
+                    const PreferencesSection(),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _saving ? null : _save,
+                        child: Text(t.profileSave),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    _GrupoOpciones(
+                      children: [
                         _Opcion(
-                          icono: Icons.alternate_email,
-                          texto: t.changeEmail,
-                          onTap: _saving ? null : _changeEmail,
+                          icono: Icons.workspace_premium_outlined,
+                          texto: t.premiumTitle,
+                          onTap: _saving
+                              ? null
+                              : () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        PremiumScreen(repository: _repo),
+                                  ),
+                                ),
                         ),
                         _Opcion(
-                          icono: Icons.lock_outline,
-                          texto: t.changePassword,
-                          onTap: _saving ? null : _changePassword,
+                          icono: Icons.shield_outlined,
+                          texto: t.privacyAndData,
+                          onTap: _saving
+                              ? null
+                              : () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PrivacyScreen(auth: _auth),
+                                  ),
+                                ),
+                        ),
+                        if (_auth.supportsPasswordChange) ...[
+                          _Opcion(
+                            icono: Icons.alternate_email,
+                            texto: t.changeEmail,
+                            onTap: _saving ? null : _changeEmail,
+                          ),
+                          _Opcion(
+                            icono: Icons.lock_outline,
+                            texto: t.changePassword,
+                            onTap: _saving ? null : _changePassword,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    _GrupoOpciones(
+                      children: [
+                        _Opcion(
+                          icono: Icons.logout,
+                          texto: t.signOut,
+                          onTap: _saving ? null : _signOut,
+                          flecha: false,
                         ),
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  _GrupoOpciones(
-                    children: [
-                      _Opcion(
-                        icono: Icons.logout,
-                        texto: t.signOut,
-                        onTap: _saving ? null : _signOut,
-                        flecha: false,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 22),
-                  Center(
-                    child: TextButton.icon(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.error,
-                      ),
-                      onPressed: _saving ? null : _deleteAccount,
-                      icon: const Icon(Icons.delete_outline, size: 18),
-                      label: Text(t.deleteAccountButton),
                     ),
-                  ),
+                    const SizedBox(height: 22),
+                    Center(
+                      child: TextButton.icon(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        onPressed: _saving ? null : _deleteAccount,
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                        label: Text(t.deleteAccountButton),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
-            ),
+              ),
+      ),
       bottomNavigationBar: PawLifeBottomNav(
         activa: SeccionNav.perfil,
         onPaseo: () => iniciarPaseo(context),
@@ -356,6 +366,61 @@ class _Opcion extends StatelessWidget {
               if (flecha) Icon(Icons.chevron_right, color: context.textoTenue),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Foto de Google si hay; si no, las iniciales sobre menta, con un anillo de
+/// marca alrededor.
+class _AvatarPerfil extends StatelessWidget {
+  const _AvatarPerfil({required this.fotoUrl, required this.nombre});
+
+  final String? fotoUrl;
+  final String nombre;
+
+  String get _iniciales {
+    final texto = nombre
+        .trim()
+        .split(RegExp(r'[\s@._-]+'))
+        .where((p) => p.isNotEmpty)
+        .take(2)
+        .map((p) => p.characters.first.toUpperCase())
+        .join();
+    return texto.isEmpty ? '?' : texto;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final iniciales = Center(
+      child: Text(
+        _iniciales,
+        style: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w900,
+          color: context.marca,
+        ),
+      ),
+    );
+    return Container(
+      width: 92,
+      height: 92,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: context.marca, width: 2),
+      ),
+      child: ClipOval(
+        child: ColoredBox(
+          color: context.mentaSuave,
+          child: fotoUrl == null
+              ? iniciales
+              : Image.network(
+                  fotoUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => iniciales,
+                ),
         ),
       ),
     );

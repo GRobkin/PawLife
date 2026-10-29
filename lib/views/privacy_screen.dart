@@ -3,6 +3,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'widgets/esqueletos.dart';
+import 'widgets/motion.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
@@ -273,67 +275,81 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
         title: Text(t.privacyTitle),
         backgroundColor: context.fondoPantalla,
       ),
-      body: info == null && _error == null
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                if (_error != null) ...[
-                  Text(
-                    _error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+      body: TransicionCarga(
+        child: info == null && _error == null
+            ? const EsqueletoLista(key: ValueKey('cargando'), filas: 6)
+            : ListView(
+                key: const ValueKey('privacidad'),
+                padding: const EdgeInsets.all(20),
+                children: [
+                  if (_error != null) ...[
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: _saving ? null : _load,
-                    child: Text(t.retry),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                if (info != null) ...[
-                  Text(
-                    t.yourNotices,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(t.careReminders),
-                    subtitle: Text(t.careRemindersHint),
-                    value:
-                        preferences is Map &&
-                        preferences['recordatoriosCuidados'] == true,
-                    onChanged: _saving
-                        ? null
-                        : (value) =>
-                              _preference('recordatoriosCuidados', value),
-                  ),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(t.teamNotices),
-                    value:
-                        preferences is Map &&
-                        preferences['avisosEquipo'] == true,
-                    onChanged: _saving
-                        ? null
-                        : (value) => _preference('avisosEquipo', value),
-                  ),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(t.inactivityTitle),
-                    subtitle: Text(t.inactivityHint),
-                    value: _inactivity['habilitada'] == true,
-                    onChanged: _saving
-                        ? null
-                        : (value) => _setInactivity({'habilitada': value}),
-                  ),
-                  if (_inactivity['habilitada'] == true) ...[
-                    Row(
-                      children: [
-                        Expanded(child: Text(t.inactivityAfter)),
-                        DropdownButton<int>(
-                          value:
-                              const [
+                    TextButton(
+                      onPressed: _saving ? null : _load,
+                      child: Text(t.retry),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (info != null) ...[
+                    Text(
+                      t.yourNotices,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(t.careReminders),
+                      subtitle: Text(t.careRemindersHint),
+                      value:
+                          preferences is Map &&
+                          preferences['recordatoriosCuidados'] == true,
+                      onChanged: _saving
+                          ? null
+                          : (value) =>
+                                _preference('recordatoriosCuidados', value),
+                    ),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(t.teamNotices),
+                      value:
+                          preferences is Map &&
+                          preferences['avisosEquipo'] == true,
+                      onChanged: _saving
+                          ? null
+                          : (value) => _preference('avisosEquipo', value),
+                    ),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(t.inactivityTitle),
+                      subtitle: Text(t.inactivityHint),
+                      value: _inactivity['habilitada'] == true,
+                      onChanged: _saving
+                          ? null
+                          : (value) => _setInactivity({'habilitada': value}),
+                    ),
+                    if (_inactivity['habilitada'] == true) ...[
+                      Row(
+                        children: [
+                          Expanded(child: Text(t.inactivityAfter)),
+                          DropdownButton<int>(
+                            value:
+                                const [
+                                  24,
+                                  48,
+                                  72,
+                                  120,
+                                  168,
+                                  336,
+                                  720,
+                                ].contains(_inactivity['intervaloHoras'])
+                                ? _inactivity['intervaloHoras'] as int
+                                : 72,
+                            items: [
+                              for (final hours in const [
                                 24,
                                 48,
                                 72,
@@ -341,163 +357,154 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                                 168,
                                 336,
                                 720,
-                              ].contains(_inactivity['intervaloHoras'])
-                              ? _inactivity['intervaloHoras'] as int
-                              : 72,
-                          items: [
-                            for (final hours in const [
-                              24,
-                              48,
-                              72,
-                              120,
-                              168,
-                              336,
-                              720,
-                            ])
-                              DropdownMenuItem(
-                                value: hours,
-                                child: Text(t.inactivityDays(hours ~/ 24)),
-                              ),
-                          ],
-                          onChanged: _saving
-                              ? null
-                              : (hours) {
-                                  if (hours != null) {
-                                    _setInactivity({'intervaloHoras': hours});
-                                  }
-                                },
-                        ),
-                      ],
-                    ),
-                    SwitchListTile.adaptive(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(t.inactivityIncludeNew),
-                      value: _inactivity['incluirSinPaseos'] == true,
-                      onChanged: _saving
-                          ? null
-                          : (value) =>
-                                _setInactivity({'incluirSinPaseos': value}),
-                    ),
-                  ],
-                  const Divider(height: 32),
-                  Text(
-                    t.yourData,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(t.yourDataBody),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: _saving ? null : _prepareExport,
-                    icon: const Icon(Icons.download_outlined),
-                    label: Text(t.prepareFile),
-                  ),
-                  if (_export != null) ...[
-                    const SizedBox(height: 12),
-                    const LinearProgressIndicator(),
-                    Text(t.recordsPrepared(_records)),
-                    TextButton(
-                      onPressed: () => unawaited(_export?.cancel()),
-                      child: Text(t.cancelExport),
-                    ),
-                  ],
-                  if (_file != null) ...[
-                    const SizedBox(height: 12),
-                    Builder(
-                      builder: (context) => FilledButton.icon(
-                        onPressed: _saving ? null : () => _share(context),
-                        icon: const Icon(Icons.save_alt),
-                        label: Text(t.saveOrShareJson),
+                              ])
+                                DropdownMenuItem(
+                                  value: hours,
+                                  child: Text(t.inactivityDays(hours ~/ 24)),
+                                ),
+                            ],
+                            onChanged: _saving
+                                ? null
+                                : (hours) {
+                                    if (hours != null) {
+                                      _setInactivity({'intervaloHoras': hours});
+                                    }
+                                  },
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                  const Divider(height: 32),
-                  Text(
-                    t.requestsTitle,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  if (contact is Map) ...[
-                    SelectableText(
-                      '${contact['responsable']} · ${contact['email']}',
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  if (info['solicitudesHabilitadas'] == true &&
-                      contact is Map) ...[
-                    DropdownButtonFormField<String>(
-                      initialValue: _requestType,
-                      isExpanded: true,
-                      decoration: InputDecoration(labelText: t.requestType),
-                      items: [
-                        DropdownMenuItem(
-                          value: 'consulta',
-                          child: Text(t.reqConsulta),
-                        ),
-                        DropdownMenuItem(
-                          value: 'acceso',
-                          child: Text(t.reqAcceso),
-                        ),
-                        DropdownMenuItem(
-                          value: 'correccion',
-                          child: Text(t.reqCorreccion),
-                        ),
-                        DropdownMenuItem(
-                          value: 'oposicion',
-                          child: Text(t.reqOposicion),
-                        ),
-                        DropdownMenuItem(
-                          value: 'bloqueo',
-                          child: Text(t.reqBloqueo),
-                        ),
-                        DropdownMenuItem(
-                          value: 'anonimizacion',
-                          child: Text(t.reqAnonimizacion),
-                        ),
-                      ],
-                      onChanged: _saving
-                          ? null
-                          : (value) {
-                              _requestType = value!;
-                              _requestId = null;
-                            },
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _detail,
-                      enabled: !_saving,
-                      maxLength: 1000,
-                      maxLines: 4,
-                      onChanged: (_) => _requestId = null,
-                      decoration: InputDecoration(
-                        labelText: t.detailLabel,
-                        border: const OutlineInputBorder(),
+                      SwitchListTile.adaptive(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(t.inactivityIncludeNew),
+                        value: _inactivity['incluirSinPaseos'] == true,
+                        onChanged: _saving
+                            ? null
+                            : (value) =>
+                                  _setInactivity({'incluirSinPaseos': value}),
                       ),
-                    ),
-                    OutlinedButton(
-                      onPressed: _saving ? null : _sendRequest,
-                      child: Text(t.registerRequest),
-                    ),
-                  ] else
+                    ],
+                    const Divider(height: 32),
                     Text(
-                      contact is Map
-                          ? t.requestsByEmail
-                          : t.requestChannelMissing,
+                      t.yourData,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                  for (final request in _requests)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('${request['tipo']} · ${request['estado']}'),
-                      subtitle: Text('${request['detalle']}'),
+                    const SizedBox(height: 12),
+                    Text(t.yourDataBody),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: _saving ? null : _prepareExport,
+                      icon: const Icon(Icons.download_outlined),
+                      label: Text(t.prepareFile),
                     ),
-                  if (_requests.isNotEmpty)
-                    TextButton(
-                      onPressed: _saving ? null : _load,
-                      child: Text(t.refreshRequests),
+                    if (_export != null) ...[
+                      const SizedBox(height: 12),
+                      const LinearProgressIndicator(),
+                      Text(t.recordsPrepared(_records)),
+                      TextButton(
+                        onPressed: () => unawaited(_export?.cancel()),
+                        child: Text(t.cancelExport),
+                      ),
+                    ],
+                    if (_file != null) ...[
+                      const SizedBox(height: 12),
+                      Builder(
+                        builder: (context) => FilledButton.icon(
+                          onPressed: _saving ? null : () => _share(context),
+                          icon: const Icon(Icons.save_alt),
+                          label: Text(t.saveOrShareJson),
+                        ),
+                      ),
+                    ],
+                    const Divider(height: 32),
+                    Text(
+                      t.requestsTitle,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
+                    const SizedBox(height: 12),
+                    if (contact is Map) ...[
+                      SelectableText(
+                        '${contact['responsable']} · ${contact['email']}',
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (info['solicitudesHabilitadas'] == true &&
+                        contact is Map) ...[
+                      DropdownButtonFormField<String>(
+                        initialValue: _requestType,
+                        isExpanded: true,
+                        decoration: InputDecoration(labelText: t.requestType),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'consulta',
+                            child: Text(t.reqConsulta),
+                          ),
+                          DropdownMenuItem(
+                            value: 'acceso',
+                            child: Text(t.reqAcceso),
+                          ),
+                          DropdownMenuItem(
+                            value: 'correccion',
+                            child: Text(t.reqCorreccion),
+                          ),
+                          DropdownMenuItem(
+                            value: 'oposicion',
+                            child: Text(t.reqOposicion),
+                          ),
+                          DropdownMenuItem(
+                            value: 'bloqueo',
+                            child: Text(t.reqBloqueo),
+                          ),
+                          DropdownMenuItem(
+                            value: 'anonimizacion',
+                            child: Text(t.reqAnonimizacion),
+                          ),
+                        ],
+                        onChanged: _saving
+                            ? null
+                            : (value) {
+                                _requestType = value!;
+                                _requestId = null;
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _detail,
+                        enabled: !_saving,
+                        maxLength: 1000,
+                        maxLines: 4,
+                        onChanged: (_) => _requestId = null,
+                        decoration: InputDecoration(
+                          labelText: t.detailLabel,
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: _saving ? null : _sendRequest,
+                        child: Text(t.registerRequest),
+                      ),
+                    ] else
+                      Text(
+                        contact is Map
+                            ? t.requestsByEmail
+                            : t.requestChannelMissing,
+                      ),
+                    for (final request in _requests)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          '${request['tipo']} · ${request['estado']}',
+                        ),
+                        subtitle: Text('${request['detalle']}'),
+                      ),
+                    if (_requests.isNotEmpty)
+                      TextButton(
+                        onPressed: _saving ? null : _load,
+                        child: Text(t.refreshRequests),
+                      ),
+                  ],
                 ],
-              ],
-            ),
+              ),
+      ),
     );
   }
 }

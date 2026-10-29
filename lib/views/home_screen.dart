@@ -23,6 +23,7 @@ import 'widgets/pawlife_bottom_nav.dart';
 import 'wearable/wearable_screen.dart';
 import 'widgets/carrusel_hoy.dart';
 import 'widgets/motion.dart';
+import 'widgets/esqueletos.dart';
 import 'widgets/portada_mascota.dart';
 import 'widgets/selector_mascota.dart';
 
@@ -62,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Al cambiar de mascota hay que recargar los paseos: el resumen habla de
     // la activa, no del usuario.
     SeleccionMascota.id.addListener(_cargarPaseos);
+    PawLifeRepository.mascotasCambiaron.addListener(_cargarMascotas);
     _cargarMascotas();
     _cargarRecordatorios();
   }
@@ -69,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     SeleccionMascota.id.removeListener(_cargarPaseos);
+    PawLifeRepository.mascotasCambiaron.removeListener(_cargarMascotas);
     _scroll.dispose();
     super.dispose();
   }
@@ -288,13 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 TransicionCarga(
                   child: _recordatorios == null
-                      ? const Column(
-                          key: ValueKey('hoy-cargando'),
-                          children: [
-                            Esqueleto(alto: 116, radio: 20),
-                            SizedBox(height: 22),
-                          ],
-                        )
+                      ? const EsqueletoTareaHoy(key: ValueKey('hoy-cargando'))
                       : hoy!.isEmpty
                       ? Container(
                           key: const ValueKey('hoy-vacio'),

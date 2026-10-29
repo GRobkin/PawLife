@@ -488,5 +488,8 @@
   "premiumSuccess": "Done! You're Premium now.",
   "premiumSimulatedActive": "Test Premium active until {date}",
   "premiumCancelSimulated": "Cancel test subscription",
-  "premiumPurchaseError": "Couldn't complete the purchase. Try again."
+  "premiumPurchaseError": "Couldn't complete the purchase. Try again.",
+  "taskTimeLabel": "Time",
+  "errTaskEmpty": "Write what needs to be done.",
+  "errTaskPast": "Pick a future date and time."
 }

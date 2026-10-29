@@ -1730,4 +1730,13 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get premiumPurchaseError =>
       'Não foi possível concluir a compra. Tente de novo.';
+
+  @override
+  String get taskTimeLabel => 'Hora';
+
+  @override
+  String get errTaskEmpty => 'Escreva o que precisa ser feito.';
+
+  @override
+  String get errTaskPast => 'Escolha uma data e hora futuras.';
 }
