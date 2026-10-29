@@ -396,3 +396,36 @@ class _ReboteAlActivarState extends State<ReboteAlActivar>
   Widget build(BuildContext context) =>
       ScaleTransition(scale: _escala, child: widget.child);
 }
+
+/// Marca de la barra superior: huella en un cuadrado de marca y el nombre.
+class MarcaPawLife extends StatelessWidget {
+  const MarcaPawLife({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: context.botonFondo,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(Icons.pets, size: 16, color: context.botonTexto),
+        ),
+        const SizedBox(width: 9),
+        Text(
+          'PawLife',
+          style: TextStyle(
+            fontFamily: 'NunitoSans',
+            fontSize: 21,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.6,
+            color: context.marca,
+          ),
+        ),
+      ],
+    );
+  }
+}

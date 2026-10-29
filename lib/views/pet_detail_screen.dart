@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'widgets/esqueletos.dart';
+import 'widgets/motion.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
@@ -296,7 +297,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         backgroundColor: context.fondoPantalla,
         elevation: 0,
         foregroundColor: context.marca,
-        title: Text('PawLife', style: Theme.of(context).textTheme.titleLarge),
+        title: const MarcaPawLife(),
         actions: [
           IconButton(
             tooltip: t.edit,
@@ -346,10 +347,36 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                         controller: _tabs,
                         isScrollable: true,
                         tabAlignment: TabAlignment.start,
-                        labelColor: context.marca,
+                        labelColor: context.esOscuro
+                            ? context.botonTexto
+                            : context.marca,
                         unselectedLabelColor: context.textoSuave,
-                        indicatorColor: context.marca,
-                        indicatorSize: TabBarIndicatorSize.label,
+                        labelStyle: const TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        dividerColor: Colors.transparent,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorPadding: const EdgeInsets.symmetric(
+                          vertical: 7,
+                        ),
+                        labelPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        splashBorderRadius: BorderRadius.circular(20),
+                        indicator: BoxDecoration(
+                          color: context.esOscuro
+                              ? context.botonFondo
+                              : context.mentaSuave,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         tabs: [
                           Tab(text: t.tabSummary),
                           Tab(text: t.tabVaccines),
@@ -413,73 +440,97 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     final t = AppLocalizations.of(context);
     final peso = _ultimoPeso;
     final paseo = _ultimoPaseo;
+    final local = MaterialLocalizations.of(context);
 
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _Metrica(
-                icono: Icons.monitor_weight_outlined,
-                rotulo: t.cellWeight,
-                valor: peso == null ? '—' : _formatearKg(peso.valorKg),
-                unidad: peso == null ? null : 'kg',
-                insignia: peso == null
-                    ? t.noRecord
-                    : t.measuredWhen(_haceCuanto(peso.fecha)),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: AparecerAlEntrar(
+                  indice: 1,
+                  child: _Estadistica(
+                    icono: Icons.monitor_weight_outlined,
+                    rotulo: t.cellWeight,
+                    valor: peso == null ? '—' : _formatearKg(peso.valorKg),
+                    unidad: peso == null ? null : 'kg',
+                    detalle: peso == null
+                        ? t.noRecord
+                        : t.measuredWhen(_haceCuanto(peso.fecha)),
+                    onTap: _abrirPesos,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _Metrica(
-                icono: Icons.directions_walk,
-                rotulo: t.metricLastWalk,
-                valor: paseo == null ? '—' : _haceCuanto(paseo.fechaInicio),
-                insignia: paseo == null
-                    ? t.noWalks
-                    : '${(paseo.distanciaMetros / 1000).toStringAsFixed(1)} km',
+              const SizedBox(width: 10),
+              Expanded(
+                child: AparecerAlEntrar(
+                  indice: 2,
+                  child: _Estadistica(
+                    icono: Icons.directions_walk,
+                    rotulo: t.metricLastWalk,
+                    valor: paseo == null
+                        ? '—'
+                        : (paseo.distanciaMetros / 1000).toStringAsFixed(1),
+                    unidad: paseo == null ? null : 'km',
+                    detalle: paseo == null
+                        ? t.noWalks
+                        : _haceCuanto(paseo.fechaInicio),
+                    onTap: () => _tabs.animateTo(4),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _Metrica(
-                icono: Icons.calendar_today_outlined,
-                rotulo: t.metricNextVet,
-                valor: _proximaVisita == null
-                    ? '—'
-                    : MaterialLocalizations.of(
-                        context,
-                      ).formatShortMonthDay(_proximaVisita!),
-                insignia: _proximaVisita == null
-                    ? t.notScheduled
-                    : MaterialLocalizations.of(
-                        context,
-                      ).formatYear(_proximaVisita!),
-                atenuada: _proximaVisita == null,
+              const SizedBox(width: 10),
+              Expanded(
+                child: AparecerAlEntrar(
+                  indice: 3,
+                  child: _Estadistica(
+                    icono: Icons.event_outlined,
+                    rotulo: t.metricNextVet,
+                    valor: _proximaVisita == null
+                        ? '—'
+                        : local.formatShortMonthDay(_proximaVisita!),
+                    detalle: _proximaVisita == null
+                        ? t.notScheduled
+                        : local.formatYear(_proximaVisita!),
+                    onTap: _abrirVisitas,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: _BotonMetrica(onTap: _registrarPeso)),
-          ],
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: _abrirVisitas,
-            icon: const Icon(Icons.local_hospital_outlined),
-            label: Text(t.visitsTitle),
+            ],
           ),
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: _abrirPesos,
-            icon: const Icon(Icons.monitor_weight_outlined),
-            label: Text(t.weightHistory),
+        const SizedBox(height: 14),
+        AparecerAlEntrar(
+          indice: 4,
+          child: Row(
+            children: [
+              Expanded(
+                child: _AccionRapida(
+                  icono: Icons.add,
+                  texto: t.logWeight,
+                  destacada: true,
+                  onTap: _registrarPeso,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _AccionRapida(
+                  icono: Icons.local_hospital_outlined,
+                  texto: t.visitsTitle,
+                  onTap: _abrirVisitas,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _AccionRapida(
+                  icono: Icons.show_chart,
+                  texto: t.weightHistory,
+                  onTap: _abrirPesos,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -837,11 +888,11 @@ class _Portada extends StatelessWidget {
     final foto = proveedorDeFoto(mascota.fotoUrl);
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(28),
       child: Stack(
         children: [
           SizedBox(
-            height: 210,
+            height: 250,
             width: double.infinity,
             child: Hero(
               tag: 'foto-mascota-${mascota.id}',
@@ -879,14 +930,46 @@ class _Portada extends StatelessWidget {
               children: [
                 Text(
                   mascota.nombre,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -1.5,
+                    height: 1,
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  mascota.subtituloLocalizado(AppLocalizations.of(context)),
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final parte
+                        in mascota
+                            .subtituloLocalizado(AppLocalizations.of(context))
+                            .split(' • ')
+                            .where((p) => p.trim().isNotEmpty))
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          parte,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -902,144 +985,172 @@ class _PortadaVacia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFE8D9C0), Color(0xFFD5E3D2)],
+          colors: context.esOscuro
+              ? const [Color(0xFF1D3328), Color(0xFF16241D)]
+              : const [Color(0xFFE8D9C0), Color(0xFFD5E3D2)],
         ),
       ),
-      child: Center(child: Icon(Icons.pets, size: 64, color: Colors.white54)),
+      child: Center(
+        child: Icon(
+          Icons.pets,
+          size: 96,
+          color: context.marca.withValues(alpha: 0.22),
+        ),
+      ),
     );
   }
 }
 
-class _Metrica extends StatelessWidget {
-  const _Metrica({
+/// Cifra compacta y tocable: icono, valor grande, unidad y detalle.
+class _Estadistica extends StatelessWidget {
+  const _Estadistica({
     required this.icono,
     required this.rotulo,
     required this.valor,
+    required this.detalle,
+    required this.onTap,
     this.unidad,
-    this.insignia,
-    this.atenuada = false,
   });
 
   final IconData icono;
   final String rotulo;
   final String valor;
   final String? unidad;
-  final String? insignia;
-  final bool atenuada;
+  final String detalle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
+    final vacio = valor == '—';
+    return Presionable(
+      child: Material(
         color: context.superficie,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icono, size: 14, color: context.textoTenue),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  rotulo,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: context.textoTenue,
-                    letterSpacing: 0.5,
-                    fontWeight: FontWeight.w600,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: context.mentaSuave,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icono, size: 17, color: context.marca),
+                ),
+                const SizedBox(height: 12),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: valor,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            color: vacio ? context.textoTenue : context.texto,
+                          ),
+                        ),
+                        if (unidad != null)
+                          TextSpan(
+                            text: ' $unidad',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: context.textoSuave,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                valor,
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                  color: atenuada ? context.textoTenue : context.texto,
-                ),
-              ),
-              if (unidad != null) ...[
-                const SizedBox(width: 3),
+                const SizedBox(height: 2),
                 Text(
-                  unidad!,
-                  style: TextStyle(fontSize: 13, color: context.textoSuave),
+                  rotulo,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                    color: context.textoSuave,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  detalle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: context.textoTenue),
                 ),
               ],
-            ],
-          ),
-          if (insignia != null) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: atenuada ? context.rellenoNeutro : context.mentaSuave,
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: Text(
-                insignia!,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: atenuada ? context.textoTenue : context.marca,
-                ),
-              ),
             ),
-          ],
-        ],
+          ),
+        ),
       ),
     );
   }
 }
 
-/// La cuarta celda del cuadro de métricas: un botón para registrar peso.
-class _BotonMetrica extends StatelessWidget {
-  const _BotonMetrica({required this.onTap});
+/// Botón de acción rápida bajo las cifras. La destacada va en el color de
+/// marca; las demás, en superficie.
+class _AccionRapida extends StatelessWidget {
+  const _AccionRapida({
+    required this.icono,
+    required this.texto,
+    required this.onTap,
+    this.destacada = false,
+  });
 
+  final IconData icono;
+  final String texto;
   final VoidCallback onTap;
+  final bool destacada;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 26),
-        decoration: BoxDecoration(
+    final fondo = destacada ? context.botonFondo : context.superficie;
+    final frente = destacada ? context.botonTexto : context.marca;
+    return Presionable(
+      child: Material(
+        color: fondo,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: context.bordeSuave,
-            style: BorderStyle.solid,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(Icons.add_circle_outline, color: context.textoSuave),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context).registerWeightCaps,
-              style: TextStyle(
-                fontSize: 10,
-                color: context.textoSuave,
-                letterSpacing: 0.5,
-                fontWeight: FontWeight.w600,
-              ),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            child: Column(
+              children: [
+                Icon(icono, size: 20, color: frente),
+                const SizedBox(height: 6),
+                Text(
+                  texto,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.2,
+                    fontWeight: FontWeight.w800,
+                    color: frente,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

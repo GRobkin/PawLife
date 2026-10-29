@@ -385,8 +385,11 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         // Sin menú lateral: era un icono que no abría nada. La marca va a la
         // izquierda y las acciones reales a la derecha.
-        Expanded(
-          child: Text('PawLife', style: Theme.of(context).textTheme.titleLarge),
+        const Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: MarcaPawLife(),
+          ),
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).wearableOpen,
