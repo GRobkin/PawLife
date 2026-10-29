@@ -3253,7 +3253,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumRowHistoryFree.
   ///
   /// In es, this message translates to:
-  /// **'30 días'**
+  /// **'7 días'**
   String get premiumRowHistoryFree;
 
   /// No description provided for @premiumRowHistoryPremium.
@@ -3295,7 +3295,7 @@ abstract class AppLocalizations {
   /// No description provided for @walkHistoryFreeNote.
   ///
   /// In es, this message translates to:
-  /// **'Plan gratuito: se muestran los últimos 30 días de paseos.'**
+  /// **'Plan gratuito: se muestran los últimos 7 días de paseos.'**
   String get walkHistoryFreeNote;
 }
 

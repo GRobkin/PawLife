@@ -15,7 +15,6 @@ import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
-import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
@@ -23,7 +22,6 @@ import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'widgets/eliminar_mascota.dart';
 import 'widgets/iniciar_paseo.dart';
-import 'profile_screen.dart';
 import 'widgets/esqueletos.dart';
 import 'widgets/motion.dart';
 import 'widgets/estado_vacio.dart';
@@ -31,11 +29,10 @@ import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class PetsScreen extends StatefulWidget {
-  const PetsScreen({super.key, this.repository, this.userPhotoUrl});
+  const PetsScreen({super.key, this.repository});
 
   /// Para pruebas: repositorio y foto de usuario inyectados.
   final PawLifeRepository? repository;
-  final String? userPhotoUrl;
 
   @override
   State<PetsScreen> createState() => _PetsScreenState();
@@ -167,11 +164,6 @@ class _PetsScreenState extends State<PetsScreen> {
   }
 
   Widget _buildTopBar() {
-    final inyectada = widget.userPhotoUrl;
-    final fotoUrl = inyectada != null
-        ? (inyectada.isEmpty ? null : inyectada)
-        : AuthService().currentUser?.photoURL;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Row(
@@ -180,38 +172,6 @@ class _PetsScreenState extends State<PetsScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: MarcaPawLife(),
-            ),
-          ),
-          // Igual que en el Home: el avatar lleva al perfil.
-          Tooltip(
-            message: AppLocalizations.of(context).profileTitle,
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundColor: context.mentaSuave,
-                  child: ClipOval(
-                    child: fotoUrl == null
-                        ? Icon(Icons.person, size: 18, color: context.marca)
-                        : Image.network(
-                            fotoUrl,
-                            width: 32,
-                            height: 32,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Icon(
-                              Icons.person,
-                              size: 18,
-                              color: context.marca,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
             ),
           ),
         ],

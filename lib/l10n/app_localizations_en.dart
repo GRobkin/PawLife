@@ -1855,7 +1855,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumRowHistory => 'Walk history';
 
   @override
-  String get premiumRowHistoryFree => '30 days';
+  String get premiumRowHistoryFree => '7 days';
 
   @override
   String get premiumRowHistoryPremium => 'Full';
@@ -1877,5 +1877,5 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walkHistoryFreeNote =>
-      'Free plan: the last 30 days of walks are shown.';
+      'Free plan: the last 7 days of walks are shown.';
 }
