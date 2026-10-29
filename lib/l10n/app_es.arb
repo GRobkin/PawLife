@@ -828,7 +828,7 @@
   "premiumInactive": "Sin Premium activo",
   "premiumSourceManual": "Concedido por el equipo de PawLife",
   "premiumSourcePaid": "Suscripción",
-  "premiumNoPurchases": "Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app.",
+  "premiumNoPurchases": "Modo de prueba: la compra es simulada y no se cobra nada.",
   "premiumLoadError": "No se pudo consultar tu estado de Premium.",
   "apiAccountDeleting": "Tu cuenta se está eliminando.",
   "apiAccountUnavailable": "La cuenta no está disponible.",
@@ -882,5 +882,37 @@
   "visitsSaveError": "No se pudo guardar la visita. Probá de nuevo.",
   "visitsDeleteError": "No se pudo eliminar la visita.",
   "errVisitReason": "Indicá el motivo de la visita.",
-  "errVisitNextBefore": "La próxima visita debe ser posterior a la fecha."
+  "errVisitNextBefore": "La próxima visita debe ser posterior a la fecha.",
+  "premiumHeadline": "Más para cuidar mejor",
+  "premiumBenefitsTitle": "Qué incluye",
+  "premiumBenefitPdf": "Informe para el veterinario",
+  "premiumBenefitPdfDesc": "Vacunas, peso y paseos en un PDF listo para la consulta.",
+  "premiumBenefitStats": "Estadísticas de paseos",
+  "premiumBenefitStatsDesc": "Distancia y tiempo por semana y por mes.",
+  "premiumBenefitPets": "Mascotas sin límite",
+  "premiumBenefitPetsDesc": "Toda la familia peluda en una cuenta.",
+  "premiumBenefitCards": "Tarjetas exclusivas",
+  "premiumBenefitCardsDesc": "Estilos nuevos para compartir cada paseo.",
+  "premiumBenefitReminders": "Recordatorios avanzados",
+  "premiumBenefitRemindersDesc": "Repeticiones y avisos para toda la familia.",
+  "premiumPlanMonthly": "Mensual",
+  "premiumPlanYearly": "Anual",
+  "premiumPerMonth": "/mes",
+  "premiumPerYear": "/año",
+  "premiumSave": "Ahorrá 33 %",
+  "premiumSubscribe": "Suscribirme",
+  "premiumConfirmTitle": "Confirmar suscripción",
+  "premiumConfirm": "Confirmar compra",
+  "premiumTestBadge": "Prueba",
+  "premiumSuccess": "¡Listo! Ya tenés Premium.",
+  "premiumSimulatedActive": "Premium de prueba activo hasta {date}",
+  "premiumCancelSimulated": "Cancelar suscripción de prueba",
+  "premiumPurchaseError": "No se pudo completar la compra. Probá de nuevo.",
+  "@premiumSimulatedActive": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

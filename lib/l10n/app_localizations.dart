@@ -2599,7 +2599,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumNoPurchases.
   ///
   /// In es, this message translates to:
-  /// **'Por ahora Premium lo concede el equipo de PawLife. Todavía no hay compras dentro de la app.'**
+  /// **'Modo de prueba: la compra es simulada y no se cobra nada.'**
   String get premiumNoPurchases;
 
   /// No description provided for @premiumLoadError.
@@ -2883,6 +2883,156 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'La próxima visita debe ser posterior a la fecha.'**
   String get errVisitNextBefore;
+
+  /// No description provided for @premiumHeadline.
+  ///
+  /// In es, this message translates to:
+  /// **'Más para cuidar mejor'**
+  String get premiumHeadline;
+
+  /// No description provided for @premiumBenefitsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Qué incluye'**
+  String get premiumBenefitsTitle;
+
+  /// No description provided for @premiumBenefitPdf.
+  ///
+  /// In es, this message translates to:
+  /// **'Informe para el veterinario'**
+  String get premiumBenefitPdf;
+
+  /// No description provided for @premiumBenefitPdfDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacunas, peso y paseos en un PDF listo para la consulta.'**
+  String get premiumBenefitPdfDesc;
+
+  /// No description provided for @premiumBenefitStats.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas de paseos'**
+  String get premiumBenefitStats;
+
+  /// No description provided for @premiumBenefitStatsDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia y tiempo por semana y por mes.'**
+  String get premiumBenefitStatsDesc;
+
+  /// No description provided for @premiumBenefitPets.
+  ///
+  /// In es, this message translates to:
+  /// **'Mascotas sin límite'**
+  String get premiumBenefitPets;
+
+  /// No description provided for @premiumBenefitPetsDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Toda la familia peluda en una cuenta.'**
+  String get premiumBenefitPetsDesc;
+
+  /// No description provided for @premiumBenefitCards.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarjetas exclusivas'**
+  String get premiumBenefitCards;
+
+  /// No description provided for @premiumBenefitCardsDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Estilos nuevos para compartir cada paseo.'**
+  String get premiumBenefitCardsDesc;
+
+  /// No description provided for @premiumBenefitReminders.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorios avanzados'**
+  String get premiumBenefitReminders;
+
+  /// No description provided for @premiumBenefitRemindersDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Repeticiones y avisos para toda la familia.'**
+  String get premiumBenefitRemindersDesc;
+
+  /// No description provided for @premiumPlanMonthly.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensual'**
+  String get premiumPlanMonthly;
+
+  /// No description provided for @premiumPlanYearly.
+  ///
+  /// In es, this message translates to:
+  /// **'Anual'**
+  String get premiumPlanYearly;
+
+  /// No description provided for @premiumPerMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'/mes'**
+  String get premiumPerMonth;
+
+  /// No description provided for @premiumPerYear.
+  ///
+  /// In es, this message translates to:
+  /// **'/año'**
+  String get premiumPerYear;
+
+  /// No description provided for @premiumSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorrá 33 %'**
+  String get premiumSave;
+
+  /// No description provided for @premiumSubscribe.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscribirme'**
+  String get premiumSubscribe;
+
+  /// No description provided for @premiumConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar suscripción'**
+  String get premiumConfirmTitle;
+
+  /// No description provided for @premiumConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar compra'**
+  String get premiumConfirm;
+
+  /// No description provided for @premiumTestBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'Prueba'**
+  String get premiumTestBadge;
+
+  /// No description provided for @premiumSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Listo! Ya tenés Premium.'**
+  String get premiumSuccess;
+
+  /// No description provided for @premiumSimulatedActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Premium de prueba activo hasta {date}'**
+  String premiumSimulatedActive(String date);
+
+  /// No description provided for @premiumCancelSimulated.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar suscripción de prueba'**
+  String get premiumCancelSimulated;
+
+  /// No description provided for @premiumPurchaseError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo completar la compra. Probá de nuevo.'**
+  String get premiumPurchaseError;
 }
 
 class _AppLocalizationsDelegate

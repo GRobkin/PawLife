@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pawlife/l10n/app_localizations.dart';
 import 'package:pawlife/l10n/error_messages.dart';
 import 'package:pawlife/services/api_client.dart';
 import 'package:pawlife/services/pawlife_repository.dart';
+import 'package:pawlife/services/premium_simulado.dart';
 import 'package:pawlife/views/premium_screen.dart';
 
 class PremiumFixture implements PawLifeRepository {
@@ -19,10 +21,12 @@ Widget _app(PawLifeRepository repo, String lang) => MaterialApp(
   locale: Locale(lang),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
-  home: PremiumScreen(repository: repo),
+  home: PremiumScreen(repository: repo, simulado: PremiumSimulado('test')),
 );
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   testWidgets('muestra Premium activo con su fuente, sin compras en la app', (
     tester,
   ) async {
@@ -41,7 +45,9 @@ void main() {
     expect(find.textContaining('Premium activo hasta'), findsOneWidget);
     expect(find.text('Concedido por el equipo de PawLife'), findsOneWidget);
     expect(find.text('Suscripción'), findsNothing);
-    expect(find.textContaining('Todavía no hay compras'), findsOneWidget);
+    // Con Premium real no se ofrece comprar.
+    expect(find.text('Suscribirme'), findsNothing);
+    expect(find.text('Informe para el veterinario'), findsOneWidget);
   });
 
   testWidgets('sin Premium y en inglés', (tester) async {
@@ -57,8 +63,46 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('No active Premium'), findsOneWidget);
-    expect(find.textContaining('no in-app purchases'), findsOneWidget);
+    expect(find.text('More to care better'), findsOneWidget);
+    expect(find.text('Vet report'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('nothing is charged'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('nothing is charged'), findsOneWidget);
+
+    // Compra simulada: elegir mensual, confirmar y queda Premium de prueba.
+    await tester.tap(find.text('Monthly'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('Subscribe'));
+    await tester.tap(find.text('Subscribe'));
+    await tester.pumpAndSettle();
+    expect(find.text('Confirm subscription'), findsOneWidget);
+    await tester.tap(find.text('Confirm purchase'));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Test Premium active until'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('Test Premium active until'), findsOneWidget);
+    expect(find.text('Subscribe'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Cancel test subscription'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Cancel test subscription'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Subscribe'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Subscribe'), findsOneWidget);
   });
 
   test('códigos estables se traducen; los desconocidos quedan genéricos', () {
