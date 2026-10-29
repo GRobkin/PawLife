@@ -3201,6 +3201,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'En modo de prueba se desbloquean los estilos de tarjeta; el tope de mascotas solo lo levanta un Premium real del servidor.'**
   String get premiumTestScope;
+
+  /// No description provided for @apiPlanTaskLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'El plan gratuito permite hasta 5 tareas pendientes. Completá alguna o pasate a Premium.'**
+  String get apiPlanTaskLimit;
+
+  /// No description provided for @premiumRowTasks.
+  ///
+  /// In es, this message translates to:
+  /// **'Tareas pendientes'**
+  String get premiumRowTasks;
+
+  /// No description provided for @premiumRowTasksFree.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta 5'**
+  String get premiumRowTasksFree;
+
+  /// No description provided for @premiumRowTasksPremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin límite'**
+  String get premiumRowTasksPremium;
+
+  /// No description provided for @premiumUsageTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu uso del plan gratuito'**
+  String get premiumUsageTitle;
+
+  /// No description provided for @premiumUsagePets.
+  ///
+  /// In es, this message translates to:
+  /// **'Mascotas'**
+  String get premiumUsagePets;
+
+  /// No description provided for @premiumUsageTasks.
+  ///
+  /// In es, this message translates to:
+  /// **'Tareas pendientes'**
+  String get premiumUsageTasks;
 }
 
 class _AppLocalizationsDelegate

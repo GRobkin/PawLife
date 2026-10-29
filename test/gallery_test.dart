@@ -144,6 +144,21 @@ class PremiumGalleryFixture implements PawLifeRepository {
     'fuentes': {'manual': false, 'pago': false, 'prueba': false},
   };
   @override
+  Future<List<Mascota>> fetchMascotas() async => [pet, pet];
+  @override
+  Future<List<Recordatorio>> fetchRecordatorios({
+    bool soloPendientes = false,
+  }) async => [
+    for (var i = 0; i < 4; i++)
+      Recordatorio(
+        id: 't$i',
+        tipo: 'tarea',
+        mascotaId: 'luna',
+        fecha: DateTime.now(),
+        mensaje: 'Tarea $i',
+      ),
+  ];
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -280,7 +295,7 @@ void main() {
       final cellHeight = switch (entry.key) {
         'home' => 860.0,
         'detalle' => 1500.0,
-        'premium' => 1000.0,
+        'premium' => 1200.0,
         _ => 760.0,
       };
       tester.view.physicalSize = Size(1170, cellHeight * 2);

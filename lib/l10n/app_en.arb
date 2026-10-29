@@ -516,5 +516,12 @@
   "premiumRowCardsPremium": "3 styles",
   "premiumComingSoon": "Coming soon to Premium",
   "premiumTodayTitle": "Premium includes today",
-  "premiumTestScope": "In test mode the card styles unlock; the pet limit is only lifted by a real server-side Premium."
+  "premiumTestScope": "In test mode the card styles unlock; the pet limit is only lifted by a real server-side Premium.",
+  "apiPlanTaskLimit": "The free plan allows up to 5 pending tasks. Complete one or upgrade to Premium.",
+  "premiumRowTasks": "Pending tasks",
+  "premiumRowTasksFree": "Up to 5",
+  "premiumRowTasksPremium": "Unlimited",
+  "premiumUsageTitle": "Your free plan usage",
+  "premiumUsagePets": "Pets",
+  "premiumUsageTasks": "Pending tasks"
 }

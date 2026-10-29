@@ -1841,4 +1841,26 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get premiumTestScope =>
       'En modo de prueba se desbloquean los estilos de tarjeta; el tope de mascotas solo lo levanta un Premium real del servidor.';
+
+  @override
+  String get apiPlanTaskLimit =>
+      'El plan gratuito permite hasta 5 tareas pendientes. Completá alguna o pasate a Premium.';
+
+  @override
+  String get premiumRowTasks => 'Tareas pendientes';
+
+  @override
+  String get premiumRowTasksFree => 'Hasta 5';
+
+  @override
+  String get premiumRowTasksPremium => 'Sin límite';
+
+  @override
+  String get premiumUsageTitle => 'Tu uso del plan gratuito';
+
+  @override
+  String get premiumUsagePets => 'Mascotas';
+
+  @override
+  String get premiumUsageTasks => 'Tareas pendientes';
 }

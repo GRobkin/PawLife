@@ -58,7 +58,7 @@ void main() {
     expect(find.text('Suscripción'), findsNothing);
     // Con Premium real no se ofrece comprar.
     expect(find.text('Suscribirme'), findsNothing);
-    expect(find.text('Sin límite'), findsOneWidget);
+    expect(find.text('Sin límite'), findsNWidgets(2));
   });
 
   testWidgets('sin Premium y en inglés', (tester) async {
@@ -76,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('More to care better'), findsOneWidget);
     expect(find.text('Up to 2'), findsOneWidget);
-    expect(find.text('Unlimited'), findsOneWidget);
+    expect(find.text('Unlimited'), findsNWidgets(2));
     expect(find.text('1 style'), findsOneWidget);
     expect(find.text('3 styles'), findsOneWidget);
     await tester.scrollUntilVisible(
