@@ -448,5 +448,20 @@
   "wearableNoGps": "SEM GPS",
   "wearableNoPet": "SEM PET",
   "wearableNotSaved": "NÃO SALVO",
-  "wearableOpen": "Modo relógio"
+  "wearableOpen": "Modo relógio",
+  "visitsTitle": "Visitas ao veterinário",
+  "visitsEmpty": "Ainda não há visitas registradas.",
+  "visitsAdd": "Registrar visita",
+  "visitReason": "Motivo",
+  "visitVet": "Veterinário ou clínica",
+  "visitNotes": "Notas",
+  "visitDate": "Data",
+  "visitNextDate": "Próxima visita",
+  "visitNone": "Nenhuma",
+  "visitDeleteTitle": "Excluir visita",
+  "visitsLoadError": "Não foi possível carregar as visitas.",
+  "visitsSaveError": "Não foi possível salvar a visita. Tente de novo.",
+  "visitsDeleteError": "Não foi possível excluir a visita.",
+  "errVisitReason": "Informe o motivo da visita.",
+  "errVisitNextBefore": "A próxima visita deve ser depois da data da visita."
 }

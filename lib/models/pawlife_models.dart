@@ -372,6 +372,42 @@ class RegistroPeso {
   Map<String, dynamic> toJson() => {'fecha': _iso(fecha), 'valorKg': valorKg};
 }
 
+class VisitaVeterinaria {
+  const VisitaVeterinaria({
+    required this.id,
+    required this.fecha,
+    required this.motivo,
+    this.veterinario,
+    this.notas,
+    this.proximaFecha,
+  });
+
+  final String id;
+  final DateTime fecha;
+  final String motivo;
+  final String? veterinario;
+  final String? notas;
+  final DateTime? proximaFecha;
+
+  factory VisitaVeterinaria.fromJson(Map<String, dynamic> json) =>
+      VisitaVeterinaria(
+        id: _texto(json, 'id'),
+        fecha: _fecha(json, 'fecha'),
+        motivo: _texto(json, 'motivo'),
+        veterinario: json['veterinario'] as String?,
+        notas: json['notas'] as String?,
+        proximaFecha: _fechaOpcional(json, 'proximaFecha'),
+      );
+
+  Map<String, dynamic> toJson() => {
+    'fecha': _iso(fecha),
+    'motivo': motivo,
+    'veterinario': veterinario,
+    'notas': notas,
+    'proximaFecha': proximaFecha == null ? null : _iso(proximaFecha!),
+  };
+}
+
 class Paseo {
   const Paseo({
     required this.id,

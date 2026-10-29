@@ -5,6 +5,7 @@
     {"collectionGroup":"medicamentos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fechaInicio","order":"DESCENDING"}]},
     {"collectionGroup":"alimentaciones","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fechaHora","order":"DESCENDING"}]},
     {"collectionGroup":"pesos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fecha","order":"DESCENDING"}]},
+    {"collectionGroup":"visitas","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fecha","order":"DESCENDING"}]},
     {"collectionGroup":"paseos","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"mascotaId","order":"ASCENDING"},{"fieldPath":"fechaInicio","order":"DESCENDING"}]},
     {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},
     {"collectionGroup":"recordatorios","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"completado","order":"ASCENDING"},{"fieldPath":"fecha","order":"ASCENDING"}]},

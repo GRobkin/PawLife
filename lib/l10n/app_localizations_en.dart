@@ -1585,4 +1585,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wearableOpen => 'Watch mode';
+
+  @override
+  String get visitsTitle => 'Vet visits';
+
+  @override
+  String get visitsEmpty => 'No visits logged yet.';
+
+  @override
+  String get visitsAdd => 'Log visit';
+
+  @override
+  String get visitReason => 'Reason';
+
+  @override
+  String get visitVet => 'Vet or clinic';
+
+  @override
+  String get visitNotes => 'Notes';
+
+  @override
+  String get visitDate => 'Date';
+
+  @override
+  String get visitNextDate => 'Next visit';
+
+  @override
+  String get visitNone => 'None';
+
+  @override
+  String get visitDeleteTitle => 'Delete visit';
+
+  @override
+  String get visitsLoadError => 'Couldn\'t load the visits.';
+
+  @override
+  String get visitsSaveError => 'Couldn\'t save the visit. Try again.';
+
+  @override
+  String get visitsDeleteError => 'Couldn\'t delete the visit.';
+
+  @override
+  String get errVisitReason => 'Enter the reason for the visit.';
+
+  @override
+  String get errVisitNextBefore =>
+      'The next visit must be after the visit date.';
 }

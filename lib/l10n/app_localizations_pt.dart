@@ -1601,4 +1601,51 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get wearableOpen => 'Modo relógio';
+
+  @override
+  String get visitsTitle => 'Visitas ao veterinário';
+
+  @override
+  String get visitsEmpty => 'Ainda não há visitas registradas.';
+
+  @override
+  String get visitsAdd => 'Registrar visita';
+
+  @override
+  String get visitReason => 'Motivo';
+
+  @override
+  String get visitVet => 'Veterinário ou clínica';
+
+  @override
+  String get visitNotes => 'Notas';
+
+  @override
+  String get visitDate => 'Data';
+
+  @override
+  String get visitNextDate => 'Próxima visita';
+
+  @override
+  String get visitNone => 'Nenhuma';
+
+  @override
+  String get visitDeleteTitle => 'Excluir visita';
+
+  @override
+  String get visitsLoadError => 'Não foi possível carregar as visitas.';
+
+  @override
+  String get visitsSaveError =>
+      'Não foi possível salvar a visita. Tente de novo.';
+
+  @override
+  String get visitsDeleteError => 'Não foi possível excluir a visita.';
+
+  @override
+  String get errVisitReason => 'Informe o motivo da visita.';
+
+  @override
+  String get errVisitNextBefore =>
+      'A próxima visita deve ser depois da data da visita.';
 }
