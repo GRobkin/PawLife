@@ -2793,6 +2793,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Modo reloj'**
   String get wearableOpen;
+
+  /// No description provided for @visitsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Visitas al veterinario'**
+  String get visitsTitle;
+
+  /// No description provided for @visitsEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay visitas registradas.'**
+  String get visitsEmpty;
+
+  /// No description provided for @visitsAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar visita'**
+  String get visitsAdd;
+
+  /// No description provided for @visitReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo'**
+  String get visitReason;
+
+  /// No description provided for @visitVet.
+  ///
+  /// In es, this message translates to:
+  /// **'Veterinario o clínica'**
+  String get visitVet;
+
+  /// No description provided for @visitNotes.
+  ///
+  /// In es, this message translates to:
+  /// **'Notas'**
+  String get visitNotes;
+
+  /// No description provided for @visitDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get visitDate;
+
+  /// No description provided for @visitNextDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Próxima visita'**
+  String get visitNextDate;
+
+  /// No description provided for @visitNone.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna'**
+  String get visitNone;
+
+  /// No description provided for @visitDeleteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar visita'**
+  String get visitDeleteTitle;
+
+  /// No description provided for @visitsLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar las visitas.'**
+  String get visitsLoadError;
+
+  /// No description provided for @visitsSaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar la visita. Probá de nuevo.'**
+  String get visitsSaveError;
+
+  /// No description provided for @visitsDeleteError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo eliminar la visita.'**
+  String get visitsDeleteError;
+
+  /// No description provided for @errVisitReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Indicá el motivo de la visita.'**
+  String get errVisitReason;
+
+  /// No description provided for @errVisitNextBefore.
+  ///
+  /// In es, this message translates to:
+  /// **'La próxima visita debe ser posterior a la fecha.'**
+  String get errVisitNextBefore;
 }
 
 class _AppLocalizationsDelegate

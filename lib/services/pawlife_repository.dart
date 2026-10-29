@@ -328,6 +328,41 @@ class PawLifeRepository {
   Future<void> deletePeso(String mascotaId, String id) =>
       client.delete('${_sub(mascotaId, 'pesos')}/$id');
 
+  // ------------------------------------------------------------------ visitas
+
+  Future<List<VisitaVeterinaria>> fetchVisitas(String mascotaId) async {
+    final items = await client.getList(_sub(mascotaId, 'visitas'));
+    final visitas = items.map(VisitaVeterinaria.fromJson).toList();
+    visitas.sort((a, b) {
+      final fecha = b.fecha.compareTo(a.fecha);
+      return fecha != 0 ? fecha : b.id.compareTo(a.id);
+    });
+    return visitas;
+  }
+
+  Future<VisitaVeterinaria> createVisita(
+    String mascotaId,
+    VisitaVeterinaria visita,
+  ) async {
+    final body = {'id': visita.id, ...visita.toJson()};
+    try {
+      return VisitaVeterinaria.fromJson(
+        await client.post(_sub(mascotaId, 'visitas'), body),
+      );
+    } on ApiException catch (error) {
+      // Mismo ID tras una respuesta perdida: la visita ya se guardó.
+      if (error.statusCode != 409) rethrow;
+      return VisitaVeterinaria.fromJson(
+        await client.getOne(
+          '${_sub(mascotaId, 'visitas')}/${Uri.encodeComponent(visita.id)}',
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteVisita(String mascotaId, String id) =>
+      client.delete('${_sub(mascotaId, 'visitas')}/$id');
+
   // ----------------------------------------------------------- recordatorios
 
   Future<List<Recordatorio>> fetchRecordatorios({

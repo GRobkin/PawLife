@@ -20,6 +20,7 @@ import 'pet_form_screen.dart';
 import 'route_screen.dart';
 import 'walk_detail_screen.dart';
 import 'walk_history_screen.dart';
+import 'visits_screen.dart';
 import 'weight_history_screen.dart';
 import 'widgets/weight_entry_dialog.dart';
 import 'widgets/eliminar_mascota.dart';
@@ -53,6 +54,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
   List<Alimentacion>? _alimentaciones;
   List<Paseo>? _paseos;
   List<Recordatorio>? _recordatorios;
+  List<VisitaVeterinaria>? _visitas;
   String? _error;
 
   @override
@@ -80,6 +82,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         _repositorio.fetchAlimentaciones(_mascota.id),
         _paseosRepo.fetchPaseos(_mascota.id),
         _repositorio.fetchRecordatorios(soloPendientes: true),
+        _repositorio.fetchVisitas(_mascota.id),
       ]);
 
       if (!mounted) return;
@@ -91,6 +94,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         _paseos = resultados[4] as List<Paseo>;
         // Los recordatorios cuelgan del usuario, no de la mascota, así que se
         // filtran aquí por mascotaId.
+        _visitas = resultados[6] as List<VisitaVeterinaria>;
         _recordatorios = (resultados[5] as List<Recordatorio>)
             .where((r) => r.mascotaId == _mascota.id)
             .toList(growable: false);
@@ -254,6 +258,30 @@ class _PetDetailScreenState extends State<PetDetailScreen>
 
   RegistroPeso? get _ultimoPeso =>
       (_pesos == null || _pesos!.isEmpty) ? null : _pesos!.first;
+
+  /// La visita futura más cercana que el dueño dejó agendada, si hay alguna.
+  DateTime? get _proximaVisita {
+    final hoy = DateTime.now();
+    final futuras =
+        (_visitas ?? const <VisitaVeterinaria>[])
+            .map((v) => v.proximaFecha)
+            .whereType<DateTime>()
+            .where((f) => f.isAfter(hoy))
+            .toList()
+          ..sort();
+    return futuras.isEmpty ? null : futuras.first;
+  }
+
+  Future<void> _abrirVisitas() async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            VisitsScreen(mascota: _mascota, repository: _repositorio),
+      ),
+    );
+    if (mounted) await _cargar();
+  }
 
   Paseo? get _ultimoPaseo =>
       (_paseos == null || _paseos!.isEmpty) ? null : _paseos!.first;
@@ -420,18 +448,30 @@ class _PetDetailScreenState extends State<PetDetailScreen>
               child: _Metrica(
                 icono: Icons.calendar_today_outlined,
                 rotulo: t.metricNextVet,
-                valor: '—',
-                // Pendiente: todavía no existe el concepto de visita
-                // veterinaria como entidad, así que no hay de dónde sacar la
-                // fecha. Se deja el hueco a la vista para no prometer un dato
-                // que la app no tiene.
-                insignia: t.notScheduled,
-                atenuada: true,
+                valor: _proximaVisita == null
+                    ? '—'
+                    : MaterialLocalizations.of(
+                        context,
+                      ).formatShortMonthDay(_proximaVisita!),
+                insignia: _proximaVisita == null
+                    ? t.notScheduled
+                    : MaterialLocalizations.of(
+                        context,
+                      ).formatYear(_proximaVisita!),
+                atenuada: _proximaVisita == null,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(child: _BotonMetrica(onTap: _registrarPeso)),
           ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: _abrirVisitas,
+            icon: const Icon(Icons.local_hospital_outlined),
+            label: Text(t.visitsTitle),
+          ),
         ),
         Align(
           alignment: Alignment.centerLeft,

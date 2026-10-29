@@ -448,5 +448,20 @@
   "wearableNoGps": "NO GPS",
   "wearableNoPet": "NO PET",
   "wearableNotSaved": "NOT SAVED",
-  "wearableOpen": "Watch mode"
+  "wearableOpen": "Watch mode",
+  "visitsTitle": "Vet visits",
+  "visitsEmpty": "No visits logged yet.",
+  "visitsAdd": "Log visit",
+  "visitReason": "Reason",
+  "visitVet": "Vet or clinic",
+  "visitNotes": "Notes",
+  "visitDate": "Date",
+  "visitNextDate": "Next visit",
+  "visitNone": "None",
+  "visitDeleteTitle": "Delete visit",
+  "visitsLoadError": "Couldn't load the visits.",
+  "visitsSaveError": "Couldn't save the visit. Try again.",
+  "visitsDeleteError": "Couldn't delete the visit.",
+  "errVisitReason": "Enter the reason for the visit.",
+  "errVisitNextBefore": "The next visit must be after the visit date."
 }
