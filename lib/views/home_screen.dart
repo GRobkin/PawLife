@@ -203,9 +203,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, caja) {
-            _alturaPortada = (caja.maxHeight - 600).clamp(160.0, 360.0);
+            _alturaPortada = (caja.maxHeight - 640).clamp(160.0, 360.0);
             return ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
               children: [
                 _buildTopBar(context),
                 const SizedBox(height: 12),
