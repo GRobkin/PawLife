@@ -4,6 +4,8 @@
 // vacunas, los medicamentos y los paseos se filtran por mascotaId en la API.
 // Aquí se consultan y se editan los cuidados de la mascota.
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'widgets/esqueletos.dart';
 import 'widgets/motion.dart';
@@ -615,7 +617,111 @@ class _PetDetailScreenState extends State<PetDetailScreen>
               ),
               detalle: _fechaLarga(paseo.fechaInicio),
             ),
+        const SizedBox(height: 26),
+        _TituloSeccion(t.healthAtAGlance),
+        const SizedBox(height: 12),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _TarjetaPeso(
+                  pesos: _pesos ?? const [],
+                  titulo: t.cellWeight,
+                  sinDatos: t.noRecord,
+                  onTap: _abrirPesos,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: _tarjetaVacunas(t)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
       ],
+    );
+  }
+
+  Widget _tarjetaVacunas(AppLocalizations t) {
+    final vigentes = dosisVigentes(_vacunas ?? const []);
+    final ahora = DateTime.now();
+    final vencidas = vigentes.where((v) => v.proximaFecha.isBefore(ahora));
+    final alDia = vigentes.length - vencidas.length;
+    return Presionable(
+      child: Material(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => _tabs.animateTo(1),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.vaccines_outlined,
+                      size: 18,
+                      color: context.marca,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        t.tabVaccines,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: context.texto,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                const SizedBox(height: 14),
+                Text(
+                  '$alDia',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
+                    height: 1,
+                    color: context.texto,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  t.vaccinesUpToDate(alDia),
+                  style: TextStyle(fontSize: 12, color: context.textoSuave),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: vencidas.isEmpty
+                        ? context.mentaSuave
+                        : context.errorFondo,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    t.vaccinesOverdue(vencidas.length),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: vencidas.isEmpty
+                          ? context.marca
+                          : context.errorIcono,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -1412,6 +1518,196 @@ class _GrupoVacunaState extends State<_GrupoVacuna> {
       ),
     );
   }
+}
+
+/// Último peso con un mini gráfico de los registros recientes. Toca para ir
+/// al historial completo.
+class _TarjetaPeso extends StatelessWidget {
+  const _TarjetaPeso({
+    required this.pesos,
+    required this.titulo,
+    required this.sinDatos,
+    required this.onTap,
+  });
+
+  final List<RegistroPeso> pesos;
+  final String titulo;
+  final String sinDatos;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    // El backend los da del más reciente al más antiguo; el gráfico va al revés.
+    final serie = pesos.take(8).toList().reversed.toList();
+    final ultimo = pesos.isEmpty ? null : pesos.first.valorKg;
+    final cambio = pesos.length < 2
+        ? null
+        : pesos[0].valorKg - pesos[1].valorKg;
+    return Presionable(
+      child: Material(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.monitor_weight_outlined,
+                      size: 18,
+                      color: context.marca,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        titulo,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: context.texto,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 44,
+                  width: double.infinity,
+                  child: serie.length < 2
+                      ? Center(
+                          child: Text(
+                            sinDatos,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: context.textoTenue,
+                            ),
+                          ),
+                        )
+                      : TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: 1),
+                          duration: reducirMovimiento(context)
+                              ? Duration.zero
+                              : const Duration(milliseconds: 900),
+                          curve: Curves.easeOutCubic,
+                          builder: (_, avance, _) => CustomPaint(
+                            painter: _PintorTendencia(
+                              valores: [for (final p in serie) p.valorKg],
+                              color: context.marca,
+                              relleno: context.mentaSuave,
+                              avance: avance,
+                            ),
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 10),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: ultimo == null
+                            ? '—'
+                            : (ultimo == ultimo.roundToDouble()
+                                  ? ultimo.toStringAsFixed(0)
+                                  : ultimo.toStringAsFixed(1)),
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          height: 1,
+                          color: context.texto,
+                        ),
+                      ),
+                      if (ultimo != null)
+                        TextSpan(
+                          text: ' kg',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: context.textoSuave,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (cambio != null && cambio != 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${cambio > 0 ? '▲' : '▼'} ${cambio.abs().toStringAsFixed(1)} kg',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: context.textoSuave,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PintorTendencia extends CustomPainter {
+  _PintorTendencia({
+    required this.valores,
+    required this.color,
+    required this.relleno,
+    required this.avance,
+  });
+
+  final List<double> valores;
+  final Color color;
+  final Color relleno;
+  final double avance;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final minimo = valores.reduce(math.min);
+    final maximo = valores.reduce(math.max);
+    final rango = (maximo - minimo).abs() < 0.001 ? 1.0 : maximo - minimo;
+    final puntos = [
+      for (var i = 0; i < valores.length; i++)
+        Offset(
+          size.width * i / (valores.length - 1),
+          size.height - 4 - (valores[i] - minimo) / rango * (size.height - 8),
+        ),
+    ];
+    final linea = Path()..moveTo(puntos.first.dx, puntos.first.dy);
+    for (final p in puntos.skip(1)) {
+      linea.lineTo(p.dx, p.dy);
+    }
+    // La línea se dibuja de izquierda a derecha según [avance].
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width * avance, size.height));
+    final area = Path.from(linea)
+      ..lineTo(puntos.last.dx, size.height)
+      ..lineTo(puntos.first.dx, size.height)
+      ..close();
+    canvas.drawPath(area, Paint()..color = relleno);
+    canvas.drawPath(
+      linea,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+    canvas.restore();
+    if (avance >= 1) {
+      canvas.drawCircle(puntos.last, 4, Paint()..color = color);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PintorTendencia old) =>
+      old.avance != avance || old.valores != valores || old.color != color;
 }
 
 class _FilaCuidado extends StatelessWidget {

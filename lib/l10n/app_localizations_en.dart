@@ -1747,4 +1747,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vaccineHideHistory => 'Hide history';
+
+  @override
+  String get healthAtAGlance => 'Health at a glance';
+
+  @override
+  String vaccinesUpToDate(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count up to date',
+      one: '1 up to date',
+      zero: 'No vaccines',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String vaccinesOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count overdue',
+      one: '1 overdue',
+      zero: 'Nothing overdue',
+    );
+    return '$_temp0';
+  }
 }

@@ -936,5 +936,22 @@
         "type": "int"
       }
     }
+  },
+  "healthAtAGlance": "Salud de un vistazo",
+  "vaccinesUpToDate": "{count, plural, =0{Sin vacunas} =1{1 al día} other{{count} al día}}",
+  "vaccinesOverdue": "{count, plural, =0{Nada vencido} =1{1 vencida} other{{count} vencidas}}",
+  "@vaccinesUpToDate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@vaccinesOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
