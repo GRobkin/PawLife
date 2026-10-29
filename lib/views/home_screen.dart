@@ -480,8 +480,8 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(22),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
-              // Tocar la foto abre el perfil de la mascota.
-              onTap: () => _abrirPerfil(activa),
+              // La foto no navega: lo hacen los botones de las esquinas.
+              onTap: null,
               child: PortadaMascota(
                 mascota: activa,
                 height: _alturaPortada,
@@ -499,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   Positioned(
                     left: 18,
-                    right: 150,
+                    right: 64,
                     bottom: 16,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -524,37 +524,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  // Botón claro para entrar al perfil.
+                  // Perfil de la mascota: botón redondo, igual que el de
+                  // cambiar de mascota, con una huella.
                   Positioned(
-                    right: 14,
-                    bottom: 14,
+                    right: 10,
+                    bottom: 10,
                     child: Material(
-                      color: Colors.white,
-                      shape: const StadiumBorder(),
-                      child: InkWell(
-                        customBorder: const StadiumBorder(),
-                        onTap: () => _abrirPerfil(activa),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                t.petViewProfile,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.verdeOscuro,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.arrow_forward,
-                                size: 18,
-                                color: AppColors.verdeOscuro,
-                              ),
-                            ],
-                          ),
-                        ),
+                      color: Colors.black.withValues(alpha: 0.35),
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        tooltip: t.petViewProfile,
+                        onPressed: () => _abrirPerfil(activa),
+                        icon: const Icon(Icons.pets, color: Colors.white),
                       ),
                     ),
                   ),
