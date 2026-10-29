@@ -629,21 +629,25 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         const SizedBox(height: 26),
         _TituloSeccion(t.healthAtAGlance),
         const SizedBox(height: 12),
-        // Sin IntrinsicHeight: medía mal la cifra grande y desbordaba 1 px.
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _TarjetaPeso(
-                pesos: _pesos ?? const [],
-                titulo: t.cellWeight,
-                sinDatos: t.noRecord,
-                onTap: _abrirPesos,
+        // Alto fijo (escalado con el texto) para que las dos tarjetas midan
+        // lo mismo; IntrinsicHeight medía mal la cifra grande y desbordaba.
+        SizedBox(
+          height: MediaQuery.textScalerOf(context).scale(184),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _TarjetaPeso(
+                  pesos: _pesos ?? const [],
+                  titulo: t.cellWeight,
+                  sinDatos: t.noRecord,
+                  onTap: _abrirPesos,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(child: _tarjetaVacunas(t)),
-          ],
+              const SizedBox(width: 10),
+              Expanded(child: _tarjetaVacunas(t)),
+            ],
+          ),
         ),
         const SizedBox(height: 12),
       ],
@@ -686,7 +690,7 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const Spacer(),
                 Text(
                   '$alDia',
                   style: TextStyle(
@@ -1582,34 +1586,35 @@ class _TarjetaPeso extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  height: 40,
-                  width: double.infinity,
-                  child: serie.length < 2
-                      ? Center(
-                          child: Text(
-                            sinDatos,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.textoTenue,
+                Expanded(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: serie.length < 2
+                        ? Center(
+                            child: Text(
+                              sinDatos,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.textoTenue,
+                              ),
+                            ),
+                          )
+                        : TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0, end: 1),
+                            duration: reducirMovimiento(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 900),
+                            curve: Curves.easeOutCubic,
+                            builder: (_, avance, _) => CustomPaint(
+                              painter: _PintorTendencia(
+                                valores: [for (final p in serie) p.valorKg],
+                                color: context.marca,
+                                relleno: context.mentaSuave,
+                                avance: avance,
+                              ),
                             ),
                           ),
-                        )
-                      : TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0, end: 1),
-                          duration: reducirMovimiento(context)
-                              ? Duration.zero
-                              : const Duration(milliseconds: 900),
-                          curve: Curves.easeOutCubic,
-                          builder: (_, avance, _) => CustomPaint(
-                            painter: _PintorTendencia(
-                              valores: [for (final p in serie) p.valorKg],
-                              color: context.marca,
-                              relleno: context.mentaSuave,
-                              avance: avance,
-                            ),
-                          ),
-                        ),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text.rich(

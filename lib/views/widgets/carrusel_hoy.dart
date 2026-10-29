@@ -61,6 +61,19 @@ class _CarruselHoyState extends State<CarruselHoy> {
     final quieto = reducirMovimiento(context);
     final rapido = quieto ? Duration.zero : const Duration(milliseconds: 220);
     final n = widget.tareas.length;
+    // Con una sola tarea no hay nada que deslizar: ocupa todo el ancho en vez
+    // de dejar el hueco que reserva el carrusel para asomar la siguiente.
+    if (n == 1) {
+      return SizedBox(
+        height: 100,
+        child: _Tarjeta(
+          tarea: widget.tareas.first,
+          rapido: rapido,
+          textoMarcar: widget.textoMarcar,
+          textoPendiente: widget.textoPendiente,
+        ),
+      );
+    }
     return Column(
       children: [
         SizedBox(
