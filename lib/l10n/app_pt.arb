@@ -492,5 +492,9 @@
   "taskTimeLabel": "Hora",
   "errTaskEmpty": "Escreva o que precisa ser feito.",
   "errTaskPast": "Escolha uma data e hora futuras.",
-  "welcomeHeadline": "Mais perto.\nSempre."
+  "welcomeHeadline": "Mais perto.\nSempre.",
+  "vaccineNewDose": "Nova dose",
+  "vaccineDoseOn": "Aplicada em {date}",
+  "vaccinePreviousDoses": "{count, plural, =1{1 dose anterior} other{{count} doses anteriores}}",
+  "vaccineHideHistory": "Ocultar histórico"
 }

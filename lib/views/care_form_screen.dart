@@ -10,10 +10,19 @@ import '../services/local_reminder_service.dart';
 import '../theme/app_palette.dart';
 
 class VaccineFormScreen extends StatefulWidget {
-  const VaccineFormScreen({super.key, required this.mascotaId, this.vacuna});
+  const VaccineFormScreen({
+    super.key,
+    required this.mascotaId,
+    this.vacuna,
+    this.plantilla,
+  });
 
   final String mascotaId;
   final Vacuna? vacuna;
+
+  /// Nueva dosis de una vacuna existente: copia el nombre y el aviso, pero
+  /// guarda un registro nuevo con fechas nuevas.
+  final Vacuna? plantilla;
 
   @override
   State<VaccineFormScreen> createState() => _VaccineFormScreenState();
@@ -22,14 +31,26 @@ class VaccineFormScreen extends StatefulWidget {
 class _VaccineFormScreenState extends State<VaccineFormScreen> {
   final _form = GlobalKey<FormState>();
   final _repo = PawLifeRepository();
-  late final _nombre = TextEditingController(text: widget.vacuna?.nombre);
+  late final _nombre = TextEditingController(
+    text: widget.vacuna?.nombre ?? widget.plantilla?.nombre,
+  );
   late final _aviso = TextEditingController(
-    text: (widget.vacuna?.anticipacionDias ?? 3).toString(),
+    text:
+        (widget.vacuna?.anticipacionDias ??
+                widget.plantilla?.anticipacionDias ??
+                3)
+            .toString(),
   );
   late DateTime _aplicacion = widget.vacuna?.fechaAplicacion ?? DateTime.now();
   late DateTime _proxima =
       widget.vacuna?.proximaFecha ??
-      DateTime.now().add(const Duration(days: 365));
+      DateTime.now().add(
+        widget.plantilla == null
+            ? const Duration(days: 365)
+            : widget.plantilla!.proximaFecha.difference(
+                widget.plantilla!.fechaAplicacion,
+              ),
+      );
   bool _guardando = false;
 
   @override
