@@ -1780,4 +1780,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get petSwitch => 'Switch pet';
+
+  @override
+  String get editTask => 'Edit task';
 }

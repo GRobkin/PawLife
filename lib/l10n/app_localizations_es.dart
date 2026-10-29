@@ -1793,4 +1793,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get petSwitch => 'Cambiar de mascota';
+
+  @override
+  String get editTask => 'Editar tarea';
 }
