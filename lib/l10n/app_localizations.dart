@@ -3099,6 +3099,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count, plural, =0{Nada vencido} =1{1 vencida} other{{count} vencidas}}'**
   String vaccinesOverdue(int count);
+
+  /// No description provided for @petViewProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver perfil'**
+  String get petViewProfile;
+
+  /// No description provided for @petSwitch.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar de mascota'**
+  String get petSwitch;
 }
 
 class _AppLocalizationsDelegate

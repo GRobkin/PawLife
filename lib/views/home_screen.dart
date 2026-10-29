@@ -17,6 +17,7 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'pets_screen.dart';
+import 'pet_detail_screen.dart';
 import 'profile_screen.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
@@ -151,6 +152,13 @@ class _HomeScreenState extends State<HomeScreen> {
     // Al volver del paseo puede haber uno nuevo guardado, así que el resumen
     // se queda viejo si no se recarga.
     if (mounted) await _cargarPaseos();
+  }
+
+  Future<void> _abrirPerfil(Mascota mascota) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => PetDetailScreen(mascota: mascota)),
+    );
+    if (mounted) await _cargarMascotas();
   }
 
   Future<void> _cambiarMascota() async {
@@ -472,7 +480,8 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(22),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
-              onTap: _cambiarMascota,
+              // Tocar la foto abre el perfil de la mascota.
+              onTap: () => _abrirPerfil(activa),
               child: PortadaMascota(
                 mascota: activa,
                 height: _alturaPortada,
@@ -490,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   Positioned(
                     left: 18,
-                    right: 64,
+                    right: 150,
                     bottom: 16,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,20 +524,53 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  // La flecha solo tiene sentido si hay entre qué elegir.
+                  // Botón claro para entrar al perfil.
+                  Positioned(
+                    right: 14,
+                    bottom: 14,
+                    child: Material(
+                      color: Colors.white,
+                      shape: const StadiumBorder(),
+                      child: InkWell(
+                        customBorder: const StadiumBorder(),
+                        onTap: () => _abrirPerfil(activa),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                t.petViewProfile,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.verdeOscuro,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.arrow_forward,
+                                size: 18,
+                                color: AppColors.verdeOscuro,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Cambiar de mascota, solo si hay entre qué elegir.
                   if (mascotas != null && mascotas.length > 1)
                     Positioned(
-                      right: 14,
-                      bottom: 16,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.35),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(6),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
+                      top: 10,
+                      right: 10,
+                      child: Material(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        shape: const CircleBorder(),
+                        child: IconButton(
+                          tooltip: t.petSwitch,
+                          onPressed: _cambiarMascota,
+                          icon: const Icon(
+                            Icons.swap_horiz,
                             color: Colors.white,
                           ),
                         ),
