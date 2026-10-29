@@ -18,6 +18,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'pets_screen.dart';
 import 'pet_detail_screen.dart';
+import 'premium_screen.dart';
 import 'profile_screen.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
@@ -152,6 +153,35 @@ class _HomeScreenState extends State<HomeScreen> {
     // Al volver del paseo puede haber uno nuevo guardado, así que el resumen
     // se queda viejo si no se recarga.
     if (mounted) await _cargarPaseos();
+  }
+
+  /// El modo reloj es de Premium. Si la consulta falla (sin conexión) se
+  /// trata como plan gratuito.
+  Future<void> _abrirReloj() async {
+    var premium = false;
+    try {
+      premium = (await _repo.fetchPremium())['activo'] == true;
+    } catch (_) {}
+    if (!mounted) return;
+    final navigator = Navigator.of(context);
+    if (premium) {
+      await navigator.push(
+        MaterialPageRoute(builder: (_) => const WearableScreen()),
+      );
+      return;
+    }
+    final t = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(t.premiumLockedWatch),
+        action: SnackBarAction(
+          label: t.premiumSee,
+          onPressed: () => navigator.push(
+            MaterialPageRoute(builder: (_) => PremiumScreen(repository: _repo)),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _abrirPerfil(Mascota mascota) async {
@@ -400,9 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           tooltip: AppLocalizations.of(context).wearableOpen,
           icon: const Icon(Icons.watch_outlined),
-          onPressed: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const WearableScreen())),
+          onPressed: _abrirReloj,
         ),
         // El avatar es el único sitio desde el que se puede cerrar sesión.
         // Al hacerlo no hay que navegar a ningún lado: el AuthGate de

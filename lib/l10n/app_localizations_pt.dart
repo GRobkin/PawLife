@@ -1867,4 +1867,32 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get premiumUsageTasks => 'Tarefas pendentes';
+
+  @override
+  String get premiumRowHistory => 'Histórico de passeios';
+
+  @override
+  String get premiumRowHistoryFree => '30 dias';
+
+  @override
+  String get premiumRowHistoryPremium => 'Completo';
+
+  @override
+  String get premiumRowWatch => 'Modo relógio';
+
+  @override
+  String get premiumRowWatchFree => 'Não';
+
+  @override
+  String get premiumRowWatchPremium => 'Incluído';
+
+  @override
+  String get premiumLockedWatch => 'O modo relógio é Premium.';
+
+  @override
+  String get premiumSee => 'Ver';
+
+  @override
+  String get walkHistoryFreeNote =>
+      'Plano gratuito: são mostrados os últimos 30 dias de passeios.';
 }

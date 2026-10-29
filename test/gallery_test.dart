@@ -295,7 +295,7 @@ void main() {
       final cellHeight = switch (entry.key) {
         'home' => 860.0,
         'detalle' => 1500.0,
-        'premium' => 1200.0,
+        'premium' => 1350.0,
         _ => 760.0,
       };
       tester.view.physicalSize = Size(1170, cellHeight * 2);

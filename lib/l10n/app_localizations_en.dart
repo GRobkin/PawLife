@@ -1850,4 +1850,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumUsageTasks => 'Pending tasks';
+
+  @override
+  String get premiumRowHistory => 'Walk history';
+
+  @override
+  String get premiumRowHistoryFree => '30 days';
+
+  @override
+  String get premiumRowHistoryPremium => 'Full';
+
+  @override
+  String get premiumRowWatch => 'Watch mode';
+
+  @override
+  String get premiumRowWatchFree => 'No';
+
+  @override
+  String get premiumRowWatchPremium => 'Included';
+
+  @override
+  String get premiumLockedWatch => 'Watch mode is Premium.';
+
+  @override
+  String get premiumSee => 'See';
+
+  @override
+  String get walkHistoryFreeNote =>
+      'Free plan: the last 30 days of walks are shown.';
 }
