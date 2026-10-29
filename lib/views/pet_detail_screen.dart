@@ -629,22 +629,21 @@ class _PetDetailScreenState extends State<PetDetailScreen>
         const SizedBox(height: 26),
         _TituloSeccion(t.healthAtAGlance),
         const SizedBox(height: 12),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _TarjetaPeso(
-                  pesos: _pesos ?? const [],
-                  titulo: t.cellWeight,
-                  sinDatos: t.noRecord,
-                  onTap: _abrirPesos,
-                ),
+        // Sin IntrinsicHeight: medía mal la cifra grande y desbordaba 1 px.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _TarjetaPeso(
+                pesos: _pesos ?? const [],
+                titulo: t.cellWeight,
+                sinDatos: t.noRecord,
+                onTap: _abrirPesos,
               ),
-              const SizedBox(width: 10),
-              Expanded(child: _tarjetaVacunas(t)),
-            ],
-          ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: _tarjetaVacunas(t)),
+          ],
         ),
         const SizedBox(height: 12),
       ],
@@ -687,7 +686,6 @@ class _PetDetailScreenState extends State<PetDetailScreen>
                     ),
                   ],
                 ),
-                const Spacer(),
                 const SizedBox(height: 14),
                 Text(
                   '$alDia',
@@ -1585,7 +1583,7 @@ class _TarjetaPeso extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
-                  height: 44,
+                  height: 40,
                   width: double.infinity,
                   child: serie.length < 2
                       ? Center(

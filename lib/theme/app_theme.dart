@@ -187,6 +187,77 @@ abstract final class AppTheme {
           side: BorderSide(color: border.withValues(alpha: 0.7)),
         ),
       ),
+      // Selectores de hora y fecha con la marca: esquinas grandes, cifras
+      // gruesas, el acento solo en lo elegido y el resto en superficie.
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        hourMinuteShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        hourMinuteColor: WidgetStateColor.resolveWith(
+          (estados) =>
+              estados.contains(WidgetState.selected) ? scheme.primary : field,
+        ),
+        hourMinuteTextColor: WidgetStateColor.resolveWith(
+          (estados) => estados.contains(WidgetState.selected)
+              ? scheme.onPrimary
+              : scheme.onSurface,
+        ),
+        hourMinuteTextStyle: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontSize: 52,
+          fontWeight: FontWeight.w900,
+        ),
+        dialBackgroundColor: field,
+        dialHandColor: scheme.primary,
+        dialTextColor: WidgetStateColor.resolveWith(
+          (estados) => estados.contains(WidgetState.selected)
+              ? scheme.onPrimary
+              : scheme.onSurface,
+        ),
+        dialTextStyle: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: FontWeight.w700,
+        ),
+        dayPeriodShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        helpTextStyle: TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: FontWeight.w800,
+          color: scheme.onSurface.withValues(alpha: 0.7),
+        ),
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: scheme.onSurface.withValues(alpha: 0.7),
+        ),
+        confirmButtonStyle: FilledButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          shape: buttonShape,
+        ),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        headerHeadlineStyle: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontSize: 30,
+          fontWeight: FontWeight.w900,
+        ),
+        dayStyle: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: FontWeight.w700,
+        ),
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: scheme.onSurface.withValues(alpha: 0.7),
+        ),
+        confirmButtonStyle: FilledButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          shape: buttonShape,
+        ),
+      ),
       dialogTheme: DialogThemeData(
         backgroundColor: surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

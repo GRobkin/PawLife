@@ -162,7 +162,7 @@ class EsqueletoTareaHoy extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 116,
+          height: 100,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: context.superficie,
