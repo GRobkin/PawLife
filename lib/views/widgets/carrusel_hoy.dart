@@ -64,7 +64,7 @@ class _CarruselHoyState extends State<CarruselHoy> {
     return Column(
       children: [
         SizedBox(
-          height: 116,
+          height: 100,
           child: PageView.builder(
             controller: _controller,
             padEnds: false,
@@ -200,7 +200,7 @@ class _Tarjeta extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Spacer(),
+                const SizedBox(height: 10),
                 Text(
                   tarea.titulo,
                   maxLines: 2,
