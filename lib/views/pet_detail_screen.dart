@@ -32,7 +32,16 @@ import 'widgets/foto_mascota.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class PetDetailScreen extends StatefulWidget {
-  const PetDetailScreen({super.key, required this.mascota});
+  const PetDetailScreen({
+    super.key,
+    required this.mascota,
+    this.repository,
+    this.walkRepository,
+  });
+
+  /// Para pruebas: dependencias inyectadas.
+  final PawLifeRepository? repository;
+  final WalkRepository? walkRepository;
 
   final Mascota mascota;
 
@@ -42,11 +51,11 @@ class PetDetailScreen extends StatefulWidget {
 
 class _PetDetailScreenState extends State<PetDetailScreen>
     with SingleTickerProviderStateMixin {
-  final _repositorio = PawLifeRepository();
+  late final _repositorio = widget.repository ?? PawLifeRepository();
 
   // Los paseos tienen su propio repositorio porque además de leerlos hay que
   // convertir la WalkSession que produce el ViewModel al guardar.
-  final _paseosRepo = WalkRepository();
+  late final _paseosRepo = widget.walkRepository ?? WalkRepository();
 
   late final TabController _tabs = TabController(length: 5, vsync: this);
 
@@ -1635,13 +1644,23 @@ class _TarjetaPeso extends StatelessWidget {
                 ),
                 if (cambio != null && cambio != 0) ...[
                   const SizedBox(height: 4),
-                  Text(
-                    '${cambio > 0 ? '▲' : '▼'} ${cambio.abs().toStringAsFixed(1)} kg',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: context.textoSuave,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        cambio > 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 13,
+                        color: context.textoSuave,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        '${cambio.abs().toStringAsFixed(1)} kg',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: context.textoSuave,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ],
