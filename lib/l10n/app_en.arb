@@ -505,5 +505,16 @@
   "editTask": "Edit task",
   "apiPlanPetLimit": "The free plan allows up to 2 pets. Upgrade to Premium to add more.",
   "premiumLockedCard": "This style is Premium.",
-  "premiumFreeLimits": "Free plan: up to 2 pets and the classic walk card."
+  "premiumFreeLimits": "Free plan: up to 2 pets and the classic walk card.",
+  "premiumCompareFree": "Free",
+  "premiumComparePremium": "Premium",
+  "premiumRowPets": "Pets",
+  "premiumRowPetsFree": "Up to 2",
+  "premiumRowPetsPremium": "Unlimited",
+  "premiumRowCards": "Walk cards",
+  "premiumRowCardsFree": "1 style",
+  "premiumRowCardsPremium": "3 styles",
+  "premiumComingSoon": "Coming soon to Premium",
+  "premiumTodayTitle": "Premium includes today",
+  "premiumTestScope": "In test mode the card styles unlock; the pet limit is only lifted by a real server-side Premium."
 }

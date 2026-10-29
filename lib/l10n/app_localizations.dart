@@ -3135,6 +3135,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Plan gratuito: hasta 2 mascotas y tarjeta de paseo clásica.'**
   String get premiumFreeLimits;
+
+  /// No description provided for @premiumCompareFree.
+  ///
+  /// In es, this message translates to:
+  /// **'Gratis'**
+  String get premiumCompareFree;
+
+  /// No description provided for @premiumComparePremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Premium'**
+  String get premiumComparePremium;
+
+  /// No description provided for @premiumRowPets.
+  ///
+  /// In es, this message translates to:
+  /// **'Mascotas'**
+  String get premiumRowPets;
+
+  /// No description provided for @premiumRowPetsFree.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta 2'**
+  String get premiumRowPetsFree;
+
+  /// No description provided for @premiumRowPetsPremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin límite'**
+  String get premiumRowPetsPremium;
+
+  /// No description provided for @premiumRowCards.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarjetas de paseo'**
+  String get premiumRowCards;
+
+  /// No description provided for @premiumRowCardsFree.
+  ///
+  /// In es, this message translates to:
+  /// **'1 estilo'**
+  String get premiumRowCardsFree;
+
+  /// No description provided for @premiumRowCardsPremium.
+  ///
+  /// In es, this message translates to:
+  /// **'3 estilos'**
+  String get premiumRowCardsPremium;
+
+  /// No description provided for @premiumComingSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximamente en Premium'**
+  String get premiumComingSoon;
+
+  /// No description provided for @premiumTodayTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy, Premium incluye'**
+  String get premiumTodayTitle;
+
+  /// No description provided for @premiumTestScope.
+  ///
+  /// In es, this message translates to:
+  /// **'En modo de prueba se desbloquean los estilos de tarjeta; el tope de mascotas solo lo levanta un Premium real del servidor.'**
+  String get premiumTestScope;
 }
 
 class _AppLocalizationsDelegate
