@@ -7,6 +7,8 @@ import '../../l10n/active_locale.dart';
 import '../../preferences/app_preferences.dart';
 import '../../services/local_reminder_service.dart';
 import '../../services/pawlife_repository.dart';
+import '../../theme/app_palette.dart';
+import 'selector_segmentado.dart';
 
 /// Los avisos locales ya programados llevan el texto del idioma anterior:
 /// se reprograman. Sin sesión (pantalla de bienvenida) no hay nada que hacer.
@@ -32,51 +34,52 @@ class PreferencesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final prefs = context.watch<AppPreferences>();
+    final etiqueta = TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      color: context.textoSuave,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(t.language, style: Theme.of(context).textTheme.labelLarge),
+        Text(t.language, style: etiqueta),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final option in [
-              ('', t.languageSystem),
-              ('es', t.languageEs),
-              ('en', t.languageEn),
-              ('pt', t.languagePt),
-            ])
-              ChoiceChip(
-                label: Text(option.$2),
-                selected: (prefs.locale?.languageCode ?? '') == option.$1,
-                onSelected: (_) async {
-                  await prefs.setLocale(
-                    option.$1.isEmpty ? null : Locale(option.$1),
-                  );
-                  await _rescheduleReminders();
-                },
-              ),
+        SelectorSegmentado<String>(
+          valor: prefs.locale?.languageCode ?? '',
+          opciones: [
+            OpcionSegmento('', t.languageSystem),
+            const OpcionSegmento('es', 'ES'),
+            const OpcionSegmento('en', 'EN'),
+            const OpcionSegmento('pt', 'PT'),
           ],
+          onCambio: (codigo) async {
+            await prefs.setLocale(codigo.isEmpty ? null : Locale(codigo));
+            await _rescheduleReminders();
+          },
         ),
-        const SizedBox(height: 16),
-        Text(t.appearance, style: Theme.of(context).textTheme.labelLarge),
+        const SizedBox(height: 18),
+        Text(t.appearance, style: etiqueta),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final option in [
-              (ThemeMode.system, t.appearanceSystem),
-              (ThemeMode.light, t.appearanceLight),
-              (ThemeMode.dark, t.appearanceDark),
-            ])
-              ChoiceChip(
-                label: Text(option.$2),
-                selected: prefs.themeMode == option.$1,
-                onSelected: (_) => prefs.setThemeMode(option.$1),
-              ),
+        SelectorSegmentado<ThemeMode>(
+          valor: prefs.themeMode,
+          opciones: [
+            OpcionSegmento(
+              ThemeMode.system,
+              t.appearanceSystem,
+              icono: Icons.brightness_auto_outlined,
+            ),
+            OpcionSegmento(
+              ThemeMode.light,
+              t.appearanceLight,
+              icono: Icons.light_mode_outlined,
+            ),
+            OpcionSegmento(
+              ThemeMode.dark,
+              t.appearanceDark,
+              icono: Icons.dark_mode_outlined,
+            ),
           ],
+          onCambio: prefs.setThemeMode,
         ),
       ],
     );

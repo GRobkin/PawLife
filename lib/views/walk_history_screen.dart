@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/esqueletos.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
@@ -214,11 +215,11 @@ class _WalkHistoryScreenState extends State<WalkHistoryScreen> {
                   ),
                 ),
               ),
-            if (_loading)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: CircularProgressIndicator()),
-              ),
+            if (_loading && _items.isEmpty) ...const [
+              EsqueletoTarjetaPaseo(),
+              EsqueletoTarjetaPaseo(),
+            ] else if (_loading)
+              const EsqueletoTarjetaPaseo(),
             if (_error != null) ...[
               Text(_error!, style: TextStyle(color: context.alertaTexto)),
               TextButton(

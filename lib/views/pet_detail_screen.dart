@@ -5,6 +5,7 @@
 // Aquí se consultan y se editan los cuidados de la mascota.
 
 import 'package:flutter/material.dart';
+import 'widgets/esqueletos.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
@@ -495,7 +496,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     if (recordatorios == null || paseos == null) {
       return const _CuerpoPestana(
         clave: "resumen",
-        child: CircularProgressIndicator(),
+        arriba: true,
+        child: EsqueletoFilas(),
       );
     }
 
@@ -554,7 +556,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     if (vacunas == null) {
       return const _CuerpoPestana(
         clave: "vacunas",
-        child: CircularProgressIndicator(),
+        arriba: true,
+        child: EsqueletoFilas(),
       );
     }
 
@@ -595,7 +598,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     if (medicamentos == null) {
       return const _CuerpoPestana(
         clave: "medicamentos",
-        child: CircularProgressIndicator(),
+        arriba: true,
+        child: EsqueletoFilas(),
       );
     }
 
@@ -635,7 +639,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     if (alimentaciones == null) {
       return const _CuerpoPestana(
         clave: "alimentaciones",
-        child: CircularProgressIndicator(),
+        arriba: true,
+        child: EsqueletoFilas(),
       );
     }
 
@@ -672,7 +677,8 @@ class _PetDetailScreenState extends State<PetDetailScreen>
     if (paseos == null) {
       return const _CuerpoPestana(
         clave: "paseos",
-        child: CircularProgressIndicator(),
+        arriba: true,
+        child: EsqueletoFilas(),
       );
     }
 
@@ -1168,7 +1174,14 @@ class _BotonAgregar extends StatelessWidget {
 /// SliverFillRemaining con hasScrollBody: false centra el contenido cuando
 /// sobra sitio y, cuando no, lo deja scrollear en vez de desbordarse.
 class _CuerpoPestana extends StatelessWidget {
-  const _CuerpoPestana({required this.clave, required this.child});
+  const _CuerpoPestana({
+    required this.clave,
+    required this.child,
+    this.arriba = false,
+  });
+
+  /// Los esqueletos van arriba, donde aparecerá la lista; los vacíos, centrados.
+  final bool arriba;
 
   /// La misma clave que usa la lista de esa pestaña, para que la posición de
   /// scroll se guarde en un único sitio pase por el estado que pase.
@@ -1180,7 +1193,12 @@ class _CuerpoPestana extends StatelessWidget {
     return CustomScrollView(
       key: PageStorageKey(clave),
       slivers: [
-        SliverFillRemaining(hasScrollBody: false, child: Center(child: child)),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: arriba
+              ? Align(alignment: Alignment.topCenter, child: child)
+              : Center(child: child),
+        ),
       ],
     );
   }

@@ -9,6 +9,7 @@ import '../services/pawlife_repository.dart';
 import '../services/premium_simulado.dart';
 import '../theme/app_palette.dart';
 import 'widgets/motion.dart';
+import 'widgets/esqueletos.dart';
 
 /// Premium: qué incluye, los planes y la compra. El servidor dice si hay un
 /// Premium real (concedido por el equipo); la compra de esta pantalla es
@@ -102,7 +103,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             )
           : TransicionCarga(
               child: state == null
-                  ? const _CargandoPremium(key: ValueKey('cargando'))
+                  ? const EsqueletoPremium(key: ValueKey('cargando'))
                   : _contenido(state),
             ),
     );
@@ -653,33 +654,6 @@ class _HojaCompraState extends State<_HojaCompra> {
                       ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CargandoPremium extends StatelessWidget {
-  const _CargandoPremium({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: const [
-            Esqueleto(alto: 170, radio: 24),
-            SizedBox(height: 26),
-            Esqueleto(alto: 18, ancho: 120),
-            SizedBox(height: 16),
-            Esqueleto(alto: 44, radio: 14),
-            SizedBox(height: 14),
-            Esqueleto(alto: 44, radio: 14),
-            SizedBox(height: 14),
-            Esqueleto(alto: 44, radio: 14),
           ],
         ),
       ),

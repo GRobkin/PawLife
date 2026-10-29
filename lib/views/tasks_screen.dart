@@ -7,8 +7,10 @@ import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../theme/app_palette.dart';
 import 'widgets/estado_vacio.dart';
+import 'widgets/hoja_nueva_tarea.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'widgets/motion.dart';
+import 'widgets/esqueletos.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
 class TasksScreen extends StatefulWidget {
@@ -91,97 +93,21 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<void> _add() async {
-    final t = AppLocalizations.of(context);
     if (_mascotas.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).addPetFirst)),
       );
       return;
     }
-    var mensaje = '';
-    var mascotaId = _mascotas.first.id;
-    var fecha = DateTime.now().add(const Duration(days: 1));
-    final guardar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: Text(t.newTask),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<String>(
-                initialValue: mascotaId,
-                decoration: InputDecoration(labelText: t.petLabel),
-                items: _mascotas
-                    .map(
-                      (m) =>
-                          DropdownMenuItem(value: m.id, child: Text(m.nombre)),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) setDialogState(() => mascotaId = value);
-                },
-              ),
-              TextField(
-                onChanged: (value) => mensaje = value,
-                maxLength: 160,
-                decoration: InputDecoration(labelText: t.taskPrompt),
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.event),
-                label: Text(formatDateTime(dialogContext, fecha)),
-                onPressed: () async {
-                  final dia = await showDatePicker(
-                    context: dialogContext,
-                    initialDate: fecha,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 3650)),
-                  );
-                  if (dia == null || !dialogContext.mounted) return;
-                  final hora = await showTimePicker(
-                    context: dialogContext,
-                    initialTime: TimeOfDay.fromDateTime(fecha),
-                  );
-                  if (hora == null) return;
-                  setDialogState(
-                    () => fecha = DateTime(
-                      dia.year,
-                      dia.month,
-                      dia.day,
-                      hora.hour,
-                      hora.minute,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: Text(t.cancel),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (mensaje.trim().isEmpty || fecha.isBefore(DateTime.now())) {
-                  return;
-                }
-                Navigator.pop(dialogContext, true);
-              },
-              child: Text(t.save),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (guardar != true) return;
+    final tarea = await mostrarHojaNuevaTarea(context, _mascotas);
+    if (tarea == null || !mounted) return;
     setState(() => _working = true);
     try {
       await _repo.createRecordatorio(
         tipo: 'tarea',
-        mascotaId: mascotaId,
-        fecha: fecha,
-        mensaje: mensaje.trim(),
+        mascotaId: tarea.mascotaId,
+        fecha: tarea.fecha,
+        mensaje: tarea.mensaje,
       );
       await LocalReminderService.instance.syncBestEffort(_repo);
       await _load();
@@ -202,70 +128,68 @@ class _TasksScreenState extends State<TasksScreen> {
         title: Text(t.tasksTitle),
         backgroundColor: context.fondoPantalla,
       ),
-      body: _error != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_error!, textAlign: TextAlign.center),
-                  TextButton(onPressed: _load, child: Text(t.retry)),
-                ],
-              ),
-            )
-          : _items == null
-          ? ListView(
-              padding: const EdgeInsets.all(12),
-              children: const [
-                Esqueleto(alto: 72, radio: 16),
-                SizedBox(height: 10),
-                Esqueleto(alto: 72, radio: 16),
-                SizedBox(height: 10),
-                Esqueleto(alto: 72, radio: 16),
-              ],
-            )
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: items.isEmpty
-                  ? ListView(
-                      children: [
-                        const SizedBox(height: 60),
-                        EstadoVacio(
-                          icono: Icons.assignment_outlined,
-                          titulo: t.noTasks,
+      body: TransicionCarga(
+        child: KeyedSubtree(
+          key: ValueKey('${_error != null}-${_items == null}'),
+          child: _error != null
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_error!, textAlign: TextAlign.center),
+                      TextButton(onPressed: _load, child: Text(t.retry)),
+                    ],
+                  ),
+                )
+              : _items == null
+              ? const EsqueletoLista()
+              : RefreshIndicator(
+                  onRefresh: _load,
+                  child: items.isEmpty
+                      ? ListView(
+                          children: [
+                            const SizedBox(height: 60),
+                            EstadoVacio(
+                              icono: Icons.assignment_outlined,
+                              titulo: t.noTasks,
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            final mascota = _mascotas.where(
+                              (m) => m.id == item.mascotaId,
+                            );
+                            final nombre = mascota.isEmpty
+                                ? t.petLabel
+                                : mascota.first.nombre;
+                            return Card(
+                              child: CheckboxListTile(
+                                value: item.completado,
+                                onChanged: _working
+                                    ? null
+                                    : (v) => _change(item, v ?? false),
+                                title: Text(item.mensaje),
+                                subtitle: Text(
+                                  '$nombre · ${formatDateTime(context, item.fecha)}',
+                                ),
+                                secondary: IconButton(
+                                  tooltip: t.deleteTask,
+                                  icon: const Icon(Icons.delete_outline),
+                                  onPressed: _working
+                                      ? null
+                                      : () => _delete(item),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        final mascota = _mascotas.where(
-                          (m) => m.id == item.mascotaId,
-                        );
-                        final nombre = mascota.isEmpty
-                            ? t.petLabel
-                            : mascota.first.nombre;
-                        return Card(
-                          child: CheckboxListTile(
-                            value: item.completado,
-                            onChanged: _working
-                                ? null
-                                : (v) => _change(item, v ?? false),
-                            title: Text(item.mensaje),
-                            subtitle: Text(
-                              '$nombre · ${formatDateTime(context, item.fecha)}',
-                            ),
-                            secondary: IconButton(
-                              tooltip: t.deleteTask,
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: _working ? null : () => _delete(item),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
+                ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _working ? null : _add,
         backgroundColor: context.botonFondo,

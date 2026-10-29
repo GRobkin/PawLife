@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/esqueletos.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
@@ -122,7 +123,6 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
     appBar: AppBar(title: Text(t.weightHistory)),
     body: Column(
       children: [
-        if (_busy) const LinearProgressIndicator(),
         if (_error != null)
           Padding(
             padding: const EdgeInsets.all(16),
@@ -141,7 +141,9 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
           ),
         Expanded(
           child: _items == null
-              ? const SizedBox.shrink()
+              ? (_error == null
+                    ? const EsqueletoLista(filas: 4)
+                    : const SizedBox.shrink())
               : _items!.isEmpty
               ? Center(child: Text(t.noWeightRecords))
               : ListView.separated(

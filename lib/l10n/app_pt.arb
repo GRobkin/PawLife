@@ -488,5 +488,8 @@
   "premiumSuccess": "Pronto! Você já tem Premium.",
   "premiumSimulatedActive": "Premium de teste ativo até {date}",
   "premiumCancelSimulated": "Cancelar assinatura de teste",
-  "premiumPurchaseError": "Não foi possível concluir a compra. Tente de novo."
+  "premiumPurchaseError": "Não foi possível concluir a compra. Tente de novo.",
+  "taskTimeLabel": "Hora",
+  "errTaskEmpty": "Escreva o que precisa ser feito.",
+  "errTaskPast": "Escolha uma data e hora futuras."
 }

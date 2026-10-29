@@ -3033,6 +3033,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo completar la compra. Probá de nuevo.'**
   String get premiumPurchaseError;
+
+  /// No description provided for @taskTimeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora'**
+  String get taskTimeLabel;
+
+  /// No description provided for @errTaskEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribí qué hay que hacer.'**
+  String get errTaskEmpty;
+
+  /// No description provided for @errTaskPast.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegí una fecha y hora futuras.'**
+  String get errTaskPast;
 }
 
 class _AppLocalizationsDelegate
