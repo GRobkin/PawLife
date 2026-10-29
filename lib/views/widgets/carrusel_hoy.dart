@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_palette.dart';
@@ -78,31 +79,38 @@ class _CarruselHoyState extends State<CarruselHoy> {
       children: [
         SizedBox(
           height: 100,
-          child: PageView.builder(
-            controller: _controller,
-            padEnds: false,
-            // Recortado: en pantallas anchas la tarjeta siguiente se salía
-            // del ancho de la página.
-            clipBehavior: Clip.hardEdge,
-            itemCount: n,
-            itemBuilder: (context, i) {
-              final cerca = (1 - (_pagina - i).abs()).clamp(0.0, 1.0);
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: Transform.scale(
-                  scale: quieto ? 1.0 : 0.93 + 0.07 * cerca,
-                  child: Opacity(
-                    opacity: quieto ? 1.0 : 0.65 + 0.35 * cerca,
-                    child: _Tarjeta(
-                      tarea: widget.tareas[i],
-                      rapido: rapido,
-                      textoMarcar: widget.textoMarcar,
-                      textoPendiente: widget.textoPendiente,
+          // En la web y la PC también se arrastra con el mouse o el panel
+          // táctil, no solo con el dedo.
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(
+              context,
+            ).copyWith(dragDevices: PointerDeviceKind.values.toSet()),
+            child: PageView.builder(
+              controller: _controller,
+              padEnds: false,
+              // Recortado: en pantallas anchas la tarjeta siguiente se salía
+              // del ancho de la página.
+              clipBehavior: Clip.hardEdge,
+              itemCount: n,
+              itemBuilder: (context, i) {
+                final cerca = (1 - (_pagina - i).abs()).clamp(0.0, 1.0);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Transform.scale(
+                    scale: quieto ? 1.0 : 0.93 + 0.07 * cerca,
+                    child: Opacity(
+                      opacity: quieto ? 1.0 : 0.65 + 0.35 * cerca,
+                      child: _Tarjeta(
+                        tarea: widget.tareas[i],
+                        rapido: rapido,
+                        textoMarcar: widget.textoMarcar,
+                        textoPendiente: widget.textoPendiente,
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
         if (n > 1) ...[
@@ -111,16 +119,29 @@ class _CarruselHoyState extends State<CarruselHoy> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               for (var i = 0; i < n; i++)
-                AnimatedContainer(
-                  duration: rapido,
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  width: (_pagina - i).abs() < 0.5 ? 18 : 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: (_pagina - i).abs() < 0.5
-                        ? context.marca
-                        : context.textoTenue.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(3),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _controller.animateToPage(
+                    i,
+                    duration: quieto
+                        ? const Duration(milliseconds: 1)
+                        : const Duration(milliseconds: 320),
+                    curve: Curves.easeOutCubic,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: AnimatedContainer(
+                      duration: rapido,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: (_pagina - i).abs() < 0.5 ? 18 : 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: (_pagina - i).abs() < 0.5
+                            ? context.marca
+                            : context.textoTenue.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
                   ),
                 ),
             ],
