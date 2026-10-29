@@ -11,11 +11,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'auth_service.dart';
 
 /// Error devuelto por la API, ya traducido a algo mostrable.
+/// Se enciende cuando el servidor avisa que la cuenta se está eliminando.
+/// La raíz de la app lo escucha y muestra una pantalla propia con la opción
+/// de cerrar sesión, en vez de dejar cada pantalla fallando por su cuenta.
+final ValueNotifier<bool> cuentaEliminandose = ValueNotifier(false);
+
 class ApiException implements Exception {
   const ApiException(
     this.message, {
@@ -220,7 +226,12 @@ class ApiClient {
         continue;
       }
 
-      return _decode(response);
+      try {
+        return _decode(response);
+      } on ApiException catch (error) {
+        if (error.code == 'ACCOUNT_DELETING') cuentaEliminandose.value = true;
+        rethrow;
+      }
     }
   }
 

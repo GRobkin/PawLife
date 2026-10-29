@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_palette.dart';
 import 'change_email_screen.dart';
 import 'change_password_screen.dart';
 import 'premium_screen.dart';
@@ -120,26 +121,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _saving = true);
     try {
       if (!await confirmIdentity(context, _auth) || !mounted) return;
-      final completed = await _repo.eliminarCuenta();
-      if (!completed && mounted) {
-        await showDialog<void>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(t.deletionInProgress),
-            content: Text(t.deletionInProgressBody),
-            actions: [
-              FilledButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(t.understood),
-              ),
-            ],
-          ),
-        );
-      }
-      if (_auth.currentUser?.uid == _repo.client.expectedUid) {
-        await _auth.signOut(revokePush: false);
-      }
+      await _repo.eliminarCuenta();
+      // Terminado o en curso, la cuenta ya está bloqueada: se cierra la sesión
+      // en este dispositivo y el servidor completa el borrado solo.
       if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+      await _auth.signOut(revokePush: false);
+      cuentaEliminandose.value = false;
     } catch (e) {
       if (mounted) setState(() => _error = t.deleteAccountError('$e'));
     } finally {
@@ -214,58 +201,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ListTile(title: Text(t.profileEmail), subtitle: Text(email)),
                   const SizedBox(height: 18),
                   const PreferencesSection(),
-                  const SizedBox(height: 18),
-                  FilledButton(
-                    onPressed: _saving ? null : _save,
-                    child: Text(t.profileSave),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: _saving
-                        ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PremiumScreen(repository: _repo),
-                            ),
-                          ),
-                    icon: const Icon(Icons.workspace_premium_outlined),
-                    label: Text(t.premiumTitle),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: _saving
-                        ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PrivacyScreen(auth: _auth),
-                            ),
-                          ),
-                    icon: const Icon(Icons.privacy_tip_outlined),
-                    label: Text(t.privacyAndData),
-                  ),
-                  const SizedBox(height: 12),
-                  if (_auth.supportsPasswordChange) ...[
-                    OutlinedButton(
-                      onPressed: _saving ? null : _changeEmail,
-                      child: Text(t.changeEmail),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _saving ? null : _save,
+                      child: Text(t.profileSave),
                     ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                      onPressed: _saving ? null : _changePassword,
-                      child: Text(t.changePassword),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  OutlinedButton(
-                    onPressed: _saving ? null : _signOut,
-                    child: Text(t.signOut),
                   ),
-                  const SizedBox(height: 24),
-                  TextButton(
-                    onPressed: _saving ? null : _deleteAccount,
-                    child: Text(t.deleteAccountButton),
+                  const SizedBox(height: 28),
+                  _GrupoOpciones(
+                    children: [
+                      _Opcion(
+                        icono: Icons.workspace_premium_outlined,
+                        texto: t.premiumTitle,
+                        onTap: _saving
+                            ? null
+                            : () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      PremiumScreen(repository: _repo),
+                                ),
+                              ),
+                      ),
+                      _Opcion(
+                        icono: Icons.shield_outlined,
+                        texto: t.privacyAndData,
+                        onTap: _saving
+                            ? null
+                            : () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PrivacyScreen(auth: _auth),
+                                ),
+                              ),
+                      ),
+                      if (_auth.supportsPasswordChange) ...[
+                        _Opcion(
+                          icono: Icons.alternate_email,
+                          texto: t.changeEmail,
+                          onTap: _saving ? null : _changeEmail,
+                        ),
+                        _Opcion(
+                          icono: Icons.lock_outline,
+                          texto: t.changePassword,
+                          onTap: _saving ? null : _changePassword,
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  _GrupoOpciones(
+                    children: [
+                      _Opcion(
+                        icono: Icons.logout,
+                        texto: t.signOut,
+                        onTap: _saving ? null : _signOut,
+                        flecha: false,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+                  Center(
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: _saving ? null : _deleteAccount,
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      label: Text(t.deleteAccountButton),
+                    ),
                   ),
                 ],
               ],
@@ -273,6 +279,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
       bottomNavigationBar: PawLifeBottomNav(
         activa: SeccionNav.perfil,
         onPaseo: () => iniciarPaseo(context),
+      ),
+    );
+  }
+}
+
+/// Tarjeta con opciones apiladas y separadas por una línea fina: todas con la
+/// misma altura, icono y alineación, en lugar de botones sueltos distintos.
+class _GrupoOpciones extends StatelessWidget {
+  const _GrupoOpciones({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: context.superficie,
+      borderRadius: BorderRadius.circular(18),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0)
+              Divider(height: 1, indent: 62, color: context.bordeSuave),
+            children[i],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Opcion extends StatelessWidget {
+  const _Opcion({
+    required this.icono,
+    required this.texto,
+    required this.onTap,
+    this.flecha = true,
+  });
+
+  final IconData icono;
+  final String texto;
+  final VoidCallback? onTap;
+  final bool flecha;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 58),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: context.mentaSuave,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icono, size: 19, color: context.marca),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  texto,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: context.texto,
+                  ),
+                ),
+              ),
+              if (flecha) Icon(Icons.chevron_right, color: context.textoTenue),
+            ],
+          ),
+        ),
       ),
     );
   }

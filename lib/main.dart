@@ -14,8 +14,10 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'preferences/app_preferences.dart';
+import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'services/session_registration.dart';
+import 'views/account_deleting_screen.dart';
 import 'views/home_screen.dart';
 import 'views/welcome_screen.dart';
 import 'theme/app_palette.dart';
@@ -134,9 +136,17 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
           return const _SplashScreen();
         }
 
-        return snapshot.data == null
-            ? const WelcomeScreen()
-            : const HomeScreen();
+        if (snapshot.data == null) {
+          // Sesión cerrada: el aviso de borrado de la cuenta anterior ya no
+          // aplica a la siguiente.
+          cuentaEliminandose.value = false;
+          return const WelcomeScreen();
+        }
+        return ValueListenableBuilder<bool>(
+          valueListenable: cuentaEliminandose,
+          builder: (context, eliminandose, _) =>
+              eliminandose ? const AccountDeletingScreen() : const HomeScreen(),
+        );
       },
     );
   }

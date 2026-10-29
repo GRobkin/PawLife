@@ -26,11 +26,18 @@ void main() {
     expect(authErrorText(en, e), 'Mensaje del servidor');
   });
 
-  test('errores de red del cliente se traducen; los del servidor no', () {
+  test('errores de red se traducen; el texto del servidor solo en español', () {
     const offline = ApiException('x', code: 'client-offline');
     expect(apiErrorText(en, offline), contains('Check your internet'));
-    const server = ApiException('Texto del backend', code: 'VALIDATION');
-    expect(apiErrorText(en, server), 'Texto del backend');
+    const server = ApiException(
+      'Texto del backend',
+      code: 'VALIDATION',
+      statusCode: 400,
+    );
+    // En otro idioma no se mezcla el español del servidor.
+    expect(apiErrorText(en, server), contains('(400)'));
+    final es = lookupAppLocalizations(const Locale('es'));
+    expect(apiErrorText(es, server), 'Texto del backend');
   });
 
   test('plural de edad por idioma', () {

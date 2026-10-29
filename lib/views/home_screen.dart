@@ -286,55 +286,58 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                if (_recordatorios == null)
-                  const Column(
-                    children: [
-                      Esqueleto(alto: 64, radio: 14),
-                      SizedBox(height: 10),
-                      Esqueleto(alto: 64, radio: 14),
-                    ],
-                  )
-                else if (hoy!.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: context.tarjetaMenta,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_circle, color: context.marca),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            t.noTasksToday,
-                            style: TextStyle(color: context.texto),
+                TransicionCarga(
+                  child: _recordatorios == null
+                      ? const Column(
+                          key: ValueKey('hoy-cargando'),
+                          children: [
+                            Esqueleto(alto: 116, radio: 20),
+                            SizedBox(height: 22),
+                          ],
+                        )
+                      : hoy!.isEmpty
+                      ? Container(
+                          key: const ValueKey('hoy-vacio'),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: context.tarjetaMenta,
+                            borderRadius: BorderRadius.circular(18),
                           ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.check_circle, color: context.marca),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  t.noTasksToday,
+                                  style: TextStyle(color: context.texto),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : CarruselHoy(
+                          key: const ValueKey('hoy-tareas'),
+                          textoMarcar: t.markDone,
+                          textoPendiente: t.markPending,
+                          tareas: [
+                            for (final r in hoy)
+                              TareaVista(
+                                icono: switch (r.tipo) {
+                                  'vacuna' => Icons.vaccines_outlined,
+                                  'medicamento' => Icons.medication_outlined,
+                                  _ => Icons.assignment_outlined,
+                                },
+                                titulo: r.mensaje,
+                                detalle: r.completado
+                                    ? t.completedLabel
+                                    : formatTime(context, r.fecha),
+                                hecha: r.completado,
+                                alTocar: () => _marcarRecordatorio(r),
+                              ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
-                else
-                  CarruselHoy(
-                    textoMarcar: t.markDone,
-                    textoPendiente: t.markPending,
-                    tareas: [
-                      for (final r in hoy)
-                        TareaVista(
-                          icono: switch (r.tipo) {
-                            'vacuna' => Icons.vaccines_outlined,
-                            'medicamento' => Icons.medication_outlined,
-                            _ => Icons.assignment_outlined,
-                          },
-                          titulo: r.mensaje,
-                          detalle: r.completado
-                              ? t.completedLabel
-                              : formatTime(context, r.fecha),
-                          hecha: r.completado,
-                          alTocar: () => _marcarRecordatorio(r),
-                        ),
-                    ],
-                  ),
+                ),
               ],
             );
           },
@@ -383,14 +386,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Row(
       children: [
-        const Icon(Icons.menu),
+        // Sin menú lateral: era un icono que no abría nada. La marca va a la
+        // izquierda y las acciones reales a la derecha.
         Expanded(
-          child: Center(
-            child: Text(
-              'PawLife',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
+          child: Text('PawLife', style: Theme.of(context).textTheme.titleLarge),
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).wearableOpen,
@@ -430,15 +429,24 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+          // Google trae foto de perfil; con email y contraseña no hay. Si la
+          // foto no carga (sin red, o Google limita las descargas), queda el
+          // icono en vez de un círculo vacío.
           child: CircleAvatar(
             radius: 16,
-            backgroundColor: context.bordeSuave,
-            // Google trae foto de perfil; con email y contraseña no hay, y se
-            // cae al icono genérico de siempre.
-            backgroundImage: fotoUrl == null ? null : NetworkImage(fotoUrl),
-            child: fotoUrl != null
-                ? null
-                : Icon(Icons.person, size: 18, color: context.textoTenue),
+            backgroundColor: context.mentaSuave,
+            child: ClipOval(
+              child: fotoUrl == null
+                  ? Icon(Icons.person, size: 18, color: context.marca)
+                  : Image.network(
+                      fotoUrl,
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) =>
+                          Icon(Icons.person, size: 18, color: context.marca),
+                    ),
+            ),
           ),
         ),
       ],
@@ -470,136 +478,141 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildPetCard() {
     return ValueListenableBuilder<String?>(
       valueListenable: SeleccionMascota.id,
-      builder: (context, _, _) {
-        final t = AppLocalizations.of(context);
-        final mascotas = _mascotas;
-        final activa = mascotas == null
-            ? null
-            : SeleccionMascota.resolver(mascotas);
+      builder: (context, _, _) =>
+          TransicionCarga(child: _contenidoPetCard(context)),
+    );
+  }
 
-        if (activa != null) {
-          return Presionable(
-            child: Material(
-              color: context.superficie,
-              borderRadius: BorderRadius.circular(22),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: _cambiarMascota,
-                child: PortadaMascota(
-                  mascota: activa,
-                  height: _alturaPortada,
-                  scroll: _scroll,
-                  children: [
-                    if (_recordatorios != null)
-                      Positioned(
-                        top: 12,
-                        left: 14,
-                        child: _PastillaTareas(
-                          pendientes: _pendientesHoy(),
-                          textoPendientes: t.homeTasksPending(_pendientesHoy()),
-                          textoAlDia: t.homeAllDone,
-                        ),
-                      ),
+  Widget _contenidoPetCard(BuildContext context) {
+    {
+      final t = AppLocalizations.of(context);
+      final mascotas = _mascotas;
+      final activa = mascotas == null
+          ? null
+          : SeleccionMascota.resolver(mascotas);
+
+      if (activa != null) {
+        return Presionable(
+          child: Material(
+            color: context.superficie,
+            borderRadius: BorderRadius.circular(22),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: _cambiarMascota,
+              child: PortadaMascota(
+                mascota: activa,
+                height: _alturaPortada,
+                scroll: _scroll,
+                children: [
+                  if (_recordatorios != null)
                     Positioned(
-                      left: 18,
-                      right: 64,
-                      bottom: 16,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            activa.nombre,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headlineMedium
-                                ?.copyWith(color: Colors.white),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            activa.subtituloLocalizado(t),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      top: 12,
+                      left: 14,
+                      child: _PastillaTareas(
+                        pendientes: _pendientesHoy(),
+                        textoPendientes: t.homeTasksPending(_pendientesHoy()),
+                        textoAlDia: t.homeAllDone,
                       ),
                     ),
-                    // La flecha solo tiene sentido si hay entre qué elegir.
-                    if (mascotas != null && mascotas.length > 1)
-                      Positioned(
-                        right: 14,
-                        bottom: 16,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.35),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(6),
-                            child: Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-
-        if (mascotas == null) {
-          return const Esqueleto(alto: 184, radio: 22);
-        }
-
-        // Sin mascotas: tarjeta compacta.
-        return Material(
-          color: context.superficie,
-          borderRadius: BorderRadius.circular(18),
-          child: InkWell(
-            onTap: _cambiarMascota,
-            borderRadius: BorderRadius.circular(18),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: context.bordeSuave,
-                    child: Icon(Icons.pets, color: context.textoTenue),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
+                  Positioned(
+                    left: 18,
+                    right: 64,
+                    bottom: 16,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.noPets,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          activa.nombre,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(color: Colors.white),
                         ),
+                        const SizedBox(height: 2),
                         Text(
-                          t.tapToAddFirst,
-                          style: TextStyle(
-                            color: context.textoSuave,
-                            fontSize: 13,
+                          activa.subtituloLocalizado(t),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.add, color: context.textoTenue),
+                  // La flecha solo tiene sentido si hay entre qué elegir.
+                  if (mascotas != null && mascotas.length > 1)
+                    Positioned(
+                      right: 14,
+                      bottom: 16,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
         );
-      },
-    );
+      }
+
+      if (mascotas == null) {
+        return Esqueleto(alto: _alturaPortada, radio: 22);
+      }
+
+      // Sin mascotas: tarjeta compacta.
+      return Material(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          onTap: _cambiarMascota,
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: context.bordeSuave,
+                  child: Icon(Icons.pets, color: context.textoTenue),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.noPets,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        t.tapToAddFirst,
+                        style: TextStyle(
+                          color: context.textoSuave,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.add, color: context.textoTenue),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   // -------------------------------------------------------------------

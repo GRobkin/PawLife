@@ -41,7 +41,9 @@ class AparecerAlEntrar extends StatelessWidget {
   }
 }
 
-/// Bloque gris que pulsa suavemente mientras carga el contenido real.
+/// Bloque de carga con un brillo que lo recorre de izquierda a derecha, como
+/// luz que pasa. Solo cambia un degradado (sin capas ni desenfoque), aislado
+/// para no redibujar el resto de la pantalla.
 class Esqueleto extends StatefulWidget {
   const Esqueleto({super.key, this.alto = 16, this.ancho, this.radio = 10});
 
@@ -57,7 +59,7 @@ class _EsqueletoState extends State<Esqueleto>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controlador = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1100),
+    duration: const Duration(milliseconds: 1500),
   );
 
   @override
@@ -66,7 +68,7 @@ class _EsqueletoState extends State<Esqueleto>
     if (reducirMovimiento(context)) {
       _controlador.stop();
     } else if (!_controlador.isAnimating) {
-      _controlador.repeat(reverse: true);
+      _controlador.repeat();
     }
   }
 
@@ -79,17 +81,56 @@ class _EsqueletoState extends State<Esqueleto>
   @override
   Widget build(BuildContext context) {
     final base = context.relleno;
-    final claro = context.superficieAlta;
-    return AnimatedBuilder(
-      animation: _controlador,
-      builder: (context, _) => Container(
-        height: widget.alto,
-        width: widget.ancho,
-        decoration: BoxDecoration(
-          color: Color.lerp(base, claro, _controlador.value),
-          borderRadius: BorderRadius.circular(widget.radio),
-        ),
+    final brillo = Color.lerp(base, context.mentaSuave, 0.55)!;
+    final quieto = reducirMovimiento(context);
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controlador,
+        builder: (context, _) {
+          // El brillo entra desde fuera por la izquierda y sale por la derecha.
+          final x = quieto
+              ? 0.0
+              : Curves.easeInOutSine.transform(_controlador.value) * 3 - 1.5;
+          return Container(
+            height: widget.alto,
+            width: widget.ancho,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(widget.radio),
+              color: base,
+              gradient: quieto
+                  ? null
+                  : LinearGradient(
+                      begin: Alignment(x - 1, -0.3),
+                      end: Alignment(x + 1, 0.3),
+                      colors: [base, brillo, base],
+                      stops: const [0.25, 0.5, 0.75],
+                    ),
+            ),
+          );
+        },
       ),
+    );
+  }
+}
+
+/// Cambia de la carga al contenido con un fundido corto, sin salto brusco.
+class TransicionCarga extends StatelessWidget {
+  const TransicionCarga({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (reducirMovimiento(context)) return child;
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 280),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeOutCubic,
+      layoutBuilder: (actual, previos) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...previos, ?actual],
+      ),
+      child: child,
     );
   }
 }

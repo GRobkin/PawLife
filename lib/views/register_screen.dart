@@ -12,6 +12,7 @@ import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
 import '../theme/app_palette.dart';
 import 'login_screen.dart';
+import 'widgets/boton_google.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -31,7 +32,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _cargando = false;
+  bool _cargandoGoogle = false;
   String? _error;
+
+  Future<void> _onGooglePressed() async {
+    if (_cargando) return;
+    setState(() {
+      _cargando = true;
+      _cargandoGoogle = true;
+      _error = null;
+    });
+    final error = await entrarConGoogle(context, _auth);
+    if (!mounted) return;
+    setState(() {
+      _cargando = false;
+      _cargandoGoogle = false;
+      _error = error;
+    });
+    if (error == null && _auth.currentUser != null) {
+      Navigator.of(context).popUntil((ruta) => ruta.isFirst);
+    }
+  }
 
   @override
   void dispose() {
@@ -162,7 +183,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       t.createAccountSubtitle,
                       style: TextStyle(fontSize: 14, color: context.textoSuave),
                     ),
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 22),
+                    // Con Google no hace falta completar nada: la cuenta se
+                    // crea al elegirla.
+                    BotonGoogle(
+                      cargando: _cargandoGoogle,
+                      onPressed: _cargando ? null : _onGooglePressed,
+                    ),
+                    const SizedBox(height: 18),
+                    const SeparadorO(),
+                    const SizedBox(height: 18),
 
                     AppFieldLabel(t.fullName),
                     const SizedBox(height: 8),
