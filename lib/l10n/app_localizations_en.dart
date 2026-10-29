@@ -1828,4 +1828,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get premiumTestScope =>
       'In test mode the card styles unlock; the pet limit is only lifted by a real server-side Premium.';
+
+  @override
+  String get apiPlanTaskLimit =>
+      'The free plan allows up to 5 pending tasks. Complete one or upgrade to Premium.';
+
+  @override
+  String get premiumRowTasks => 'Pending tasks';
+
+  @override
+  String get premiumRowTasksFree => 'Up to 5';
+
+  @override
+  String get premiumRowTasksPremium => 'Unlimited';
+
+  @override
+  String get premiumUsageTitle => 'Your free plan usage';
+
+  @override
+  String get premiumUsagePets => 'Pets';
+
+  @override
+  String get premiumUsageTasks => 'Pending tasks';
 }

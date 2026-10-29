@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
+import '../l10n/error_messages.dart';
 import '../models/pawlife_models.dart';
+import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../services/local_reminder_service.dart';
 import '../theme/app_palette.dart';
@@ -114,7 +116,11 @@ class _TasksScreenState extends State<TasksScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).genericSaveError('$e')),
+          content: Text(
+            e is ApiException
+                ? apiErrorText(AppLocalizations.of(context), e)
+                : AppLocalizations.of(context).genericSaveError('$e'),
+          ),
         ),
       );
     }

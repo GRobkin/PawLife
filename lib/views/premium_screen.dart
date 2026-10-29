@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../l10n/formatting.dart';
+import '../models/pawlife_models.dart';
 import '../services/api_client.dart';
 import '../services/pawlife_repository.dart';
 import '../services/plan_premium.dart';
@@ -30,6 +31,7 @@ const _precioAnual = 'USD 23.99';
 class _PremiumScreenState extends State<PremiumScreen> {
   late final _repo = widget.repository ?? PawLifeRepository();
   Map<String, dynamic>? _state;
+  ({int mascotas, int tareas})? _uso;
   String? _error;
   PlanPremium _plan = PlanPremium.anual;
 
@@ -46,11 +48,27 @@ class _PremiumScreenState extends State<PremiumScreen> {
     try {
       final state = await _repo.fetchPremium();
       if (mounted) setState(() => _state = state);
+      // El uso es informativo: si falla, simplemente no se muestra.
+      if (state['activo'] != true) _cargarUso();
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = apiErrorText(t, e));
     } catch (_) {
       if (mounted) setState(() => _error = t.premiumLoadError);
     }
+  }
+
+  Future<void> _cargarUso() async {
+    try {
+      final resultados = await Future.wait<Object?>([
+        _repo.fetchMascotas(),
+        _repo.fetchRecordatorios(soloPendientes: true),
+      ]);
+      final mascotas = (resultados[0] as List).length;
+      final tareas = (resultados[1] as List<Recordatorio>)
+          .where((r) => r.tipo == 'tarea')
+          .length;
+      if (mounted) setState(() => _uso = (mascotas: mascotas, tareas: tareas));
+    } catch (_) {}
   }
 
   Future<void> _comprar() async {
@@ -165,6 +183,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     t.premiumRowPetsPremium,
                   ),
                   (
+                    Icons.checklist_rtl,
+                    t.premiumRowTasks,
+                    t.premiumRowTasksFree,
+                    t.premiumRowTasksPremium,
+                  ),
+                  (
                     Icons.style_outlined,
                     t.premiumRowCards,
                     t.premiumRowCardsFree,
@@ -173,6 +197,19 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ],
               ),
             ),
+            if (!activo && _uso != null) ...[
+              const SizedBox(height: 16),
+              AparecerAlEntrar(
+                indice: 2,
+                child: _MedidorUso(
+                  titulo: t.premiumUsageTitle,
+                  filas: [
+                    (t.premiumUsagePets, _uso!.mascotas, 2),
+                    (t.premiumUsageTasks, _uso!.tareas, 5),
+                  ],
+                ),
+              ),
+            ],
             if (!activo) ...[
               const SizedBox(height: 22),
               Row(
@@ -283,10 +320,17 @@ class _TablaPlanes extends StatelessWidget {
               ),
               Expanded(
                 flex: 3,
-                child: Text(
-                  premium,
-                  textAlign: TextAlign.center,
-                  style: cab(context.marca),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    color: context.mentaSuave,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    premium,
+                    textAlign: TextAlign.center,
+                    style: cab(context.marca),
+                  ),
                 ),
               ),
             ],
@@ -699,6 +743,79 @@ class _HojaCompraState extends State<_HojaCompra> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Cuánto del plan gratuito se está usando: barras que se llenan al límite.
+class _MedidorUso extends StatelessWidget {
+  const _MedidorUso({required this.titulo, required this.filas});
+
+  final String titulo;
+  final List<(String, int, int)> filas;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.superficie,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            titulo,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: context.textoSuave,
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (final f in filas) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    f.$1,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: context.texto,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${f.$2} / ${f.$3}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: f.$2 >= f.$3 ? context.alertaTexto : context.marca,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: (f.$2 / f.$3).clamp(0.0, 1.0)),
+                duration: reducirMovimiento(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 700),
+                curve: Curves.easeOutCubic,
+                builder: (_, v, _) => LinearProgressIndicator(
+                  value: v,
+                  minHeight: 8,
+                  backgroundColor: context.mentaSuave,
+                  color: f.$2 >= f.$3 ? context.alertaTexto : context.marca,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ],
       ),
     );
   }

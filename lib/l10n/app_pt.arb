@@ -516,5 +516,12 @@
   "premiumRowCardsPremium": "3 estilos",
   "premiumComingSoon": "Em breve no Premium",
   "premiumTodayTitle": "Hoje, o Premium inclui",
-  "premiumTestScope": "No modo de teste os estilos de cartão são liberados; o limite de pets só é removido por um Premium real do servidor."
+  "premiumTestScope": "No modo de teste os estilos de cartão são liberados; o limite de pets só é removido por um Premium real do servidor.",
+  "apiPlanTaskLimit": "O plano gratuito permite até 5 tarefas pendentes. Conclua alguma ou assine o Premium.",
+  "premiumRowTasks": "Tarefas pendentes",
+  "premiumRowTasksFree": "Até 5",
+  "premiumRowTasksPremium": "Sem limite",
+  "premiumUsageTitle": "Seu uso do plano gratuito",
+  "premiumUsagePets": "Pets",
+  "premiumUsageTasks": "Tarefas pendentes"
 }
