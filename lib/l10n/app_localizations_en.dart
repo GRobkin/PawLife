@@ -1774,4 +1774,10 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get petViewProfile => 'View profile';
+
+  @override
+  String get petSwitch => 'Switch pet';
 }

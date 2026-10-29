@@ -953,5 +953,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "petViewProfile": "Ver perfil",
+  "petSwitch": "Cambiar de mascota"
 }

@@ -499,5 +499,7 @@
   "vaccineHideHistory": "Hide history",
   "healthAtAGlance": "Health at a glance",
   "vaccinesUpToDate": "{count, plural, =0{No vaccines} =1{1 up to date} other{{count} up to date}}",
-  "vaccinesOverdue": "{count, plural, =0{Nothing overdue} =1{1 overdue} other{{count} overdue}}"
+  "vaccinesOverdue": "{count, plural, =0{Nothing overdue} =1{1 overdue} other{{count} overdue}}",
+  "petViewProfile": "View profile",
+  "petSwitch": "Switch pet"
 }

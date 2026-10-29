@@ -1787,4 +1787,10 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get petViewProfile => 'Ver perfil';
+
+  @override
+  String get petSwitch => 'Cambiar de mascota';
 }
