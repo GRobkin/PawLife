@@ -61,12 +61,16 @@ Todos reutilizan el mismo esquema de autenticación, límites de frecuencia (`Re
 
 ### Puntaje (en el servidor)
 
+La velocidad se eliminó como criterio de victoria: incentiva arrastrar al perro y haría que un chihuahua pierda siempre contra un border collie. La regla tiene que poder explicarse en una línea en la pantalla de resultados.
+
 El cliente sube los puntos del paseo ya filtrados por `GpsPointFilter`. El servidor los vuelve a revisar con sus propias reglas, sin confiar en la app:
 
 - 1 punto por cada 100 m a ritmo de caminata (2 a 7 km/h).
 - Los tramos entre 7 y 10 a 12 km/h no suman. Por encima de 10 a 12 km/h el paseo se marca como sospechoso y no puntúa.
 - +5 puntos cada 10 minutos de actividad sin pausas largas.
-- Misma duración para los dos.
+- Misma duración para los dos, a elegir al retar: 30 minutos, 1 hora o un día. Gana quien suma más.
+
+Ajuste sobre la propuesta de sincronizar los puntajes cada 5 a 10 segundos con Firestore: el proyecto no tiene un canal en tiempo real, solo la API y un cron de 5 minutos. En la versión asíncrona no hace falta: cada paseo se puntúa al terminar. Una batalla en vivo con puntajes actualizándose requeriría consultas periódicas desde la app (cada 10 a 15 segundos) o un servicio de tiempo real, y se deja para una fase posterior.
 
 Sobre `GpsPointFilter`: hoy corta a 30 km/h, un umbral pensado para descartar saltos del GPS. Para el puntaje hace falta una regla más estricta, y vive aparte, para no cambiar cómo se dibujan los paseos normales.
 
@@ -74,8 +78,34 @@ Sobre `GpsPointFilter`: hoy corta a 30 km/h, un umbral pensado para descartar sa
 
 - Agregar `isMocked` y la precisión a cada punto guardado de un paseo que participa en un reto. Hoy `RoutePoint` no los guarda. Solo Android entrega `isMocked`; en iOS no existe, por lo que ahí la verificación depende del servidor.
 - Descartar saltos imposibles y tramos con velocidad de vehículo, en el servidor.
-- El podómetro queda como opción posterior: agrega un permiso y una dependencia.
+- El podómetro queda como opción posterior: agrega un permiso y una dependencia. Serviría para casos como 3 km recorridos con 200 pasos.
 - Ninguna regla evita todo. El diseño asume que un amigo tramposo se nota y se reporta, y que el premio es solo social.
+
+### Paseo dúo en detalle
+
+Técnicamente es casi una batalla sin puntaje, así que sale barato una vez hechas las batallas, y es la parte con más posibilidad de compartirse.
+
+- Cada persona ve solo su recorrido durante el paseo.
+- Al terminar, los dos trazos se unen por forma y no por ubicación: cada mitad se ancla donde la hizo cada una, así que se puede hacer con alguien de otra ciudad y el resultado no revela dónde caminó la otra persona. Cada trazo lleva su color y el inicio y el final ya recortados.
+
+Modo con molde:
+
+- Se elige una figura (corazón, estrella, huella). Cada persona dibuja su mitad.
+- Al empezar elige dónde arranca. La plantilla aparece semitransparente sobre su mapa, anclada en esa posición, y puede escalarla y rotarla para que encaje con las calles.
+- Lo recorrido se pinta del color de la persona y el siguiente tramo se resalta. No hay indicaciones de giro como en un GPS de auto: se ve la línea y se camina sobre ella.
+- Si se desvía más de 20 a 30 m, el tramo se pinta de rojo o vibra el teléfono.
+- Se muestra el porcentaje de la mitad propia y de la del compañero, solo el número.
+- Cada mitad debe tener entre 300 y 500 m como mínimo, por el error del GPS de 5 a 15 m.
+- Primera versión con plantillas que funcionen en cuadrícula. Ajustar figuras a calles reales queda para después.
+- No requiere moderar dibujos, porque las figuras las define el equipo.
+
+Modo libre:
+
+- Sin figura previa. Cada persona ve solo su propio trazo, nunca el del compañero.
+- Se muestran en semitransparente las zonas que se recortarán, para dibujar sin perder las puntas. Son círculos y no metros de recorrido, como las zonas de privacidad de Strava:
+  - Inicio: círculo de unos 150 m alrededor de la salida. Lo recorrido adentro se ve tenue con "no se mostrará". El dibujo empieza al cruzar el borde.
+  - Final: el círculo sigue la posición actual y muestra qué parte del trazo se perdería si se terminara ahí. Así se sabe que hay que cerrar la figura y seguir caminando hasta que el círculo ya no la toque.
+- Botón "pausar dibujo": el tramo siguiente (por ejemplo, volver a casa) sigue sumando a las estadísticas pero no entra en el dibujo compartido. Con eso el recorte casi nunca afecta la figura.
 
 ## 5. Privacidad
 
@@ -85,6 +115,14 @@ Sobre `GpsPointFilter`: hoy corta a 30 km/h, un umbral pensado para descartar sa
 - Recorte: ~150 m al inicio y al final, solo en el dúo. En el paseo normal no cambia nada, el historial propio sigue completo.
 - Bloqueo: quien bloquea no recibe más retos ni invitaciones, y las anteriores se cancelan.
 - Todo lo social se puede apagar desde Privacidad y mis datos.
+
+## 5 bis. Moderación
+
+- Texto (nombres, apodos, mensajes de reto): lista de palabras prohibidas en español, con variantes rioplatenses, validada en el servidor.
+- Reportar un dibujo o un usuario, y bloquear (impide retar o invitar). Los reportes van a una colección que revisa el equipo.
+- Dibujos del modo libre: es el caso más difícil. Un filtro de fotos no detecta un símbolo de odio o un genital dibujado con una línea sobre un mapa. La solución completa es renderizar el trazo como imagen simple (línea negra sobre blanco, sin mapa) y clasificarla con un modelo multimodal al terminar el dúo, y si se marca no se genera ni se comparte la imagen. Eso requiere un proveedor de pago y facturación, así que queda fuera de la primera versión.
+- El riesgo real aparece cuando la imagen sale de la app, porque dentro la ven solo dos amigos que eligieron hacerlo juntos. Por eso en la primera versión el modo libre no permite exportar la imagen. Compartir fuera de la app queda bloqueado hasta resolver la moderación.
+- Si más adelante se permite compartir un paseo normal como imagen, se aplica el mismo recorte a la imagen exportada, aunque el historial propio siga completo.
 
 ## 6. Interfaz
 
@@ -123,3 +161,24 @@ Sugerencia: empezar por las fases 1 y 2. Entregan la parte social con menos ries
 - Tests de aislamiento: una cuenta nunca lee puntos de otra, ni siquiera dentro de un reto.
 - Tests de borrado y exportación con las colecciones nuevas.
 - Pruebas en dispositivos reales: GPS en exteriores, ubicación simulada en Android, comportamiento con la pantalla apagada.
+
+## 10. Descartado
+
+No volver a proponer:
+
+- Mostrar en vivo la ubicación del rival durante la batalla, o su mapa al final.
+- Usar la velocidad como criterio para ganar.
+- Ver el trazo del compañero mientras se dibuja en el modo libre.
+- Indicaciones de navegación tipo GPS de auto en el modo con molde.
+
+## 11. Pregunta abierta
+
+La idea original habla de pasear con "otra gente", que puede ser más de una persona. Hoy el diseño es para dos. Falta decidir si se permiten grupos y cómo se divide la figura en ese caso. Con grupos cambia el modelo de datos del dúo (de un par a una lista) y el cálculo de porcentajes.
+
+## 12. Otras ideas para después
+
+- Rachas: días seguidos paseando, con una recompensa visible.
+- Medallas: primer paseo, 10 km acumulados, primera batalla ganada, primer dibujo.
+- Ranking semanal entre amigos, que se reinicia cada lunes para que nadie quede atrás para siempre.
+- Desafíos semanales de la app, por ejemplo caminar 5 km en la semana o pasear antes de las 9.
+- Foto del perro al terminar el paseo, que queda en la tarjeta del recorrido y pasa por el mismo filtro de imágenes.
