@@ -133,6 +133,23 @@ Respeta la identidad vigente: verde bosque y menta, tipografía editorial grande
 - Reducir movimiento: sin animación de entrada, solo el estado final.
 - Evitar los rasgos de interfaz hecha por IA que ya se acordaron: sin degradados duros, sin íconos de brillos, sin cuadrículas de tarjetas idénticas. Los dibujos del dúo se ven como trazo limpio sobre el mapa de la propia persona.
 
+### Animación del enfrentamiento ("showdown")
+
+Pedido del usuario (30/10/2026): tiene que sentirse como la intro de pelea de un videojuego o un anime, intensa y muy bien elaborada visual y gráficamente. Es la pieza más vistosa de la función y la que se comparte. La maqueta aprobada como dirección tiene: franjas de cine, corte en diagonal verde bosque y menta, tarjetas de personaje con retrato, nombre en itálica gigante y km de la semana, onomatopeyas ("¡GUAU!", "¡GRR!"), tajo de luz, "VS" que se clava, destello, astillas, trama de puntos, sacudida y retratos que pasan de blanco y negro a color en el impacto.
+
+Para llegar a calidad de videojuego hace falta más de lo que dan las animaciones básicas:
+
+- Guion por tiempos (storyboard) antes de programar: cada golpe con su milisegundo, como en una intro de pelea. Duración total entre 2 y 3 segundos.
+- Acercamiento de cámara a cada mascota antes del choque, con líneas de velocidad detrás de cada retrato.
+- Retratos recortados (la mascota sin fondo) para que "salgan" de la tarjeta. Sin Storage ni un recortador automático, la primera versión usa la foto actual con un marco dinámico.
+- Efectos con shaders de Flutter (`FragmentProgram`): destello, onda expansiva y trama de puntos de cómic dibujados en la GPU.
+- Herramienta: evaluar Rive para la secuencia completa. Antes se había descartado por la dependencia nueva, pero para este nivel de calidad es la herramienta adecuada: permite animar a mano, con curvas y capas, y pesa poco. La decisión queda abierta.
+- Vibración con patrón: un toque al entrar cada mascota y uno fuerte en el "VS".
+- Sonido opcional (golpe, latido), apagado si el teléfono está en silencio.
+- Rendimiento: 60 cuadros por segundo en teléfonos de gama media. Nada de desenfoque en tiempo real; precargar las fotos antes de empezar.
+- Se puede saltar con un toque. Con "reducir movimiento" se muestra solo el cuadro final, sin destello ni sacudida.
+- Diseño previo en Figma o Rive, aprobado por el usuario, antes de implementar.
+
 ## 7. Fases
 
 | Fase | Contenido | Esfuerzo | Depende de |
