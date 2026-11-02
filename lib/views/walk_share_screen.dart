@@ -3,11 +3,14 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
 import '../models/pawlife_models.dart';
+import '../models/route_point.dart';
 import '../services/pawlife_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
@@ -69,6 +72,11 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
         await precacheImage(photo, context, onError: (_, _) {});
       }
       await WidgetsBinding.instance.endOfFrame;
+      // Las teselas del mapa llegan por red: se espera un tiempo acotado
+      // para que salgan en la imagen.
+      if (WalkShareCard.mapaReal && widget.paseo.ruta.length > 1) {
+        await Future<void>.delayed(const Duration(milliseconds: 2500));
+      }
       if (!mounted) return;
       final boundary =
           _cardKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
@@ -212,6 +220,9 @@ class WalkShareCard extends StatelessWidget {
   final Mascota mascota;
   final TarjetaEstilo estilo;
 
+  /// Los tests lo apagan para no pedir teselas a la red.
+  static bool mapaReal = true;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -227,6 +238,7 @@ class WalkShareCard extends StatelessWidget {
       paseo.duracion.inMinutes,
       paseo.duracion.inSeconds % 60,
     );
+    final conRuta = paseo.ruta.length > 1;
     final traza = Container(
       height: cifras ? 150 : 240,
       width: double.infinity,
@@ -234,7 +246,14 @@ class WalkShareCard extends StatelessWidget {
         color: claro ? Colors.white : AppColors.verdeSuave,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: WalkRouteTrace(points: paseo.ruta),
+      clipBehavior: Clip.antiAlias,
+      child: conRuta && mapaReal
+          ? _MapaPaseo(ruta: paseo.ruta)
+          : WalkRouteTrace(points: paseo.ruta),
+    );
+    final leyenda = Text(
+      conRuta ? t.traceCaption : t.shareNoGps,
+      style: const TextStyle(fontSize: 11),
     );
     return Container(
       width: double.infinity,
@@ -292,11 +311,11 @@ class WalkShareCard extends StatelessWidget {
               const SizedBox(height: 18),
               traza,
               const SizedBox(height: 8),
-              Text(t.traceCaption, style: const TextStyle(fontSize: 11)),
+              leyenda,
             ] else ...[
               traza,
               const SizedBox(height: 8),
-              Text(t.traceCaption, style: const TextStyle(fontSize: 11)),
+              leyenda,
               const SizedBox(height: 18),
               Wrap(
                 spacing: 24,
@@ -317,6 +336,83 @@ class WalkShareCard extends StatelessWidget {
             Text(t.shareTagline, style: TextStyle(color: acento)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Mapa de calles con el recorrido, sus puntos de inicio y final, y la
+/// atribución que exige OpenStreetMap.
+class _MapaPaseo extends StatelessWidget {
+  const _MapaPaseo({required this.ruta});
+
+  final List<RoutePoint> ruta;
+
+  @override
+  Widget build(BuildContext context) {
+    final puntos = [for (final p in ruta) LatLng(p.latitude, p.longitude)];
+    Marker punto(LatLng en, Color color) => Marker(
+      point: en,
+      width: 18,
+      height: 18,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color,
+          border: Border.all(color: Colors.white, width: 3),
+        ),
+      ),
+    );
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: puntos.first,
+              initialCameraFit: CameraFit.bounds(
+                bounds: LatLngBounds.fromPoints(puntos),
+                padding: const EdgeInsets.all(28),
+                maxZoom: 18,
+              ),
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.none,
+              ),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.pawlife',
+              ),
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: puntos,
+                    strokeWidth: 5,
+                    color: AppColors.verdeOscuro,
+                  ),
+                ],
+              ),
+              MarkerLayer(
+                markers: [
+                  punto(puntos.first, AppColors.verdeAcento),
+                  punto(puntos.last, Colors.redAccent),
+                ],
+              ),
+            ],
+          ),
+          Positioned(
+            right: 6,
+            bottom: 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              color: Colors.white70,
+              child: const Text(
+                '© OpenStreetMap',
+                style: TextStyle(fontSize: 9, color: Colors.black87),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

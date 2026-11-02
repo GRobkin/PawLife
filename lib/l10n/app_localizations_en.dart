@@ -883,7 +883,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharePrivacyNote =>
-      'You\'re sharing the route line and statistics, without the street map. The shape of the route can reveal places you visited.';
+      'The image includes the street map with your route: it shows where you walked. Check it before sharing.';
 
   @override
   String get shareImageError => 'Couldn\'t prepare the image. Try again.';
@@ -898,7 +898,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharePng => 'Share PNG';
 
   @override
-  String get traceCaption => 'Route trace · green start / red end';
+  String get traceCaption => 'Route · green start / red end';
 
   @override
   String get shareTagline => 'One more walk, a memory together.';
@@ -1878,4 +1878,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get walkHistoryFreeNote =>
       'Free plan: the last 7 days of walks are shown.';
+
+  @override
+  String get shareNoGps =>
+      'This walk recorded no GPS points, so there is no route.';
 }

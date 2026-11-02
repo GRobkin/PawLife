@@ -245,12 +245,12 @@
   "walkPhoto": "Foto do passeio",
   "mapAttribution": "Mapa © OpenStreetMap contributors",
   "shareWalkTitle": "Compartilhar passeio",
-  "sharePrivacyNote": "Você compartilha o traçado e as estatísticas, sem o mapa de ruas. A forma do trajeto pode revelar lugares que você visitou.",
+  "sharePrivacyNote": "A imagem inclui o mapa de ruas com seu percurso: mostra onde você passeou. Confira antes de compartilhar.",
   "shareImageError": "Não foi possível preparar a imagem. Tente novamente.",
   "shareFailed": "Não foi possível compartilhar. Tente novamente.",
   "sharingEllipsis": "Compartilhando…",
   "sharePng": "Compartilhar PNG",
-  "traceCaption": "Traçado do trajeto · início verde / fim vermelho",
+  "traceCaption": "Percurso · início verde / fim vermelho",
   "shareTagline": "Mais um passeio, uma lembrança juntos.",
   "walkNotSaved": "O passeio não foi salvo",
   "walkNotSavedBody": "Você pode tentar salvar novamente. Se sair agora, perderá este trajeto.",
@@ -532,5 +532,6 @@
   "premiumRowWatchPremium": "Incluído",
   "premiumLockedWatch": "O modo relógio é Premium.",
   "premiumSee": "Ver",
-  "walkHistoryFreeNote": "Plano gratuito: são mostrados os últimos 7 dias de passeios."
+  "walkHistoryFreeNote": "Plano gratuito: são mostrados os últimos 7 dias de passeios.",
+  "shareNoGps": "Este passeio não registrou pontos de GPS, por isso não há percurso."
 }
