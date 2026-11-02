@@ -76,6 +76,9 @@ class AuthStub implements AuthService {
 }
 
 void main() {
+  // Sin red en los tests: la tarjeta usa la traza en vez del mapa real.
+  WalkShareCard.mapaReal = false;
+
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     await (FontLoader(

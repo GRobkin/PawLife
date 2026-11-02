@@ -245,12 +245,12 @@
   "walkPhoto": "Walk photo",
   "mapAttribution": "Map © OpenStreetMap contributors",
   "shareWalkTitle": "Share walk",
-  "sharePrivacyNote": "You're sharing the route line and statistics, without the street map. The shape of the route can reveal places you visited.",
+  "sharePrivacyNote": "The image includes the street map with your route: it shows where you walked. Check it before sharing.",
   "shareImageError": "Couldn't prepare the image. Try again.",
   "shareFailed": "Couldn't share. Please try again.",
   "sharingEllipsis": "Sharing…",
   "sharePng": "Share PNG",
-  "traceCaption": "Route trace · green start / red end",
+  "traceCaption": "Route · green start / red end",
   "shareTagline": "One more walk, a memory together.",
   "walkNotSaved": "The walk wasn't saved",
   "walkNotSavedBody": "You can retry saving. If you leave now, you'll lose this route.",
@@ -532,5 +532,6 @@
   "premiumRowWatchPremium": "Included",
   "premiumLockedWatch": "Watch mode is Premium.",
   "premiumSee": "See",
-  "walkHistoryFreeNote": "Free plan: the last 7 days of walks are shown."
+  "walkHistoryFreeNote": "Free plan: the last 7 days of walks are shown.",
+  "shareNoGps": "This walk recorded no GPS points, so there is no route."
 }

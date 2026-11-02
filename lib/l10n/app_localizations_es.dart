@@ -889,7 +889,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sharePrivacyNote =>
-      'Compartís la traza y las estadísticas, sin el mapa de calles. La forma del recorrido puede revelar lugares que visitaste.';
+      'La imagen incluye el mapa de calles con tu recorrido: muestra dónde paseaste. Revisala antes de compartirla.';
 
   @override
   String get shareImageError =>
@@ -905,7 +905,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sharePng => 'Compartir PNG';
 
   @override
-  String get traceCaption => 'Traza del recorrido · inicio verde / final rojo';
+  String get traceCaption => 'Recorrido · inicio verde / final rojo';
 
   @override
   String get shareTagline => 'Un paseo más, un recuerdo juntos.';
@@ -1891,4 +1891,8 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get walkHistoryFreeNote =>
       'Plan gratuito: se muestran los últimos 7 días de paseos.';
+
+  @override
+  String get shareNoGps =>
+      'Este paseo no registró puntos de GPS, por eso no hay recorrido.';
 }

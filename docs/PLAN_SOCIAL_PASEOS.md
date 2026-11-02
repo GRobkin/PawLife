@@ -122,7 +122,7 @@ Modo libre:
 - Reportar un dibujo o un usuario, y bloquear (impide retar o invitar). Los reportes van a una colección que revisa el equipo.
 - Dibujos del modo libre: es el caso más difícil. Un filtro de fotos no detecta un símbolo de odio o un genital dibujado con una línea sobre un mapa. La solución completa es renderizar el trazo como imagen simple (línea negra sobre blanco, sin mapa) y clasificarla con un modelo multimodal al terminar el dúo, y si se marca no se genera ni se comparte la imagen. Eso requiere un proveedor de pago y facturación, así que queda fuera de la primera versión.
 - El riesgo real aparece cuando la imagen sale de la app, porque dentro la ven solo dos amigos que eligieron hacerlo juntos. Por eso en la primera versión el modo libre no permite exportar la imagen. Compartir fuera de la app queda bloqueado hasta resolver la moderación.
-- Si más adelante se permite compartir un paseo normal como imagen, se aplica el mismo recorte a la imagen exportada, aunque el historial propio siga completo.
+- Compartir un paseo normal como imagen ya existe y, por decisión del usuario (02/11/2026), muestra el mapa de calles completo, sin recorte. El recorte de ~150 m queda solo para el dúo.
 
 ## 6. Interfaz
 

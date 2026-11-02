@@ -90,6 +90,26 @@ void main() {
     });
   }
 
+  testWidgets('sin puntos de GPS la tarjeta lo explica', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WalkShareCard(
+              paseo: walk(TipoImagenPaseo.foto),
+              mascota: pet,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('no registró puntos de GPS'), findsOneWidget);
+  });
+
   test(
     'fotografía explícita puede incluirse y mapa nunca se usa sin foto de mascota',
     () {

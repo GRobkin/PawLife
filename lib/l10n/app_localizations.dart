@@ -1573,7 +1573,7 @@ abstract class AppLocalizations {
   /// No description provided for @sharePrivacyNote.
   ///
   /// In es, this message translates to:
-  /// **'Compartís la traza y las estadísticas, sin el mapa de calles. La forma del recorrido puede revelar lugares que visitaste.'**
+  /// **'La imagen incluye el mapa de calles con tu recorrido: muestra dónde paseaste. Revisala antes de compartirla.'**
   String get sharePrivacyNote;
 
   /// No description provided for @shareImageError.
@@ -1603,7 +1603,7 @@ abstract class AppLocalizations {
   /// No description provided for @traceCaption.
   ///
   /// In es, this message translates to:
-  /// **'Traza del recorrido · inicio verde / final rojo'**
+  /// **'Recorrido · inicio verde / final rojo'**
   String get traceCaption;
 
   /// No description provided for @shareTagline.
@@ -3297,6 +3297,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Plan gratuito: se muestran los últimos 7 días de paseos.'**
   String get walkHistoryFreeNote;
+
+  /// No description provided for @shareNoGps.
+  ///
+  /// In es, this message translates to:
+  /// **'Este paseo no registró puntos de GPS, por eso no hay recorrido.'**
+  String get shareNoGps;
 }
 
 class _AppLocalizationsDelegate

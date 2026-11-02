@@ -888,7 +888,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sharePrivacyNote =>
-      'Você compartilha o traçado e as estatísticas, sem o mapa de ruas. A forma do trajeto pode revelar lugares que você visitou.';
+      'A imagem inclui o mapa de ruas com seu percurso: mostra onde você passeou. Confira antes de compartilhar.';
 
   @override
   String get shareImageError =>
@@ -904,7 +904,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get sharePng => 'Compartilhar PNG';
 
   @override
-  String get traceCaption => 'Traçado do trajeto · início verde / fim vermelho';
+  String get traceCaption => 'Percurso · início verde / fim vermelho';
 
   @override
   String get shareTagline => 'Mais um passeio, uma lembrança juntos.';
@@ -1895,4 +1895,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get walkHistoryFreeNote =>
       'Plano gratuito: são mostrados os últimos 7 dias de passeios.';
+
+  @override
+  String get shareNoGps =>
+      'Este passeio não registrou pontos de GPS, por isso não há percurso.';
 }
