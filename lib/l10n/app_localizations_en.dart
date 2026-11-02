@@ -1882,4 +1882,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shareNoGps =>
       'This walk recorded no GPS points, so there is no route.';
+
+  @override
+  String get shareStartOnly => 'No movement · starting point';
 }

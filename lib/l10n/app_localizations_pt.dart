@@ -1899,4 +1899,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get shareNoGps =>
       'Este passeio não registrou pontos de GPS, por isso não há percurso.';
+
+  @override
+  String get shareStartOnly => 'Sem deslocamento · ponto de início';
 }

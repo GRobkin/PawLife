@@ -9,6 +9,7 @@
 // permite reintentar si falló.
 
 import 'package:flutter/material.dart';
+import '../config/app_identity.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math';
@@ -529,7 +530,7 @@ class _MapHeader extends StatelessWidget {
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.pawlife',
+              userAgentPackageName: kAppPackageId,
             ),
             if (points.length > 1)
               // La ruta se dibuja desde el inicio hasta el final una sola vez,

@@ -29,14 +29,14 @@ void main() {
     especie: 'perro',
     fotoUrl: photo,
   );
-  Paseo walk(TipoImagenPaseo tipo) => Paseo(
+  Paseo walk(TipoImagenPaseo tipo, {List<RoutePoint> ruta = const []}) => Paseo(
     id: 'paseo',
     fechaInicio: time,
     fechaFin: time.add(const Duration(minutes: 10)),
     duracionSegundos: 600,
     distanciaMetros: 500,
     velocidadMaximaKmh: 4,
-    ruta: const [],
+    ruta: ruta,
     fotoUrl: map,
     imagenTipo: tipo,
   );
@@ -108,6 +108,35 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.textContaining('no registró puntos de GPS'), findsOneWidget);
+  });
+
+  testWidgets('con un solo punto marca el inicio', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WalkShareCard(
+              paseo: walk(
+                TipoImagenPaseo.foto,
+                ruta: [
+                  RoutePoint(
+                    latitude: -30.9,
+                    longitude: -55.55,
+                    timestamp: DateTime(2026, 11, 2),
+                  ),
+                ],
+              ),
+              mascota: pet,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Sin desplazamiento · punto de inicio'), findsOneWidget);
   });
 
   test(

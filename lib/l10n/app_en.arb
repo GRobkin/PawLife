@@ -533,5 +533,6 @@
   "premiumLockedWatch": "Watch mode is Premium.",
   "premiumSee": "See",
   "walkHistoryFreeNote": "Free plan: the last 7 days of walks are shown.",
-  "shareNoGps": "This walk recorded no GPS points, so there is no route."
+  "shareNoGps": "This walk recorded no GPS points, so there is no route.",
+  "shareStartOnly": "No movement · starting point"
 }
