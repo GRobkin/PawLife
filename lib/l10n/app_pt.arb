@@ -533,5 +533,6 @@
   "premiumLockedWatch": "O modo relógio é Premium.",
   "premiumSee": "Ver",
   "walkHistoryFreeNote": "Plano gratuito: são mostrados os últimos 7 dias de passeios.",
-  "shareNoGps": "Este passeio não registrou pontos de GPS, por isso não há percurso."
+  "shareNoGps": "Este passeio não registrou pontos de GPS, por isso não há percurso.",
+  "shareStartOnly": "Sem deslocamento · ponto de início"
 }

@@ -987,5 +987,6 @@
   "premiumLockedWatch": "El modo reloj es de Premium.",
   "premiumSee": "Ver",
   "walkHistoryFreeNote": "Plan gratuito: se muestran los últimos 7 días de paseos.",
-  "shareNoGps": "Este paseo no registró puntos de GPS, por eso no hay recorrido."
+  "shareNoGps": "Este paseo no registró puntos de GPS, por eso no hay recorrido.",
+  "shareStartOnly": "Sin desplazamiento · punto de inicio"
 }

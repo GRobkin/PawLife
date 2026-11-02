@@ -3303,6 +3303,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Este paseo no registró puntos de GPS, por eso no hay recorrido.'**
   String get shareNoGps;
+
+  /// No description provided for @shareStartOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin desplazamiento · punto de inicio'**
+  String get shareStartOnly;
 }
 
 class _AppLocalizationsDelegate
