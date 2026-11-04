@@ -165,3 +165,13 @@ Orden: **(1) integración de git → (2) revisión UI antes/después → (3) rel
 W1–W4 hechos en local: pausar/reanudar en `RouteViewModel` (tests en `test/route_view_model_pause_test.dart`), pantalla en `lib/views/wearable/`, acceso con `Icons.watch_outlined` en la barra del Home, textos es/en/pt (`wearable*`), `test/wearable_test.dart` y capturas en `test/wearable_gallery_test.dart`.
 Pendiente: W5 (prueba en navegador a 250×250) y W6 (hardware Wear OS, fuera de alcance). Nada se probó con GPS real ni en dispositivo. Al reanudar, el trazo une el último punto previo con el primero posterior (sin sumar esa distancia).
 W5 hecho el 28/10/2026: `tool/wearable_demo/main.dart` (paseo simulado, sin Firebase ni GPS) compilado con `flutter build web` y probado en el navegador integrado: iniciar, pausar (el tiempo se congela), seguir, terminar y "guardado", sin errores de consola. Ejecutar: `flutter run -d chrome -t tool/wearable_demo/main.dart`. Solo se verificó el flujo con datos simulados.
+
+## 8. Escopo del proyecto semestral (IFSul) y trabajo futuro (03/11/2026)
+Documento de entrega: `docs/ESCOPO_PROJETO_SEMESTRAL.md`. Lo que queda por hacer para que cada requisito de la materia sea cierto, no solo prometido:
+- **Segundo plano (Unid. II):** servicio en primer plano en Android para seguir grabando el paseo con la pantalla bloqueada, con notificación persistente y permisos de ubicación en segundo plano. Probar en teléfono físico.
+- **Política de Privacidad (Unid. IV):** redactar el texto (LGPD; datos de ubicación, fotos, notificaciones, exportación y borrado), publicarlo en una URL y enlazarlo desde la app y desde la ficha de la tienda.
+- **Monetización (Unid. IV):** hoy Premium tiene compra simulada. Falta decidir proveedor y precios (T10) y la política de retención de suscripciones antes de cobrar.
+- **Accesibilidad (Unid. I):** revisión con TalkBack, tamaños de texto grandes y contraste en dispositivo.
+- **Dispositivo físico:** GPS, cámara, push, compartir PNG y reloj.
+- **Identificador de la app:** cambiar `com.example.flutter_application_1` por el definitivo en Android/iOS y volver a registrar la app en Firebase.
+- **Reloj:** la elección de mascota con un toque ya está hecha (03/11); queda, como idea, cambiar de mascota con deslizamiento.

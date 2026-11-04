@@ -68,6 +68,8 @@ class WearableController extends ChangeNotifier {
     required this.paseo,
     required this.cargarMascota,
     required this.guardar,
+    this.cargarMascotas,
+    this.alElegirMascota,
     this.vibrar = _vibrar,
   }) {
     paseo.cambios.addListener(_alCambiarPaseo);
@@ -78,11 +80,18 @@ class WearableController extends ChangeNotifier {
   final Future<void> Function(String mascotaId, WalkSession sesion) guardar;
   final Future<void> Function() vibrar;
 
+  /// Todas las mascotas, para poder cambiar de una a otra desde el reloj.
+  final Future<List<Mascota>> Function()? cargarMascotas;
+
+  /// Avisa a la app cuál se eligió, para que Home quede en la misma.
+  final void Function(Mascota mascota)? alElegirMascota;
+
   static Future<void> _vibrar() => HapticFeedback.lightImpact();
 
   WearableEstado estado = WearableEstado.reposo;
   WearableError? error;
   Mascota? mascota;
+  List<Mascota> mascotas = const [];
   WalkSession? _sesion;
 
   /// Último resultado, para la pantalla «guardado».
@@ -104,6 +113,7 @@ class WearableController extends ChangeNotifier {
   Future<void> preparar() async {
     try {
       mascota = await cargarMascota();
+      mascotas = await cargarMascotas?.call() ?? const [];
     } catch (_) {
       mascota = null;
     }
@@ -112,6 +122,17 @@ class WearableController extends ChangeNotifier {
     } else {
       notifyListeners();
     }
+  }
+
+  /// Pasa a la mascota siguiente. Solo en reposo y con más de una.
+  void siguienteMascota() {
+    if (estado != WearableEstado.reposo || mascotas.length < 2) return;
+    final actual = mascotas.indexWhere((m) => m.id == mascota?.id);
+    final siguiente = mascotas[(actual + 1) % mascotas.length];
+    mascota = siguiente;
+    alElegirMascota?.call(siguiente);
+    vibrar();
+    notifyListeners();
   }
 
   Future<void> iniciar() async {

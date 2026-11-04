@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../widgets/foto_mascota.dart';
 import 'wearable_controller.dart';
 import 'wearable_theme.dart';
 
@@ -158,17 +159,103 @@ class _Reposo extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          SizedBox(
-            width: 130,
-            child: Text(
-              controller.mascota?.nombre ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: WearableColors.etiqueta.copyWith(fontSize: 14),
+          _SelectorMascota(controller: controller),
+        ],
+      ),
+    );
+  }
+}
+
+/// Mascota del paseo: foto, nombre y puntos. Un toque pasa a la siguiente.
+class _SelectorMascota extends StatelessWidget {
+  const _SelectorMascota({required this.controller});
+  final WearableController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final mascota = controller.mascota;
+    if (mascota == null) return const SizedBox.shrink();
+    final varias = controller.mascotas.length > 1;
+    final indice = controller.mascotas.indexWhere((m) => m.id == mascota.id);
+    final foto = proveedorDeFoto(mascota.fotoUrl);
+    return Semantics(
+      button: varias,
+      label: mascota.nombre,
+      excludeSemantics: true,
+      child: _Tocable(
+        activo: varias,
+        onTap: controller.siguienteMascota,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          transitionBuilder: (child, animacion) => FadeTransition(
+            opacity: animacion,
+            child: SlideTransition(
+              position: Tween(
+                begin: const Offset(0.25, 0),
+                end: Offset.zero,
+              ).animate(animacion),
+              child: child,
             ),
           ),
-        ],
+          child: Column(
+            key: ValueKey(mascota.id),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 13,
+                    backgroundColor: WearableColors.secundario,
+                    backgroundImage: foto,
+                    child: foto == null
+                        ? Text(
+                            mascota.inicial,
+                            style: WearableColors.etiqueta.copyWith(
+                              fontSize: 12,
+                            ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 90),
+                    child: Text(
+                      mascota.nombre,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: WearableColors.etiqueta.copyWith(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              if (varias) ...[
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (
+                      var i = 0;
+                      i < controller.mascotas.length && i < 6;
+                      i++
+                    )
+                      Container(
+                        width: i == indice ? 14 : 5,
+                        height: 5,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(3),
+                          color: i == indice
+                              ? WearableColors.acento
+                              : WearableColors.textoTenue,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -337,4 +424,27 @@ class _Pildora extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Solo es pulsable cuando hay algo que elegir: con una sola mascota la
+/// pantalla conserva un único elemento de interacción.
+class _Tocable extends StatelessWidget {
+  const _Tocable({
+    required this.activo,
+    required this.onTap,
+    required this.child,
+  });
+  final bool activo;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => activo
+      ? GestureDetector(
+          key: const Key('wearable-mascota'),
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: child,
+        )
+      : child;
 }

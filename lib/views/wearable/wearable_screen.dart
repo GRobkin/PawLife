@@ -28,6 +28,9 @@ class _WearableScreenState extends State<WearableScreen> {
     final walks = WalkRepository();
     return WearableController(
       paseo: WearablePaseoReal(RouteViewModel()),
+      cargarMascotas: () async =>
+          (await PawLifeRepository().fetchMascotas()).toList(),
+      alElegirMascota: SeleccionMascota.seleccionar,
       cargarMascota: () async {
         final Iterable<Mascota> lista = await PawLifeRepository()
             .fetchMascotas();
