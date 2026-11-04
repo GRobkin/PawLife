@@ -124,13 +124,22 @@ class WearableController extends ChangeNotifier {
     }
   }
 
+  /// Sentido del último cambio: 1 avanza, -1 retrocede. Lo usa la animación.
+  int sentido = 1;
+
   /// Pasa a la mascota siguiente. Solo en reposo y con más de una.
-  void siguienteMascota() {
+  void siguienteMascota() => _moverMascota(1);
+
+  void anteriorMascota() => _moverMascota(-1);
+
+  void _moverMascota(int paso) {
     if (estado != WearableEstado.reposo || mascotas.length < 2) return;
     final actual = mascotas.indexWhere((m) => m.id == mascota?.id);
-    final siguiente = mascotas[(actual + 1) % mascotas.length];
-    mascota = siguiente;
-    alElegirMascota?.call(siguiente);
+    final n = mascotas.length;
+    final elegida = mascotas[(actual + paso + n) % n];
+    sentido = paso;
+    mascota = elegida;
+    alElegirMascota?.call(elegida);
     vibrar();
     notifyListeners();
   }

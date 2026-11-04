@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../widgets/foto_mascota.dart';
+import '../../models/pawlife_models.dart';
 import 'wearable_controller.dart';
 import 'wearable_theme.dart';
 
@@ -139,8 +140,8 @@ class _Reposo extends StatelessWidget {
               onTap: controller.iniciar,
               behavior: HitTestBehavior.opaque,
               child: Container(
-                width: 150,
-                height: 150,
+                width: 132,
+                height: 132,
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
@@ -158,7 +159,7 @@ class _Reposo extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           _SelectorMascota(controller: controller),
         ],
       ),
@@ -166,7 +167,8 @@ class _Reposo extends StatelessWidget {
   }
 }
 
-/// Mascota del paseo: foto, nombre y puntos. Un toque pasa a la siguiente.
+/// Mascota del paseo: la elegida al centro con anillo verde y las vecinas
+/// atenuadas a los lados. Un toque o un deslizamiento cambia de mascota.
 class _SelectorMascota extends StatelessWidget {
   const _SelectorMascota({required this.controller});
   final WearableController controller;
@@ -175,9 +177,75 @@ class _SelectorMascota extends StatelessWidget {
   Widget build(BuildContext context) {
     final mascota = controller.mascota;
     if (mascota == null) return const SizedBox.shrink();
-    final varias = controller.mascotas.length > 1;
-    final indice = controller.mascotas.indexWhere((m) => m.id == mascota.id);
-    final foto = proveedorDeFoto(mascota.fotoUrl);
+    final lista = controller.mascotas;
+    final varias = lista.length > 1;
+    final indice = lista.indexWhere((m) => m.id == mascota.id);
+    Mascota? vecina(int paso) => varias && indice >= 0
+        ? lista[(indice + paso + lista.length) % lista.length]
+        : null;
+    // Con solo dos mascotas la anterior y la siguiente son la misma: se
+    // muestra una vez.
+    final anterior = lista.length > 2 ? vecina(-1) : null;
+    final siguiente = vecina(1);
+    final d = controller.sentido.toDouble();
+
+    Widget fila() => Column(
+      key: ValueKey(mascota.id),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (anterior != null)
+              _Foto(mascota: anterior, radio: 13, tenue: true),
+            if (anterior != null) const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: WearableColors.acento, width: 2),
+              ),
+              child: _Foto(mascota: mascota, radio: 20),
+            ),
+            if (siguiente != null) const SizedBox(width: 10),
+            if (siguiente != null)
+              _Foto(mascota: siguiente, radio: 13, tenue: true),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 110),
+          child: Text(
+            mascota.nombre,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: WearableColors.etiqueta.copyWith(fontSize: 14),
+          ),
+        ),
+      ],
+    );
+
+    final contenido = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animacion) {
+        final entra = child.key == ValueKey(mascota.id);
+        return FadeTransition(
+          opacity: animacion,
+          child: SlideTransition(
+            position: Tween(
+              begin: Offset((entra ? d : -d) * 0.45, 0),
+              end: Offset.zero,
+            ).animate(animacion),
+            child: child,
+          ),
+        );
+      },
+      child: fila(),
+    );
+
     return Semantics(
       button: varias,
       label: mascota.nombre,
@@ -185,77 +253,36 @@ class _SelectorMascota extends StatelessWidget {
       child: _Tocable(
         activo: varias,
         onTap: controller.siguienteMascota,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
-          transitionBuilder: (child, animacion) => FadeTransition(
-            opacity: animacion,
-            child: SlideTransition(
-              position: Tween(
-                begin: const Offset(0.25, 0),
-                end: Offset.zero,
-              ).animate(animacion),
-              child: child,
-            ),
-          ),
-          child: Column(
-            key: ValueKey(mascota.id),
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: 13,
-                    backgroundColor: WearableColors.secundario,
-                    backgroundImage: foto,
-                    child: foto == null
-                        ? Text(
-                            mascota.inicial,
-                            style: WearableColors.etiqueta.copyWith(
-                              fontSize: 12,
-                            ),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(width: 8),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 90),
-                    child: Text(
-                      mascota.nombre,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: WearableColors.etiqueta.copyWith(fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
-              if (varias) ...[
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (
-                      var i = 0;
-                      i < controller.mascotas.length && i < 6;
-                      i++
-                    )
-                      Container(
-                        width: i == indice ? 14 : 5,
-                        height: 5,
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3),
-                          color: i == indice
-                              ? WearableColors.acento
-                              : WearableColors.textoTenue,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
+        onDeslizar: (haciaLaIzquierda) => haciaLaIzquierda
+            ? controller.siguienteMascota()
+            : controller.anteriorMascota(),
+        child: contenido,
+      ),
+    );
+  }
+}
+
+class _Foto extends StatelessWidget {
+  const _Foto({required this.mascota, required this.radio, this.tenue = false});
+  final Mascota mascota;
+  final double radio;
+  final bool tenue;
+
+  @override
+  Widget build(BuildContext context) {
+    final foto = proveedorDeFoto(mascota.fotoUrl);
+    return Opacity(
+      opacity: tenue ? 0.45 : 1,
+      child: CircleAvatar(
+        radius: radio,
+        backgroundColor: WearableColors.secundario,
+        backgroundImage: foto,
+        child: foto == null
+            ? Text(
+                mascota.inicial,
+                style: WearableColors.etiqueta.copyWith(fontSize: radio * 0.9),
+              )
+            : null,
       ),
     );
   }
@@ -432,10 +459,12 @@ class _Tocable extends StatelessWidget {
   const _Tocable({
     required this.activo,
     required this.onTap,
+    required this.onDeslizar,
     required this.child,
   });
   final bool activo;
   final VoidCallback onTap;
+  final void Function(bool haciaLaIzquierda) onDeslizar;
   final Widget child;
 
   @override
@@ -443,6 +472,10 @@ class _Tocable extends StatelessWidget {
       ? GestureDetector(
           key: const Key('wearable-mascota'),
           onTap: onTap,
+          onHorizontalDragEnd: (d) {
+            final v = d.primaryVelocity ?? 0;
+            if (v.abs() > 120) onDeslizar(v < 0);
+          },
           behavior: HitTestBehavior.opaque,
           child: child,
         )
