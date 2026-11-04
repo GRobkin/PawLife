@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../widgets/foto_mascota.dart';
-import '../../models/pawlife_models.dart';
 import 'wearable_controller.dart';
 import 'wearable_theme.dart';
 
@@ -140,8 +138,8 @@ class _Reposo extends StatelessWidget {
               onTap: controller.iniciar,
               behavior: HitTestBehavior.opaque,
               child: Container(
-                width: 132,
-                height: 132,
+                width: 150,
+                height: 150,
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
@@ -159,7 +157,7 @@ class _Reposo extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _SelectorMascota(controller: controller),
         ],
       ),
@@ -167,8 +165,8 @@ class _Reposo extends StatelessWidget {
   }
 }
 
-/// Mascota del paseo: la elegida al centro con anillo verde y las vecinas
-/// atenuadas a los lados. Un toque o un deslizamiento cambia de mascota.
+/// Mascota del paseo: el nombre bajo el botón, con flechas y puntos cuando hay
+/// más de una. Un toque o un deslizamiento cambia de mascota.
 class _SelectorMascota extends StatelessWidget {
   const _SelectorMascota({required this.controller});
   final WearableController controller;
@@ -180,14 +178,13 @@ class _SelectorMascota extends StatelessWidget {
     final lista = controller.mascotas;
     final varias = lista.length > 1;
     final indice = lista.indexWhere((m) => m.id == mascota.id);
-    Mascota? vecina(int paso) => varias && indice >= 0
-        ? lista[(indice + paso + lista.length) % lista.length]
-        : null;
-    // Con solo dos mascotas la anterior y la siguiente son la misma: se
-    // muestra una vez.
-    final anterior = lista.length > 2 ? vecina(-1) : null;
-    final siguiente = vecina(1);
     final d = controller.sentido.toDouble();
+
+    Widget flecha(IconData icono) => Icon(
+      icono,
+      size: 18,
+      color: varias ? WearableColors.acento : Colors.transparent,
+    );
 
     Widget fila() => Column(
       key: ValueKey(mascota.id),
@@ -195,39 +192,49 @@ class _SelectorMascota extends StatelessWidget {
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (anterior != null)
-              _Foto(mascota: anterior, radio: 13, tenue: true),
-            if (anterior != null) const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: WearableColors.acento, width: 2),
+            flecha(Icons.chevron_left_rounded),
+            const SizedBox(width: 4),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 100),
+              child: Text(
+                mascota.nombre,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: WearableColors.etiqueta.copyWith(fontSize: 15),
               ),
-              child: _Foto(mascota: mascota, radio: 20),
             ),
-            if (siguiente != null) const SizedBox(width: 10),
-            if (siguiente != null)
-              _Foto(mascota: siguiente, radio: 13, tenue: true),
+            const SizedBox(width: 4),
+            flecha(Icons.chevron_right_rounded),
           ],
         ),
-        const SizedBox(height: 4),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 110),
-          child: Text(
-            mascota.nombre,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: WearableColors.etiqueta.copyWith(fontSize: 14),
+        if (varias) ...[
+          const SizedBox(height: 5),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < lista.length && i < 6; i++)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: i == indice ? 14 : 5,
+                  height: 5,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    color: i == indice
+                        ? WearableColors.acento
+                        : WearableColors.textoTenue,
+                  ),
+                ),
+            ],
           ),
-        ),
+        ],
       ],
     );
 
     final contenido = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 260),
+      duration: const Duration(milliseconds: 240),
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (child, animacion) {
@@ -236,7 +243,7 @@ class _SelectorMascota extends StatelessWidget {
           opacity: animacion,
           child: SlideTransition(
             position: Tween(
-              begin: Offset((entra ? d : -d) * 0.45, 0),
+              begin: Offset((entra ? d : -d) * 0.4, 0),
               end: Offset.zero,
             ).animate(animacion),
             child: child,
@@ -257,32 +264,6 @@ class _SelectorMascota extends StatelessWidget {
             ? controller.siguienteMascota()
             : controller.anteriorMascota(),
         child: contenido,
-      ),
-    );
-  }
-}
-
-class _Foto extends StatelessWidget {
-  const _Foto({required this.mascota, required this.radio, this.tenue = false});
-  final Mascota mascota;
-  final double radio;
-  final bool tenue;
-
-  @override
-  Widget build(BuildContext context) {
-    final foto = proveedorDeFoto(mascota.fotoUrl);
-    return Opacity(
-      opacity: tenue ? 0.45 : 1,
-      child: CircleAvatar(
-        radius: radio,
-        backgroundColor: WearableColors.secundario,
-        backgroundImage: foto,
-        child: foto == null
-            ? Text(
-                mascota.inicial,
-                style: WearableColors.etiqueta.copyWith(fontSize: radio * 0.9),
-              )
-            : null,
       ),
     );
   }
