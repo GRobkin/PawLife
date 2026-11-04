@@ -102,6 +102,36 @@ void main() {
       .evaluate()
       .length;
 
+  testWidgets('un toque cambia de mascota y se guarda en la elegida', (
+    tester,
+  ) async {
+    const milo = Mascota(id: 'milo', nombre: 'Milo', especie: 'gato');
+    final elegidas = <String>[];
+    paseo = PaseoFalso();
+    final c = WearableController(
+      paseo: paseo,
+      cargarMascota: () async => luna,
+      cargarMascotas: () async => [luna, milo],
+      alElegirMascota: (m) => elegidas.add(m.id),
+      guardar: (id, sesion) async => guardados.add(id),
+      vibrar: () async {},
+    );
+    await montar(tester, c);
+    expect(find.text('Luna'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('wearable-mascota')));
+    await tester.pumpAndSettle();
+    expect(find.text('Milo'), findsOneWidget);
+    expect(elegidas, ['milo']);
+    await tester.tap(find.byKey(const Key('wearable-mascota')));
+    await tester.pumpAndSettle();
+    expect(find.text('Luna'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('wearable-mascota')));
+    await tester.pumpAndSettle();
+    await c.iniciar();
+    await c.terminar();
+    expect(guardados, ['milo']);
+  });
+
   setUp(() {
     guardados = [];
     fallaGuardar = false;

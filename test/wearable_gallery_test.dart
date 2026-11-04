@@ -70,6 +70,11 @@ void main() {
       final c = WearableController(
         paseo: _Paseo(),
         cargarMascota: () async => falla ? null : luna,
+        cargarMascotas: () async => const [
+          luna,
+          Mascota(id: 'milo', nombre: 'Milo', especie: 'gato'),
+          Mascota(id: 'kira', nombre: 'Kira', especie: 'perro'),
+        ],
         guardar: (_, _) => destino == WearableEstado.guardando
             ? pendiente.future
             : Future.value(),
