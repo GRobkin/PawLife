@@ -403,14 +403,18 @@ class _HomeScreenState extends State<HomeScreen> {
         const Expanded(
           child: Align(alignment: Alignment.centerLeft, child: MarcaPawLife()),
         ),
-        if (_premium)
-          IconButton(
-            tooltip: AppLocalizations.of(context).wearableOpen,
-            icon: const Icon(Icons.watch_outlined),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const WearableScreen())),
+        IconButton(
+          tooltip: AppLocalizations.of(context).wearableOpen,
+          icon: Badge(
+            isLabelVisible: !_premium,
+            backgroundColor: Colors.transparent,
+            label: Icon(Icons.lock, size: 11, color: context.marca),
+            child: const Icon(Icons.watch_outlined),
           ),
+          onPressed: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const WearableScreen())),
+        ),
       ],
     );
   }

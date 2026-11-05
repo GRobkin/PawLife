@@ -333,6 +333,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('pawlife.support@gmail.com'),
+      200,
+    );
     expect(find.textContaining('pawlife.support@gmail.com'), findsOneWidget);
     expect(find.text('Registrar solicitud'), findsNothing);
     expect(find.textContaining('correo de soporte'), findsOneWidget);

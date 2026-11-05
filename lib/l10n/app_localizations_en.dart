@@ -1817,7 +1817,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumRowCardsFree => '1 style';
 
   @override
-  String get premiumRowCardsPremium => '3 styles';
+  String get premiumRowCardsPremium => '4 styles';
 
   @override
   String get premiumComingSoon => 'Coming soon to Premium';
@@ -1885,4 +1885,166 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareStartOnly => 'No movement · starting point';
+
+  @override
+  String get legalTermsTitle => 'Terms of use';
+
+  @override
+  String get legalPrivacyTitle => 'Privacy policy';
+
+  @override
+  String get legalUpdated => 'Last updated: November 2026.';
+
+  @override
+  String get legalTerms1T => 'Using the service';
+
+  @override
+  String get legalTerms1B =>
+      'PawLife is an app for looking after your pets: profile, health, tasks, reminders and walks. Use it only for personal, lawful purposes.';
+
+  @override
+  String get legalTerms2T => 'Your account';
+
+  @override
+  String get legalTerms2B =>
+      'You are responsible for the information you add and for keeping your password safe. You can delete your account any time from your profile; this can\'t be undone.';
+
+  @override
+  String get legalTerms3T => 'Content and pets';
+
+  @override
+  String get legalTerms3B =>
+      'Your data and photos remain yours. Don\'t upload unlawful content or content that infringes other people\'s rights. PawLife does not replace a visit to the vet.';
+
+  @override
+  String get legalTerms4T => 'Premium';
+
+  @override
+  String get legalTerms4B =>
+      'Some features may require a Premium subscription. Terms and prices are shown before you subscribe.';
+
+  @override
+  String get legalTerms5T => 'Changes and contact';
+
+  @override
+  String get legalTerms5B =>
+      'We may update these terms and will let you know in the app. Questions: pawlife.support@gmail.com.';
+
+  @override
+  String get legalPriv1T => 'Who is responsible';
+
+  @override
+  String get legalPriv1B =>
+      'PawLife is the controller of your personal data under Brazil\'s General Data Protection Law (LGPD, Law 13.709/2018). Data protection officer (art. 41) and controller contact: pawlife.support@gmail.com.';
+
+  @override
+  String get legalPriv2T => 'Data we process';
+
+  @override
+  String get legalPriv2B =>
+      'Your account email and name; your pets\' data (profile, vaccines, weight, tasks); your walks; location during a walk, only if you allow it; and your device\'s notification token. Purchase data, if any, is handled by the payment provider.';
+
+  @override
+  String get legalPriv3T => 'Why and on what legal basis';
+
+  @override
+  String get legalPriv3B =>
+      'We process only the data needed for each purpose, with transparency and security (art. 6 principles). Legal bases (art. 7): performing the service you ask for (account, pets, tasks, walks) and your consent for location and notifications, which you can withdraw at any time from your device permissions and \"Privacy and my data\". We don\'t sell your data or show ads.';
+
+  @override
+  String get legalPriv4T => 'Who we share it with';
+
+  @override
+  String get legalPriv4B =>
+      'With processors acting on our behalf: Google Firebase (authentication, database and notifications), Vercel (API server) and Cloudflare (scheduled reminders). When maps are shown, OpenStreetMap receives the area requested and your IP address. Some are outside Brazil: international transfer (art. 33) relies on each provider\'s contractual clauses and safeguards.';
+
+  @override
+  String get legalPriv5T => 'How it is protected';
+
+  @override
+  String get legalPriv5B =>
+      'We apply technical and administrative security measures (art. 46): data travels over an encrypted connection (HTTPS) and is stored in Google Firebase, which encrypts it at rest. Firebase Authentication manages your password: PawLife does not store it. Photos are saved without EXIF data. If an incident may affect you, we will notify you and the ANPD (art. 48).';
+
+  @override
+  String get legalPriv6B =>
+      'While your account is active. When you delete it, your account, pets and their records are erased (art. 16). We keep only what a legal obligation requires, such as purchase records.';
+
+  @override
+  String get deleteTypeHint => 'Type \"delete\" to confirm';
+
+  @override
+  String get deleteConfirmWord => 'delete';
+
+  @override
+  String get securityNote =>
+      'Your data travels encrypted (HTTPS) and is stored in Google Firebase, which encrypts it at rest.';
+
+  @override
+  String get deleteUnderstand =>
+      'I understand my data will be deleted and can\'t be recovered.';
+
+  @override
+  String get wearablePremiumOnly => 'Watch mode is a Premium feature.';
+
+  @override
+  String get wearableSeePremium => 'See Premium';
+
+  @override
+  String get legalPriv6T => 'How long we keep it';
+
+  @override
+  String get legalPriv7T => 'Your rights (LGPD art. 18)';
+
+  @override
+  String get legalPriv7B =>
+      'Confirm processing, access your data, correct it, request anonymization, blocking or deletion, portability, information about who we share it with, and withdraw consent. You can export and delete your data from \"Privacy and my data\" or write to pawlife.support@gmail.com; we reply within the legal deadline. You may also complain to the ANPD.';
+
+  @override
+  String get legalPriv8T => 'Minors and changes';
+
+  @override
+  String get legalPriv8B =>
+      'PawLife is not aimed at people under 18: a minor needs the specific consent of a parent or guardian (art. 14). If we change this policy, we will tell you in the app.';
+
+  @override
+  String get shareStyleCandy => 'Candy';
+
+  @override
+  String get timeTitle => 'Time';
+
+  @override
+  String get timeHours => 'Hour';
+
+  @override
+  String get timeMinutes => 'Minutes';
+
+  @override
+  String get timeMorning => 'Morning';
+
+  @override
+  String get timeNoon => 'Noon';
+
+  @override
+  String get timeAfternoon => 'Afternoon';
+
+  @override
+  String get timeNight => 'Night';
+
+  @override
+  String get timeDone => 'Done';
+
+  @override
+  String get dateTitle => 'Date';
+
+  @override
+  String get dateToday => 'Today';
+
+  @override
+  String get dateTomorrow => 'Tomorrow';
+
+  @override
+  String get dateInWeek => 'In a week';
+
+  @override
+  String get dateInMonth => 'In a month';
 }

@@ -16,9 +16,10 @@ import '../services/pawlife_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'widgets/foto_mascota.dart';
+import 'widgets/selva_painter.dart';
 import 'widgets/walk_route_trace.dart';
 
-enum TarjetaEstilo { bosque, menta, cifras }
+enum TarjetaEstilo { bosque, menta, cifras, candy }
 
 class WalkShareScreen extends StatefulWidget {
   const WalkShareScreen({
@@ -160,6 +161,7 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
                       (TarjetaEstilo.bosque, t.shareStyleForest),
                       (TarjetaEstilo.menta, t.shareStyleMint),
                       (TarjetaEstilo.cifras, t.shareStyleStats),
+                      (TarjetaEstilo.candy, t.shareStyleCandy),
                     ])
                       ChoiceChip(
                         avatar: e.$1 == TarjetaEstilo.bosque || _premium
@@ -210,6 +212,9 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
   }
 }
 
+/// Alto de toda carta de paseo, sea cual sea su estilo.
+const double altoCarta = 720;
+
 class WalkShareCard extends StatelessWidget {
   const WalkShareCard({
     super.key,
@@ -229,10 +234,28 @@ class WalkShareCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final date = paseo.fechaInicio;
     final photo = proveedorDeFoto(paseo.fotoParaCompartir(mascota));
-    final claro = estilo == TarjetaEstilo.menta;
-    final fondo = claro ? AppColors.verdeSuave : AppColors.verdeOscuro;
-    final texto = claro ? AppColors.verdeOscuro : Colors.white;
-    final acento = claro ? AppColors.verdeOscuro : AppColors.verdeAcento;
+    final candy = estilo == TarjetaEstilo.candy;
+    final claro = estilo == TarjetaEstilo.menta || candy;
+    final cifrasEstilo = estilo == TarjetaEstilo.cifras;
+    final fondo = candy
+        ? const Color(0xFFFFE6F0)
+        : cifrasEstilo
+        ? SelvaPainter.cifrasFondo
+        : claro
+        ? AppColors.verdeSuave
+        : AppColors.verdeOscuro;
+    final texto = candy
+        ? const Color(0xFF5C1F3D)
+        : claro
+        ? AppColors.verdeOscuro
+        : Colors.white;
+    final acento = candy
+        ? const Color(0xFFD63B79)
+        : cifrasEstilo
+        ? SelvaPainter.cifrasAcento
+        : claro
+        ? AppColors.verdeOscuro
+        : AppColors.verdeAcento;
     final cifras = estilo == TarjetaEstilo.cifras;
     final km = '${(paseo.distanciaMetros / 1000).toStringAsFixed(2)} km';
     final tiempo = t.durationMinSec(
@@ -242,10 +265,14 @@ class WalkShareCard extends StatelessWidget {
     final conRuta = paseo.ruta.length > 1;
     final hayPunto = paseo.ruta.isNotEmpty;
     final traza = Container(
-      height: cifras ? 150 : 240,
+      height: cifras ? 215 : 240,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: claro ? Colors.white : AppColors.verdeSuave,
+        color: claro
+            ? Colors.white
+            : cifrasEstilo
+            ? const Color(0xFFE9EEF7)
+            : AppColors.verdeSuave,
         borderRadius: BorderRadius.circular(18),
       ),
       clipBehavior: Clip.antiAlias,
@@ -261,85 +288,132 @@ class WalkShareCard extends StatelessWidget {
           : t.shareNoGps,
       style: const TextStyle(fontSize: 11),
     );
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      color: fondo,
-      child: DefaultTextStyle(
-        style: TextStyle(color: texto, fontFamily: 'NunitoSans', fontSize: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+      child: Container(
+        width: double.infinity,
+        // Altura única: las cuatro cartas salen exactamente del mismo tamaño.
+        height: altoCarta,
+        color: fondo,
+        child: Stack(
           children: [
-            Row(
-              children: [
-                Icon(Icons.pets, color: acento),
-                const SizedBox(width: 8),
-                const Text(
-                  'PawLife',
-                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundImage: photo,
-                  child: photo == null ? const Icon(Icons.pets) : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    t.walkWith(mascota.nombre),
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // El fondo de selva ocupa lo mismo que el contenido, sea cual sea
+            // el estilo: la tarjeta no cambia de tamaño.
+            Positioned.fill(
+              child: ClipRect(
+                child: CustomPaint(
+                  painter: SelvaPainter(
+                    estilo,
+                    cifra: (paseo.distanciaMetros / 1000).toStringAsFixed(2),
                   ),
                 ),
-              ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(formatDateTime(context, date)),
-            const SizedBox(height: 18),
-            if (cifras) ...[
-              Text(
-                km,
-                style: const TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                24,
+                // Candy tiene glaseado goteando arriba: el contenido baja.
+                candy ? 56 : 24,
+                24,
+                24 + SelvaPainter.franjaDe(estilo),
+              ),
+              child: DefaultTextStyle(
+                style: TextStyle(
+                  color: texto,
+                  fontFamily: 'NunitoSans',
+                  fontSize: 15,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.pets, color: acento),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'PawLife',
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundImage: photo,
+                          child: photo == null ? const Icon(Icons.pets) : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            t.walkWith(mascota.nombre),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(formatDateTime(context, date)),
+                    const SizedBox(height: 18),
+                    if (cifras) ...[
+                      Text(
+                        km,
+                        style: const TextStyle(
+                          fontSize: 64,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        tiempo,
+                        style: TextStyle(fontSize: 24, color: acento),
+                      ),
+                      const SizedBox(height: 18),
+                      traza,
+                      const SizedBox(height: 8),
+                      leyenda,
+                    ] else ...[
+                      traza,
+                      const SizedBox(height: 8),
+                      leyenda,
+                      const SizedBox(height: 18),
+                      Wrap(
+                        spacing: 24,
+                        runSpacing: 12,
+                        children: [
+                          Text(
+                            km,
+                            style: const TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(tiempo, style: const TextStyle(fontSize: 21)),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Text(
+                      t.shareTagline,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: acento),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(tiempo, style: TextStyle(fontSize: 24, color: acento)),
-              const SizedBox(height: 18),
-              traza,
-              const SizedBox(height: 8),
-              leyenda,
-            ] else ...[
-              traza,
-              const SizedBox(height: 8),
-              leyenda,
-              const SizedBox(height: 18),
-              Wrap(
-                spacing: 24,
-                runSpacing: 12,
-                children: [
-                  Text(
-                    km,
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(tiempo, style: const TextStyle(fontSize: 21)),
-                ],
-              ),
-            ],
-            const SizedBox(height: 8),
-            Text(t.shareTagline, style: TextStyle(color: acento)),
+            ),
           ],
         ),
       ),

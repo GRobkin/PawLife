@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'widgets/esqueletos.dart';
 import 'widgets/motion.dart';
@@ -9,6 +11,7 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_palette.dart';
 import 'change_email_screen.dart';
 import 'change_password_screen.dart';
+import 'legal_screen.dart';
 import 'premium_screen.dart';
 import 'privacy_screen.dart';
 import 'widgets/reauthentication_dialog.dart';
@@ -104,20 +107,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _deleteAccount() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t.deleteAccountTitle),
-        content: Text(t.deleteAccountBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(t.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(t.deleteForever),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (_) => ConfirmarBorradoDialog(palabra: t.deleteConfirmWord),
     );
     if (confirmed != true || !mounted) return;
     setState(() => _saving = true);
@@ -246,6 +237,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                         ),
+                        _Opcion(
+                          icono: Icons.description_outlined,
+                          texto: t.legalTermsTitle,
+                          onTap: () =>
+                              LegalScreen.abrir(context, LegalDoc.terms),
+                        ),
+                        _Opcion(
+                          icono: Icons.policy_outlined,
+                          texto: t.legalPrivacyTitle,
+                          onTap: () =>
+                              LegalScreen.abrir(context, LegalDoc.privacy),
+                        ),
                         if (_auth.supportsPasswordChange) ...[
                           _Opcion(
                             icono: Icons.alternate_email,
@@ -269,19 +272,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: _saving ? null : _signOut,
                           flecha: false,
                         ),
+                        _Opcion(
+                          icono: Icons.person_remove_outlined,
+                          texto: t.deleteAccountButton,
+                          onTap: _saving ? null : _deleteAccount,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 22),
-                    Center(
-                      child: TextButton.icon(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.error,
-                        ),
-                        onPressed: _saving ? null : _deleteAccount,
-                        icon: const Icon(Icons.delete_outline, size: 18),
-                        label: Text(t.deleteAccountButton),
-                      ),
-                    ),
                   ],
                 ],
               ),
@@ -423,6 +421,92 @@ class _AvatarPerfil extends StatelessWidget {
                 ),
         ),
       ),
+    );
+  }
+}
+
+/// Confirmación pesada: palabra escrita, casilla y 5 s de espera antes de poder
+/// continuar (después sigue la reautenticación).
+class ConfirmarBorradoDialog extends StatefulWidget {
+  const ConfirmarBorradoDialog({super.key, required this.palabra});
+
+  final String palabra;
+
+  @override
+  State<ConfirmarBorradoDialog> createState() => _ConfirmarBorradoState();
+}
+
+class _ConfirmarBorradoState extends State<ConfirmarBorradoDialog> {
+  static const _espera = 5;
+  int _segundos = _espera;
+  bool _entiendo = false;
+  String _escrito = '';
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (_segundos <= 1) t.cancel();
+      if (mounted) setState(() => _segundos--);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final listo =
+        _entiendo &&
+        _segundos <= 0 &&
+        _escrito.trim().toLowerCase() == widget.palabra;
+    return AlertDialog(
+      title: Text(t.deleteAccountTitle),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.deleteAccountBody),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              key: const ValueKey('borrar-entiendo'),
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              value: _entiendo,
+              onChanged: (v) => setState(() => _entiendo = v ?? false),
+              title: Text(
+                t.deleteUnderstand,
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+            TextField(
+              key: const ValueKey('borrar-confirmacion'),
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: InputDecoration(hintText: t.deleteTypeHint),
+              onChanged: (v) => setState(() => _escrito = v),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(t.cancel),
+        ),
+        FilledButton(
+          onPressed: listo ? () => Navigator.pop(context, true) : null,
+          child: Text(
+            _segundos > 0 ? '${t.deleteForever} ($_segundos)' : t.deleteForever,
+          ),
+        ),
+      ],
     );
   }
 }

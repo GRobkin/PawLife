@@ -5,6 +5,10 @@
 
 import 'package:flutter/material.dart';
 
+import 'selector_fecha.dart';
+
+import 'selector_hora.dart';
+
 import '../../l10n/app_localizations.dart';
 import '../../models/pawlife_models.dart';
 import '../../theme/app_palette.dart';
@@ -63,7 +67,7 @@ class _HojaNuevaTareaState extends State<_HojaNuevaTarea> {
   }
 
   Future<void> _elegirFecha() async {
-    final dia = await showDatePicker(
+    final dia = await elegirFecha(
       context: context,
       initialDate: _fecha,
       firstDate: DateTime.now(),
@@ -82,12 +86,7 @@ class _HojaNuevaTareaState extends State<_HojaNuevaTarea> {
   }
 
   Future<void> _elegirHora() async {
-    final hora = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_fecha),
-      // Siempre vertical: en pantallas anchas el apaisado se veía desarmado.
-      orientation: Orientation.portrait,
-    );
+    final hora = await elegirHora(context, TimeOfDay.fromDateTime(_fecha));
     if (hora == null || !mounted) return;
     setState(
       () => _fecha = DateTime(

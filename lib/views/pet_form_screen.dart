@@ -8,6 +8,8 @@
 // abrió sepa que tiene que recargar.
 
 import 'package:flutter/material.dart';
+
+import 'widgets/selector_fecha.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -138,7 +140,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
   Future<void> _elegirFecha() async {
     final hoy = DateTime.now();
 
-    final elegida = await showDatePicker(
+    final elegida = await elegirFecha(
       context: context,
       initialDate:
           _fechaNacimiento ?? DateTime(hoy.year - 1, hoy.month, hoy.day),
