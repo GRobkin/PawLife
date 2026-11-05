@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:pawlife/models/route_point.dart';
 import 'package:pawlife/views/wearable/wearable_controller.dart';
 import 'package:pawlife/views/wearable/wearable_screen.dart';
 import 'package:pawlife/views/wearable/wearable_theme.dart';
+import 'package:pawlife/views/wearable/wearable_walk_view.dart';
 
 class PaseoFalso extends ChangeNotifier implements WearablePaseo {
   PaseoFalso({this.falloInicio});
@@ -43,6 +45,14 @@ class PaseoFalso extends ChangeNotifier implements WearablePaseo {
     t += Duration(seconds: segundos);
     notifyListeners();
   }
+}
+
+/// Paseo cuyo inicio (la búsqueda de GPS) se resuelve cuando el test lo decide.
+class PaseoLento extends PaseoFalso {
+  PaseoLento(this.espera);
+  final Completer<String?> espera;
+  @override
+  Future<String?> iniciar() => espera.future;
 }
 
 const luna = Mascota(id: 'luna', nombre: 'Luna', especie: 'perro');
@@ -117,6 +127,7 @@ void main() {
       vibrar: () async {},
     );
     await montar(tester, c);
+    await tester.pumpAndSettle();
     expect(find.text('Luna'), findsOneWidget);
     await tester.tap(find.byKey(const Key('wearable-mascota')));
     await tester.pumpAndSettle();
@@ -130,6 +141,104 @@ void main() {
     await c.iniciar();
     await c.terminar();
     expect(guardados, ['milo']);
+  });
+
+  testWidgets(
+    'la mitad izquierda va a la anterior y la derecha a la siguiente',
+    (tester) async {
+      const milo = Mascota(id: 'milo', nombre: 'Milo', especie: 'gato');
+      const kira = Mascota(id: 'kira', nombre: 'Kira', especie: 'perro');
+      paseo = PaseoFalso();
+      final c = WearableController(
+        paseo: paseo,
+        cargarMascota: () async => luna,
+        cargarMascotas: () async => [luna, milo, kira],
+        guardar: (id, sesion) async {},
+        vibrar: () async {},
+      );
+      await montar(tester, c);
+      await tester.pumpAndSettle();
+      final caja = find.byKey(const Key('wearable-mascota'));
+      final rect = tester.getRect(caja);
+
+      await tester.tapAt(rect.centerRight - const Offset(8, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Milo'), findsOneWidget);
+
+      await tester.tapAt(rect.centerLeft + const Offset(8, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Luna'), findsOneWidget);
+
+      await tester.tapAt(rect.centerLeft + const Offset(8, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Kira'), findsOneWidget);
+    },
+  );
+
+  testWidgets('buscando GPS muestra el estado y no deja iniciar dos veces', (
+    tester,
+  ) async {
+    final espera = Completer<String?>();
+    final lento = PaseoLento(espera);
+    final c = WearableController(
+      paseo: lento,
+      cargarMascota: () async => luna,
+      cargarMascotas: () async => [
+        luna,
+        const Mascota(id: 'milo', nombre: 'Milo', especie: 'gato'),
+      ],
+      guardar: (id, sesion) async {},
+      vibrar: () async {},
+    );
+    await montar(tester, c);
+    unawaited(c.iniciar());
+    await tester.pump();
+    expect(c.estado, WearableEstado.iniciando);
+    expect(find.text('BUSCANDO GPS'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    // Ni el botón ni la mascota responden mientras busca.
+    expect(pulsables(tester), 0);
+    espera.complete(null);
+    await tester.pump();
+    await tester.pump();
+    expect(c.estado, WearableEstado.enPaseo);
+  });
+
+  testWidgets('el contenido del inicio está centrado en el cristal', (
+    tester,
+  ) async {
+    final c = WearableController(
+      paseo: PaseoFalso(),
+      cargarMascota: () async => luna,
+      cargarMascotas: () async => [
+        luna,
+        const Mascota(id: 'milo', nombre: 'Milo', especie: 'gato'),
+        const Mascota(id: 'kira', nombre: 'Kira', especie: 'perro'),
+      ],
+      guardar: (id, sesion) async {},
+      vibrar: () async {},
+    );
+    await montar(tester, c);
+    await tester.pumpAndSettle();
+    final marco = tester.getRect(find.byKey(const Key('wearable-frame')));
+    final grupo = tester.getRect(
+      find
+          .descendant(
+            of: find.byType(WearableWalkView),
+            matching: find.byType(Column),
+          )
+          .first,
+    );
+    // Cristal = marco menos 14 px de aro por lado.
+    final cristal = marco.deflate(14);
+    final arriba = grupo.top - cristal.top;
+    final abajo = cristal.bottom - grupo.bottom;
+    final izquierda = grupo.left - cristal.left;
+    final derecha = cristal.right - grupo.right;
+    // ignore: avoid_print
+    print('margen arriba=$arriba abajo=$abajo izq=$izquierda der=$derecha');
+    expect((arriba - abajo).abs(), lessThan(1.5));
+    expect((izquierda - derecha).abs(), lessThan(1.5));
   });
 
   setUp(() {

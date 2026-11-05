@@ -15,8 +15,15 @@ import 'package:pawlife/models/pawlife_models.dart';
 import 'package:pawlife/models/route_point.dart';
 import 'package:pawlife/theme/app_theme.dart';
 import 'package:pawlife/views/wearable/wearable_controller.dart';
+import 'package:pawlife/views/wearable/wearable_bisel.dart';
 import 'package:pawlife/views/wearable/wearable_theme.dart';
 import 'package:pawlife/views/wearable/wearable_walk_view.dart';
+
+/// Paseo que nunca termina de arrancar: deja al reloj "buscando GPS".
+class _PaseoBuscando extends _Paseo {
+  @override
+  Future<String?> iniciar() => Completer<String?>().future;
+}
 
 class _Paseo extends ChangeNotifier implements WearablePaseo {
   Duration t = const Duration(minutes: 12, seconds: 34);
@@ -55,7 +62,7 @@ void main() {
   });
 
   testWidgets('galería reloj', (tester) async {
-    tester.view.physicalSize = const Size(1020, 700);
+    tester.view.physicalSize = const Size(1020, 1050);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -92,8 +99,23 @@ void main() {
       return c;
     }
 
+    final buscando = WearableController(
+      paseo: _PaseoBuscando(),
+      cargarMascota: () async => luna,
+      cargarMascotas: () async => const [
+        luna,
+        Mascota(id: 'milo', nombre: 'Milo', especie: 'gato'),
+        Mascota(id: 'kira', nombre: 'Kira', especie: 'perro'),
+      ],
+      guardar: (_, _) async {},
+      vibrar: () async {},
+    );
+    await buscando.preparar();
+    unawaited(buscando.iniciar());
+
     final controladores = [
       await en(WearableEstado.reposo),
+      buscando,
       await en(WearableEstado.enPaseo),
       await en(WearableEstado.pausado),
       await en(WearableEstado.guardando),
@@ -131,10 +153,12 @@ void main() {
                             width: WearableColors.lado,
                             height: WearableColors.lado,
                             color: Colors.black,
-                            child: ListenableBuilder(
-                              listenable: c,
-                              builder: (_, _) =>
-                                  WearableWalkView(controller: c),
+                            child: BiselReloj(
+                              child: ListenableBuilder(
+                                listenable: c,
+                                builder: (_, _) =>
+                                    WearableWalkView(controller: c),
+                              ),
                             ),
                           ),
                         ),

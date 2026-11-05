@@ -3603,6 +3603,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'En un mes'**
   String get dateInMonth;
+
+  /// No description provided for @wearableCheckFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo comprobar tu plan.'**
+  String get wearableCheckFailed;
+
+  /// No description provided for @wearableLocating.
+  ///
+  /// In es, this message translates to:
+  /// **'BUSCANDO GPS'**
+  String get wearableLocating;
 }
 
 class _AppLocalizationsDelegate

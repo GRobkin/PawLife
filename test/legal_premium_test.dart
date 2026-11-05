@@ -126,6 +126,27 @@ void main() {
     expect(resultado, const TimeOfDay(hour: 18, minute: 0));
   });
 
+  testWidgets('el reloj sin poder comprobar el plan ofrece reintentar', (
+    tester,
+  ) async {
+    var intentos = 0;
+    await tester.pumpWidget(
+      app(
+        WearableScreen(
+          comprobarPremium: () async {
+            intentos++;
+            throw Exception('sin red');
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(find.text('No se pudo comprobar tu plan.'), findsOneWidget);
+    await tester.tap(find.text('Reintentar'));
+    await tester.pump();
+    expect(intentos, 2);
+  });
+
   testWidgets('el calendario salta con el atajo y devuelve el día', (
     tester,
   ) async {

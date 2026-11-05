@@ -2060,4 +2060,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dateInMonth => 'En un mes';
+
+  @override
+  String get wearableCheckFailed => 'No se pudo comprobar tu plan.';
+
+  @override
+  String get wearableLocating => 'BUSCANDO GPS';
 }

@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Paseo>? _paseos;
   List<Recordatorio>? _recordatorios;
   // El modo reloj es de Premium: sin Premium (o sin conexión) no se ofrece.
-  bool _premium = false;
+  bool? _premium;
 
   @override
   void initState() {
@@ -69,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     PawLifeRepository.mascotasCambiaron.addListener(_cargarMascotas);
     _cargarMascotas();
     _cargarRecordatorios();
+    PawLifeRepository.premiumActivo.addListener(_alCambiarPremium);
     _consultarPremium();
   }
 
@@ -76,8 +77,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     SeleccionMascota.id.removeListener(_cargarPaseos);
     PawLifeRepository.mascotasCambiaron.removeListener(_cargarMascotas);
+    PawLifeRepository.premiumActivo.removeListener(_alCambiarPremium);
     _scroll.dispose();
     super.dispose();
+  }
+
+  void _alCambiarPremium() {
+    final valor = PawLifeRepository.premiumActivo.value;
+    if (mounted && valor != null) setState(() => _premium = valor);
   }
 
   Future<void> _consultarPremium() async {
@@ -406,7 +413,7 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           tooltip: AppLocalizations.of(context).wearableOpen,
           icon: Badge(
-            isLabelVisible: !_premium,
+            isLabelVisible: _premium == false,
             backgroundColor: Colors.transparent,
             label: Icon(Icons.lock, size: 11, color: context.marca),
             child: const Icon(Icons.watch_outlined),
