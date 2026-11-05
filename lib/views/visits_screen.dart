@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
+import 'widgets/selector_fecha.dart';
 import 'widgets/esqueletos.dart';
 
 import '../l10n/app_localizations.dart';
@@ -219,7 +221,7 @@ class _VisitDialogState extends State<_VisitDialog> {
   }
 
   Future<DateTime?> _elegir(DateTime inicial, DateTime desde, DateTime hasta) =>
-      showDatePicker(
+      elegirFecha(
         context: context,
         initialDate: inicial,
         firstDate: desde,

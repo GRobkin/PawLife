@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'widgets/selector_fecha.dart';
+
+import 'widgets/selector_hora.dart';
+
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../l10n/formatting.dart';
@@ -60,7 +64,7 @@ class _VaccineFormScreenState extends State<VaccineFormScreen> {
     super.dispose();
   }
 
-  Future<DateTime?> _fecha(DateTime actual) => showDatePicker(
+  Future<DateTime?> _fecha(DateTime actual) => elegirFecha(
     context: context,
     initialDate: actual,
     firstDate: DateTime(2000),
@@ -208,18 +212,14 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
   }
 
   Future<void> _elegirFecha() async {
-    final fecha = await showDatePicker(
+    final fecha = await elegirFecha(
       context: context,
       initialDate: _fechaHora,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
     if (fecha == null || !mounted) return;
-    final hora = await showTimePicker(
-      orientation: Orientation.portrait,
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_fechaHora),
-    );
+    final hora = await elegirHora(context, TimeOfDay.fromDateTime(_fechaHora));
     if (hora == null) return;
     setState(() {
       _fechaHora = DateTime(
@@ -342,7 +342,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
     super.dispose();
   }
 
-  Future<DateTime?> _fecha(DateTime actual) => showDatePicker(
+  Future<DateTime?> _fecha(DateTime actual) => elegirFecha(
     context: context,
     initialDate: actual,
     firstDate: DateTime(2000),

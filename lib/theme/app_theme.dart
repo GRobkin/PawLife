@@ -249,6 +249,17 @@ abstract final class AppTheme {
           fontFamily: 'NunitoSans',
           fontWeight: FontWeight.w700,
         ),
+        dayShape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        todayBorder: BorderSide(color: scheme.primary, width: 1.6),
+        todayForegroundColor: WidgetStatePropertyAll(scheme.primary),
+        weekdayStyle: TextStyle(
+          fontFamily: 'NunitoSans',
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          color: scheme.onSurface.withValues(alpha: 0.55),
+        ),
         cancelButtonStyle: TextButton.styleFrom(
           foregroundColor: scheme.onSurface.withValues(alpha: 0.7),
         ),

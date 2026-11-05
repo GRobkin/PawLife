@@ -14,11 +14,33 @@ import 'package:flutter/material.dart';
 import '../../models/pawlife_models.dart';
 import '../../theme/app_palette.dart';
 
+/// Proveedores ya construidos, por `fotoUrl`. Decodificar el base64 en cada
+/// rebuild creaba un `MemoryImage` nuevo cada vez: Flutter no lo reconocía en
+/// su caché y volvía a decodificar la imagen entera al scrollear o animar.
+final _proveedores = <String, ImageProvider?>{};
+const _maxProveedores = 24;
+
 /// Convierte el `fotoUrl` de una mascota en algo que Flutter pueda pintar.
 /// Devuelve null si no hay foto o si el valor no se entiende.
 ImageProvider? proveedorDeFoto(String? fotoUrl) {
   if (fotoUrl == null || fotoUrl.isEmpty) return null;
 
+  if (_proveedores.containsKey(fotoUrl)) {
+    // Se vuelve a insertar para que quede como el más reciente.
+    final guardado = _proveedores.remove(fotoUrl);
+    _proveedores[fotoUrl] = guardado;
+    return guardado;
+  }
+
+  final proveedor = _construir(fotoUrl);
+  _proveedores[fotoUrl] = proveedor;
+  if (_proveedores.length > _maxProveedores) {
+    _proveedores.remove(_proveedores.keys.first);
+  }
+  return proveedor;
+}
+
+ImageProvider? _construir(String fotoUrl) {
   if (fotoUrl.startsWith('data:')) {
     final coma = fotoUrl.indexOf(',');
     if (coma == -1) return null;
@@ -44,7 +66,12 @@ class AvatarMascota extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foto = proveedorDeFoto(mascota.fotoUrl);
+    final original = proveedorDeFoto(mascota.fotoUrl);
+    // Se decodifica al tamaño real del círculo, no la foto completa.
+    final lado = (radio * 2 * MediaQuery.devicePixelRatioOf(context)).ceil();
+    final foto = original == null
+        ? null
+        : ResizeImage.resizeIfNeeded(lado, null, original);
 
     return CircleAvatar(
       radius: radio,

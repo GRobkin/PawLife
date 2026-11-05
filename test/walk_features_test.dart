@@ -223,12 +223,14 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
 
           home: Scaffold(
-            body: Center(
-              child: SizedBox(
-                width: 360,
-                child: RepaintBoundary(
-                  key: key,
-                  child: WalkShareCard(paseo: walk('uno'), mascota: pet),
+            body: SingleChildScrollView(
+              child: Center(
+                child: SizedBox(
+                  width: 360,
+                  child: RepaintBoundary(
+                    key: key,
+                    child: WalkShareCard(paseo: walk('uno'), mascota: pet),
+                  ),
                 ),
               ),
             ),

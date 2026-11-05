@@ -11,12 +11,14 @@
 
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../theme/app_palette.dart';
+import 'legal_screen.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'widgets/boton_google.dart';
@@ -646,6 +648,55 @@ class _BotonIdioma extends StatelessWidget {
 }
 
 /// Hoja de abajo con las formas de entrar. Sube al final de la entrada.
+/// "Al continuar, aceptás…" con los dos documentos abribles.
+class _AvisoLegal extends StatefulWidget {
+  const _AvisoLegal();
+
+  @override
+  State<_AvisoLegal> createState() => _AvisoLegalState();
+}
+
+class _AvisoLegalState extends State<_AvisoLegal> {
+  late final _terminos = TapGestureRecognizer()
+    ..onTap = () => LegalScreen.abrir(context, LegalDoc.terms);
+  late final _privacidad = TapGestureRecognizer()
+    ..onTap = () => LegalScreen.abrir(context, LegalDoc.privacy);
+
+  @override
+  void dispose() {
+    _terminos.dispose();
+    _privacidad.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    const enlace = TextStyle(decoration: TextDecoration.underline);
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: t.termsPrefix),
+          TextSpan(
+            text: t.termsOfService,
+            style: enlace,
+            recognizer: _terminos,
+          ),
+          TextSpan(text: t.termsAnd),
+          TextSpan(
+            text: t.privacyPolicy,
+            style: enlace,
+            recognizer: _privacidad,
+          ),
+          const TextSpan(text: '.'),
+        ],
+      ),
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: 12, color: context.textoTenue),
+    );
+  }
+}
+
 class _Hoja extends StatelessWidget {
   const _Hoja({
     required this.aparicion,
@@ -743,29 +794,7 @@ class _Hoja extends StatelessWidget {
                         style: const TextStyle(fontSize: 15),
                       ),
                     ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: t.termsPrefix),
-                          TextSpan(
-                            text: t.termsOfService,
-                            style: const TextStyle(
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                          TextSpan(text: t.termsAnd),
-                          TextSpan(
-                            text: t.privacyPolicy,
-                            style: const TextStyle(
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                          const TextSpan(text: '.'),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: context.textoTenue),
-                    ),
+                    const _AvisoLegal(),
                   ],
                 ),
               ),

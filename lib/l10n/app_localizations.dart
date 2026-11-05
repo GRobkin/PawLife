@@ -3181,7 +3181,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumRowCardsPremium.
   ///
   /// In es, this message translates to:
-  /// **'3 estilos'**
+  /// **'4 estilos'**
   String get premiumRowCardsPremium;
 
   /// No description provided for @premiumComingSoon.
@@ -3309,6 +3309,300 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin desplazamiento · punto de inicio'**
   String get shareStartOnly;
+
+  /// No description provided for @legalTermsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos de uso'**
+  String get legalTermsTitle;
+
+  /// No description provided for @legalPrivacyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get legalPrivacyTitle;
+
+  /// No description provided for @legalUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actualización: noviembre de 2026.'**
+  String get legalUpdated;
+
+  /// No description provided for @legalTerms1T.
+  ///
+  /// In es, this message translates to:
+  /// **'Uso del servicio'**
+  String get legalTerms1T;
+
+  /// No description provided for @legalTerms1B.
+  ///
+  /// In es, this message translates to:
+  /// **'PawLife es una aplicación para llevar el cuidado de tus mascotas: perfil, salud, tareas, recordatorios y paseos. Usala solo para fines personales y lícitos.'**
+  String get legalTerms1B;
+
+  /// No description provided for @legalTerms2T.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu cuenta'**
+  String get legalTerms2T;
+
+  /// No description provided for @legalTerms2B.
+  ///
+  /// In es, this message translates to:
+  /// **'Sos responsable de la información que cargás y de mantener segura tu contraseña. Podés eliminar tu cuenta cuando quieras desde el perfil; esa acción no se puede deshacer.'**
+  String get legalTerms2B;
+
+  /// No description provided for @legalTerms3T.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido y mascotas'**
+  String get legalTerms3T;
+
+  /// No description provided for @legalTerms3B.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus datos y fotos siguen siendo tuyos. No cargues contenido ilegal ni que vulnere derechos de otras personas. PawLife no reemplaza la consulta con un veterinario.'**
+  String get legalTerms3B;
+
+  /// No description provided for @legalTerms4T.
+  ///
+  /// In es, this message translates to:
+  /// **'Premium'**
+  String get legalTerms4T;
+
+  /// No description provided for @legalTerms4B.
+  ///
+  /// In es, this message translates to:
+  /// **'Algunas funciones pueden requerir una suscripción Premium. Las condiciones y precios se informan antes de contratar.'**
+  String get legalTerms4B;
+
+  /// No description provided for @legalTerms5T.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambios y contacto'**
+  String get legalTerms5T;
+
+  /// No description provided for @legalTerms5B.
+  ///
+  /// In es, this message translates to:
+  /// **'Podemos actualizar estos términos y te avisaremos dentro de la app. Consultas: pawlife.support@gmail.com.'**
+  String get legalTerms5B;
+
+  /// No description provided for @legalPriv1T.
+  ///
+  /// In es, this message translates to:
+  /// **'Quién es el responsable'**
+  String get legalPriv1T;
+
+  /// No description provided for @legalPriv1B.
+  ///
+  /// In es, this message translates to:
+  /// **'PawLife es la responsable (controladora) del tratamiento de tus datos personales, conforme a la Ley General de Protección de Datos de Brasil (LGPD, Ley 13.709/2018). Persona encargada de protección de datos (art. 41) y canal del responsable: pawlife.support@gmail.com.'**
+  String get legalPriv1B;
+
+  /// No description provided for @legalPriv2T.
+  ///
+  /// In es, this message translates to:
+  /// **'Qué datos tratamos'**
+  String get legalPriv2T;
+
+  /// No description provided for @legalPriv2B.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo y nombre de tu cuenta; datos de tus mascotas (perfil, vacunas, peso, tareas); tus paseos; la ubicación durante un paseo, solo si das permiso; y el token de notificaciones de tu dispositivo. Los datos de compras, si existen, los gestiona el proveedor de pagos.'**
+  String get legalPriv2B;
+
+  /// No description provided for @legalPriv3T.
+  ///
+  /// In es, this message translates to:
+  /// **'Para qué y con qué base legal'**
+  String get legalPriv3T;
+
+  /// No description provided for @legalPriv3B.
+  ///
+  /// In es, this message translates to:
+  /// **'Tratamos solo los datos necesarios para cada finalidad, con transparencia y seguridad (principios del art. 6). Bases legales (art. 7): ejecución del servicio que pedís (cuenta, mascotas, tareas, paseos) y tu consentimiento para la ubicación y las notificaciones, que podés retirar cuando quieras desde los permisos del dispositivo y \"Privacidad y mis datos\". No vendemos tus datos ni mostramos anuncios.'**
+  String get legalPriv3B;
+
+  /// No description provided for @legalPriv4T.
+  ///
+  /// In es, this message translates to:
+  /// **'Con quién los compartimos'**
+  String get legalPriv4T;
+
+  /// No description provided for @legalPriv4B.
+  ///
+  /// In es, this message translates to:
+  /// **'Con operadores que tratan datos por nuestra cuenta: Google Firebase (autenticación, base de datos y notificaciones), Vercel (servidor de la API) y Cloudflare (envío programado de recordatorios). Al mostrar mapas, OpenStreetMap recibe la zona consultada y tu dirección IP. Algunos están fuera de Brasil: la transferencia internacional (art. 33) se apoya en las cláusulas contractuales y garantías de cada proveedor.'**
+  String get legalPriv4B;
+
+  /// No description provided for @legalPriv5T.
+  ///
+  /// In es, this message translates to:
+  /// **'Cómo se protegen'**
+  String get legalPriv5T;
+
+  /// No description provided for @legalPriv5B.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicamos medidas de seguridad técnicas y administrativas (art. 46): los datos viajan por conexión cifrada (HTTPS) y se guardan en Google Firebase, que los cifra en reposo. Tu contraseña la gestiona Firebase Authentication: PawLife no la almacena. Las fotos se guardan sin datos EXIF. Si ocurre un incidente que pueda afectarte, lo comunicaremos a vos y a la ANPD (art. 48).'**
+  String get legalPriv5B;
+
+  /// No description provided for @legalPriv6B.
+  ///
+  /// In es, this message translates to:
+  /// **'Mientras tu cuenta esté activa. Al eliminarla se borran tu cuenta, tus mascotas y sus registros (art. 16). Solo se conserva lo que una obligación legal exija, por ejemplo registros de compras.'**
+  String get legalPriv6B;
+
+  /// No description provided for @deleteTypeHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribí \"borrar\" para confirmar'**
+  String get deleteTypeHint;
+
+  /// No description provided for @deleteConfirmWord.
+  ///
+  /// In es, this message translates to:
+  /// **'borrar'**
+  String get deleteConfirmWord;
+
+  /// No description provided for @securityNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus datos viajan cifrados (HTTPS) y se guardan en Google Firebase, que los cifra en reposo.'**
+  String get securityNote;
+
+  /// No description provided for @deleteUnderstand.
+  ///
+  /// In es, this message translates to:
+  /// **'Entiendo que se borrarán mis datos y no se pueden recuperar.'**
+  String get deleteUnderstand;
+
+  /// No description provided for @wearablePremiumOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'El modo reloj es de Premium.'**
+  String get wearablePremiumOnly;
+
+  /// No description provided for @wearableSeePremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Premium'**
+  String get wearableSeePremium;
+
+  /// No description provided for @legalPriv6T.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuánto tiempo los conservamos'**
+  String get legalPriv6T;
+
+  /// No description provided for @legalPriv7T.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus derechos (art. 18 LGPD)'**
+  String get legalPriv7T;
+
+  /// No description provided for @legalPriv7B.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar el tratamiento, acceder a tus datos, corregirlos, pedir su anonimización, bloqueo o eliminación, portabilidad, información sobre con quién los compartimos, y revocar el consentimiento. Podés exportar y eliminar tus datos desde \"Privacidad y mis datos\" o escribir a pawlife.support@gmail.com; respondemos dentro del plazo legal. También podés reclamar ante la ANPD.'**
+  String get legalPriv7B;
+
+  /// No description provided for @legalPriv8T.
+  ///
+  /// In es, this message translates to:
+  /// **'Menores y cambios'**
+  String get legalPriv8T;
+
+  /// No description provided for @legalPriv8B.
+  ///
+  /// In es, this message translates to:
+  /// **'PawLife no está dirigida a menores de 18 años: quien sea menor necesita el consentimiento específico de su madre, padre o responsable (art. 14). Si cambiamos esta política, te avisaremos dentro de la app.'**
+  String get legalPriv8B;
+
+  /// No description provided for @shareStyleCandy.
+  ///
+  /// In es, this message translates to:
+  /// **'Candy'**
+  String get shareStyleCandy;
+
+  /// No description provided for @timeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora'**
+  String get timeTitle;
+
+  /// No description provided for @timeHours.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora'**
+  String get timeHours;
+
+  /// No description provided for @timeMinutes.
+  ///
+  /// In es, this message translates to:
+  /// **'Minutos'**
+  String get timeMinutes;
+
+  /// No description provided for @timeMorning.
+  ///
+  /// In es, this message translates to:
+  /// **'Mañana'**
+  String get timeMorning;
+
+  /// No description provided for @timeNoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Mediodía'**
+  String get timeNoon;
+
+  /// No description provided for @timeAfternoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarde'**
+  String get timeAfternoon;
+
+  /// No description provided for @timeNight.
+  ///
+  /// In es, this message translates to:
+  /// **'Noche'**
+  String get timeNight;
+
+  /// No description provided for @timeDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get timeDone;
+
+  /// No description provided for @dateTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get dateTitle;
+
+  /// No description provided for @dateToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get dateToday;
+
+  /// No description provided for @dateTomorrow.
+  ///
+  /// In es, this message translates to:
+  /// **'Mañana'**
+  String get dateTomorrow;
+
+  /// No description provided for @dateInWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'En una semana'**
+  String get dateInWeek;
+
+  /// No description provided for @dateInMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'En un mes'**
+  String get dateInMonth;
 }
 
 class _AppLocalizationsDelegate

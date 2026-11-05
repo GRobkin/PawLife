@@ -1830,7 +1830,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get premiumRowCardsFree => '1 estilo';
 
   @override
-  String get premiumRowCardsPremium => '3 estilos';
+  String get premiumRowCardsPremium => '4 estilos';
 
   @override
   String get premiumComingSoon => 'Próximamente en Premium';
@@ -1898,4 +1898,166 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shareStartOnly => 'Sin desplazamiento · punto de inicio';
+
+  @override
+  String get legalTermsTitle => 'Términos de uso';
+
+  @override
+  String get legalPrivacyTitle => 'Política de privacidad';
+
+  @override
+  String get legalUpdated => 'Última actualización: noviembre de 2026.';
+
+  @override
+  String get legalTerms1T => 'Uso del servicio';
+
+  @override
+  String get legalTerms1B =>
+      'PawLife es una aplicación para llevar el cuidado de tus mascotas: perfil, salud, tareas, recordatorios y paseos. Usala solo para fines personales y lícitos.';
+
+  @override
+  String get legalTerms2T => 'Tu cuenta';
+
+  @override
+  String get legalTerms2B =>
+      'Sos responsable de la información que cargás y de mantener segura tu contraseña. Podés eliminar tu cuenta cuando quieras desde el perfil; esa acción no se puede deshacer.';
+
+  @override
+  String get legalTerms3T => 'Contenido y mascotas';
+
+  @override
+  String get legalTerms3B =>
+      'Tus datos y fotos siguen siendo tuyos. No cargues contenido ilegal ni que vulnere derechos de otras personas. PawLife no reemplaza la consulta con un veterinario.';
+
+  @override
+  String get legalTerms4T => 'Premium';
+
+  @override
+  String get legalTerms4B =>
+      'Algunas funciones pueden requerir una suscripción Premium. Las condiciones y precios se informan antes de contratar.';
+
+  @override
+  String get legalTerms5T => 'Cambios y contacto';
+
+  @override
+  String get legalTerms5B =>
+      'Podemos actualizar estos términos y te avisaremos dentro de la app. Consultas: pawlife.support@gmail.com.';
+
+  @override
+  String get legalPriv1T => 'Quién es el responsable';
+
+  @override
+  String get legalPriv1B =>
+      'PawLife es la responsable (controladora) del tratamiento de tus datos personales, conforme a la Ley General de Protección de Datos de Brasil (LGPD, Ley 13.709/2018). Persona encargada de protección de datos (art. 41) y canal del responsable: pawlife.support@gmail.com.';
+
+  @override
+  String get legalPriv2T => 'Qué datos tratamos';
+
+  @override
+  String get legalPriv2B =>
+      'Correo y nombre de tu cuenta; datos de tus mascotas (perfil, vacunas, peso, tareas); tus paseos; la ubicación durante un paseo, solo si das permiso; y el token de notificaciones de tu dispositivo. Los datos de compras, si existen, los gestiona el proveedor de pagos.';
+
+  @override
+  String get legalPriv3T => 'Para qué y con qué base legal';
+
+  @override
+  String get legalPriv3B =>
+      'Tratamos solo los datos necesarios para cada finalidad, con transparencia y seguridad (principios del art. 6). Bases legales (art. 7): ejecución del servicio que pedís (cuenta, mascotas, tareas, paseos) y tu consentimiento para la ubicación y las notificaciones, que podés retirar cuando quieras desde los permisos del dispositivo y \"Privacidad y mis datos\". No vendemos tus datos ni mostramos anuncios.';
+
+  @override
+  String get legalPriv4T => 'Con quién los compartimos';
+
+  @override
+  String get legalPriv4B =>
+      'Con operadores que tratan datos por nuestra cuenta: Google Firebase (autenticación, base de datos y notificaciones), Vercel (servidor de la API) y Cloudflare (envío programado de recordatorios). Al mostrar mapas, OpenStreetMap recibe la zona consultada y tu dirección IP. Algunos están fuera de Brasil: la transferencia internacional (art. 33) se apoya en las cláusulas contractuales y garantías de cada proveedor.';
+
+  @override
+  String get legalPriv5T => 'Cómo se protegen';
+
+  @override
+  String get legalPriv5B =>
+      'Aplicamos medidas de seguridad técnicas y administrativas (art. 46): los datos viajan por conexión cifrada (HTTPS) y se guardan en Google Firebase, que los cifra en reposo. Tu contraseña la gestiona Firebase Authentication: PawLife no la almacena. Las fotos se guardan sin datos EXIF. Si ocurre un incidente que pueda afectarte, lo comunicaremos a vos y a la ANPD (art. 48).';
+
+  @override
+  String get legalPriv6B =>
+      'Mientras tu cuenta esté activa. Al eliminarla se borran tu cuenta, tus mascotas y sus registros (art. 16). Solo se conserva lo que una obligación legal exija, por ejemplo registros de compras.';
+
+  @override
+  String get deleteTypeHint => 'Escribí \"borrar\" para confirmar';
+
+  @override
+  String get deleteConfirmWord => 'borrar';
+
+  @override
+  String get securityNote =>
+      'Tus datos viajan cifrados (HTTPS) y se guardan en Google Firebase, que los cifra en reposo.';
+
+  @override
+  String get deleteUnderstand =>
+      'Entiendo que se borrarán mis datos y no se pueden recuperar.';
+
+  @override
+  String get wearablePremiumOnly => 'El modo reloj es de Premium.';
+
+  @override
+  String get wearableSeePremium => 'Ver Premium';
+
+  @override
+  String get legalPriv6T => 'Cuánto tiempo los conservamos';
+
+  @override
+  String get legalPriv7T => 'Tus derechos (art. 18 LGPD)';
+
+  @override
+  String get legalPriv7B =>
+      'Confirmar el tratamiento, acceder a tus datos, corregirlos, pedir su anonimización, bloqueo o eliminación, portabilidad, información sobre con quién los compartimos, y revocar el consentimiento. Podés exportar y eliminar tus datos desde \"Privacidad y mis datos\" o escribir a pawlife.support@gmail.com; respondemos dentro del plazo legal. También podés reclamar ante la ANPD.';
+
+  @override
+  String get legalPriv8T => 'Menores y cambios';
+
+  @override
+  String get legalPriv8B =>
+      'PawLife no está dirigida a menores de 18 años: quien sea menor necesita el consentimiento específico de su madre, padre o responsable (art. 14). Si cambiamos esta política, te avisaremos dentro de la app.';
+
+  @override
+  String get shareStyleCandy => 'Candy';
+
+  @override
+  String get timeTitle => 'Hora';
+
+  @override
+  String get timeHours => 'Hora';
+
+  @override
+  String get timeMinutes => 'Minutos';
+
+  @override
+  String get timeMorning => 'Mañana';
+
+  @override
+  String get timeNoon => 'Mediodía';
+
+  @override
+  String get timeAfternoon => 'Tarde';
+
+  @override
+  String get timeNight => 'Noche';
+
+  @override
+  String get timeDone => 'Listo';
+
+  @override
+  String get dateTitle => 'Fecha';
+
+  @override
+  String get dateToday => 'Hoy';
+
+  @override
+  String get dateTomorrow => 'Mañana';
+
+  @override
+  String get dateInWeek => 'En una semana';
+
+  @override
+  String get dateInMonth => 'En un mes';
 }

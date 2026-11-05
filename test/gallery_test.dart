@@ -20,6 +20,8 @@ import 'package:pawlife/services/walk_repository.dart';
 import 'package:pawlife/theme/app_theme.dart';
 import 'package:pawlife/views/change_password_screen.dart';
 import 'package:pawlife/views/home_screen.dart';
+import 'package:pawlife/views/widgets/selector_fecha.dart';
+import 'package:pawlife/views/widgets/selector_hora.dart';
 import 'package:pawlife/views/pet_detail_screen.dart';
 import 'package:pawlife/views/pets_screen.dart';
 import 'package:pawlife/views/premium_screen.dart';
@@ -269,6 +271,34 @@ void main() {
             mascota: pet,
             estilo: TarjetaEstilo.cifras,
           ),
+        ),
+      ),
+    ),
+    'share-candy': () => Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: WalkShareCard(
+            paseo: walk('x'),
+            mascota: pet,
+            estilo: TarjetaEstilo.candy,
+          ),
+        ),
+      ),
+    ),
+    'hora': () => const Scaffold(
+      body: Align(
+        alignment: Alignment.bottomCenter,
+        child: SelectorHora(inicial: TimeOfDay(hour: 8, minute: 30)),
+      ),
+    ),
+    'fecha': () => Scaffold(
+      body: Align(
+        alignment: Alignment.bottomCenter,
+        child: SelectorFecha(
+          inicial: DateTime(2026, 11, 12),
+          desde: DateTime(2026, 11, 1),
+          hasta: DateTime(2030),
         ),
       ),
     ),

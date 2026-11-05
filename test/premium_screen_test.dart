@@ -78,7 +78,7 @@ void main() {
     expect(find.text('Up to 2'), findsOneWidget);
     expect(find.text('Unlimited'), findsNWidgets(2));
     expect(find.text('1 style'), findsOneWidget);
-    expect(find.text('3 styles'), findsOneWidget);
+    expect(find.text('4 styles'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.textContaining('nothing is charged'),
       200,

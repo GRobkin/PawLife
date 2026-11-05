@@ -56,7 +56,7 @@ class ApiClient {
     this.expectedUid,
     this.timeout = const Duration(seconds: 20),
   }) : _auth = auth ?? AuthService(),
-       _http = httpClient ?? http.Client(),
+       _http = httpClient ?? _compartido,
        baseUrl = _normalizeBaseUrl(baseUrl ?? defaultBaseUrl);
 
   /// URL del backend. Se fija al compilar para no tener que tocar código al
@@ -71,6 +71,11 @@ class ApiClient {
     'PAWLIFE_API_URL',
     defaultValue: 'https://apipaw.vercel.app',
   );
+
+  /// Cliente HTTP único: reutiliza conexiones (sin repetir el saludo TLS en
+  /// cada pantalla). Los clientes inyectados, p. ej. en pruebas, siguen siendo
+  /// de quien los pasa.
+  static final http.Client _compartido = http.Client();
 
   final AuthService _auth;
   final String? expectedUid;
@@ -181,7 +186,10 @@ class ApiClient {
     return body is Map<String, dynamic> ? body : null;
   }
 
-  void close() => _http.close();
+  void close() {
+    // El cliente compartido vive toda la app: cerrarlo rompería a los demás.
+    if (!identical(_http, _compartido)) _http.close();
+  }
 
   Map<String, dynamic> _expectObject(dynamic body) {
     if (body is! Map<String, dynamic>) {

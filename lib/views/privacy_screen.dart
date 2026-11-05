@@ -390,6 +390,15 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(t.yourDataBody),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.lock_outline, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(t.securityNote)),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
                       onPressed: _saving ? null : _prepareExport,
