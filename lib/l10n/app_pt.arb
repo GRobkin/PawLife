@@ -583,5 +583,7 @@
   "dateToday": "Hoje",
   "dateTomorrow": "Amanhã",
   "dateInWeek": "Em uma semana",
-  "dateInMonth": "Em um mês"
+  "dateInMonth": "Em um mês",
+  "wearableCheckFailed": "Não foi possível verificar seu plano.",
+  "wearableLocating": "PROCURANDO GPS"
 }

@@ -21,6 +21,11 @@ class PawLifeRepository {
   /// volver a abrirse.
   static final ValueNotifier<int> mascotasCambiaron = ValueNotifier(0);
 
+  /// Último estado de Premium conocido (null = todavía no se consultó). Lo
+  /// actualiza cualquier consulta o compra, así el Home y el reloj reflejan el
+  /// plan sin esperar a reabrirse.
+  static final ValueNotifier<bool?> premiumActivo = ValueNotifier(null);
+
   final ApiClient client;
 
   Future<Map<String, dynamic>> fetchPerfil() => client.getOne('/api/me');
@@ -36,13 +41,23 @@ class PawLifeRepository {
       client.getOne('/api/me/privacy');
 
   /// Estado de Premium calculado por el servidor (la app no lo decide).
-  Future<Map<String, dynamic>> fetchPremium() =>
-      client.getOne('/api/me/premium');
+  Future<Map<String, dynamic>> fetchPremium() async {
+    final estado = await client.getOne('/api/me/premium');
+    premiumActivo.value = estado['activo'] == true;
+    return estado;
+  }
 
   /// Compra de prueba (sin cobro): el servidor registra Premium para esta
   /// cuenta, así que levanta los límites de verdad. [plan]: 'mensual' | 'anual'.
-  Future<Map<String, dynamic>> comprarPremiumDePrueba(String plan) =>
-      client.post('/api/me/premium/test-purchase', {'plan': plan});
+  Future<Map<String, dynamic>> comprarPremiumDePrueba(String plan) async {
+    final estado = await client.post('/api/me/premium/test-purchase', {
+      'plan': plan,
+    });
+    if (estado['activo'] != null) {
+      premiumActivo.value = estado['activo'] == true;
+    }
+    return estado;
+  }
 
   Future<void> cancelarPremiumDePrueba() =>
       client.delete('/api/me/premium/test-purchase');
