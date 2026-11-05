@@ -19,6 +19,7 @@ import 'services/auth_service.dart';
 import 'services/session_registration.dart';
 import 'views/account_deleting_screen.dart';
 import 'views/home_screen.dart';
+import 'views/widgets/area_segura.dart';
 import 'views/welcome_screen.dart';
 import 'theme/app_palette.dart';
 import 'theme/app_theme.dart';
@@ -190,11 +191,14 @@ class _MaxWidth extends StatelessWidget {
   Widget build(BuildContext context) {
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: maxWidth),
-          child: child,
+      // La barra de navegación de Android no tapa nada de la app.
+      child: AreaSegura(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: maxWidth),
+            child: child,
+          ),
         ),
       ),
     );
