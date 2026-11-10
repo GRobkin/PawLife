@@ -99,7 +99,6 @@ class SessionRegistration {
         if (generation != _generation) return;
         if (token != null) await register(token);
       } catch (_) {
-        debugPrint('No se pudo sincronizar el perfil o el dispositivo.');
         if (generation == _generation && attempt < 3) {
           _retry?.cancel();
           _retry = Timer(
@@ -157,9 +156,9 @@ class SessionRegistration {
             }),
           );
         },
-        onError: (Object _) {
-          debugPrint('No se pudo escuchar la renovacion del token.');
-        },
+        // Sin la renovación del token no hay nada que hacer: se registra de
+        // nuevo en la próxima sesión.
+        onError: (Object _) {},
       );
     }
     unawaited(sync(0));

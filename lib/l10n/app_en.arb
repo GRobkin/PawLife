@@ -585,5 +585,7 @@
   "dateInWeek": "In a week",
   "dateInMonth": "In a month",
   "wearableCheckFailed": "Couldn't check your plan.",
-  "wearableLocating": "FINDING GPS"
+  "wearableLocating": "FINDING GPS",
+  "premiumBannerTitle": "Go Premium",
+  "premiumBannerBody": "Unlimited pets and tasks, exclusive cards and watch mode."
 }

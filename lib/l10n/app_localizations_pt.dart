@@ -2070,4 +2070,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get wearableLocating => 'PROCURANDO GPS';
+
+  @override
+  String get premiumBannerTitle => 'Seja Premium';
+
+  @override
+  String get premiumBannerBody =>
+      'Pets e tarefas ilimitados, cartões exclusivos e modo relógio.';
 }

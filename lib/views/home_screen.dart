@@ -17,11 +17,13 @@ import '../services/walk_repository.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_palette.dart';
 import 'pets_screen.dart';
+import 'premium_screen.dart';
 import 'pet_detail_screen.dart';
 import 'widgets/iniciar_paseo.dart';
 import 'walk_history_screen.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 import 'wearable/wearable_screen.dart';
+import 'widgets/banner_premium.dart';
 import 'widgets/carrusel_hoy.dart';
 import 'widgets/motion.dart';
 import 'widgets/esqueletos.dart';
@@ -207,6 +209,14 @@ class _HomeScreenState extends State<HomeScreen> {
     SeleccionMascota.seleccionar(elegida);
   }
 
+  Future<void> _abrirPremium() async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => PremiumScreen(repository: _repo)));
+    // Al volver puede haber activado Premium: se vuelve a consultar.
+    if (mounted) _consultarPremium();
+  }
+
   void _irAMascotas() {
     Navigator.of(
       context,
@@ -252,6 +262,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildPetCard(),
                 const SizedBox(height: 16),
                 _buildStartWalkCard(context),
+                // Invitación a Premium: solo cuando se sabe que no lo tiene, y
+                // se pliega con suavidad al activarlo.
+                AnimatedSize(
+                  duration: reducirMovimiento(context)
+                      ? Duration.zero
+                      : const Duration(milliseconds: 260),
+                  curve: Curves.easeOut,
+                  alignment: Alignment.topCenter,
+                  child: _premium == false
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: BannerPremium(onTap: _abrirPremium),
+                        )
+                      : const SizedBox(width: double.infinity),
+                ),
                 const SizedBox(height: 18),
                 Row(
                   children: [

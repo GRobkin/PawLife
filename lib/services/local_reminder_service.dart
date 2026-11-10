@@ -102,8 +102,9 @@ class LocalReminderService {
   Future<void> syncBestEffort(PawLifeRepository repository) async {
     try {
       await sync(repository);
-    } catch (error) {
-      debugPrint('No se pudieron actualizar los avisos locales: $error');
+    } catch (_) {
+      // Best effort: sin avisos locales la app sigue funcionando y se
+      // reintenta en la próxima sincronización.
     }
   }
 

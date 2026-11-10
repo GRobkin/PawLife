@@ -32,6 +32,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
   late final _repo = widget.repository ?? PawLifeRepository();
   Map<String, dynamic>? _state;
   ({int mascotas, int tareas})? _uso;
+
+  /// Si el uso no se pudo cargar, el medidor se omite (es solo informativo).
+  bool _usoFallo = false;
   String? _error;
   PlanPremium _plan = PlanPremium.anual;
 
@@ -68,7 +71,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
           .where((r) => r.tipo == 'tarea')
           .length;
       if (mounted) setState(() => _uso = (mascotas: mascotas, tareas: tareas));
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) setState(() => _usoFallo = true);
+    }
   }
 
   Future<void> _comprar() async {
@@ -209,16 +214,21 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ],
               ),
             ),
-            if (!activo && _uso != null) ...[
+            if (!activo && !_usoFallo) ...[
               const SizedBox(height: 16),
               AparecerAlEntrar(
                 indice: 2,
+                // El medidor ocupa su sitio desde el primer momento: mientras
+                // llega el uso se ve su esqueleto y luego se funde con las
+                // barras, sin que nada salte ni aparezca de golpe.
                 child: _MedidorUso(
                   titulo: t.premiumUsageTitle,
-                  filas: [
-                    (t.premiumUsagePets, _uso!.mascotas, 2),
-                    (t.premiumUsageTasks, _uso!.tareas, 5),
-                  ],
+                  filas: _uso == null
+                      ? null
+                      : [
+                          (t.premiumUsagePets, _uso!.mascotas, 2),
+                          (t.premiumUsageTasks, _uso!.tareas, 5),
+                        ],
                 ),
               ),
             ],
@@ -761,14 +771,20 @@ class _HojaCompraState extends State<_HojaCompra> {
 }
 
 /// Cuánto del plan gratuito se está usando: barras que se llenan al límite.
+///
+/// Con [filas] en null (el uso todavía no llegó) muestra un esqueleto de la
+/// misma altura y lo funde con las barras al llegar los datos.
 class _MedidorUso extends StatelessWidget {
   const _MedidorUso({required this.titulo, required this.filas});
 
   final String titulo;
-  final List<(String, int, int)> filas;
+  final List<(String, int, int)>? filas;
+
+  static const _filasEsperadas = 2;
 
   @override
   Widget build(BuildContext context) {
+    final datos = filas;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -787,8 +803,68 @@ class _MedidorUso extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          for (final f in filas) ...[
-            Row(
+          AnimatedSwitcher(
+            duration: reducirMovimiento(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 320),
+            switchInCurve: Curves.easeOut,
+            layoutBuilder: (actual, anteriores) => Stack(
+              alignment: Alignment.topCenter,
+              children: [...anteriores, ?actual],
+            ),
+            child: datos == null
+                ? const _EsqueletoUso(key: ValueKey('uso-cargando'))
+                : _BarrasUso(key: const ValueKey('uso-listo'), filas: datos),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Mismas filas y alturas que [_BarrasUso], con bloques en lugar de datos.
+class _EsqueletoUso extends StatelessWidget {
+  const _EsqueletoUso({super.key});
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      for (var i = 0; i < _MedidorUso._filasEsperadas; i++) ...[
+        const SizedBox(
+          height: 20,
+          child: Row(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Esqueleto(alto: 12, ancho: 120, radio: 6),
+                ),
+              ),
+              Esqueleto(alto: 12, ancho: 40, radio: 6),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Esqueleto(alto: 8, radio: 4),
+        const SizedBox(height: 12),
+      ],
+    ],
+  );
+}
+
+class _BarrasUso extends StatelessWidget {
+  const _BarrasUso({super.key, required this.filas});
+
+  final List<(String, int, int)> filas;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (final f in filas) ...[
+          SizedBox(
+            height: 20,
+            child: Row(
               children: [
                 Expanded(
                   child: Text(
@@ -808,27 +884,27 @@ class _MedidorUso extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: (f.$2 / f.$3).clamp(0.0, 1.0)),
-                duration: reducirMovimiento(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 700),
-                curve: Curves.easeOutCubic,
-                builder: (_, v, _) => LinearProgressIndicator(
-                  value: v,
-                  minHeight: 8,
-                  backgroundColor: context.mentaSuave,
-                  color: f.$2 >= f.$3 ? context.alertaTexto : context.marca,
-                ),
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: (f.$2 / f.$3).clamp(0.0, 1.0)),
+              duration: reducirMovimiento(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
+              builder: (_, v, _) => LinearProgressIndicator(
+                value: v,
+                minHeight: 8,
+                backgroundColor: context.mentaSuave,
+                color: f.$2 >= f.$3 ? context.alertaTexto : context.marca,
               ),
             ),
-            const SizedBox(height: 12),
-          ],
+          ),
+          const SizedBox(height: 12),
         ],
-      ),
+      ],
     );
   }
 }
