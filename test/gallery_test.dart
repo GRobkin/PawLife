@@ -20,6 +20,7 @@ import 'package:pawlife/services/walk_repository.dart';
 import 'package:pawlife/theme/app_theme.dart';
 import 'package:pawlife/views/change_password_screen.dart';
 import 'package:pawlife/views/home_screen.dart';
+import 'package:pawlife/views/widgets/banner_premium.dart';
 import 'package:pawlife/views/widgets/selector_fecha.dart';
 import 'package:pawlife/views/widgets/selector_hora.dart';
 import 'package:pawlife/views/pet_detail_screen.dart';
@@ -83,6 +84,13 @@ class AuthFixture implements AuthService {
 class PetsFixture implements PawLifeRepository {
   @override
   Future<List<Mascota>> fetchMascotas() async => [pet];
+  @override
+  Future<Map<String, dynamic>> fetchPremium() async => {
+    'activo': false,
+    'estado': 'inactivo',
+    'venceEn': null,
+    'fuentes': {'manual': false, 'pago': false},
+  };
   @override
   Future<List<Vacuna>> fetchVacunas(String mascotaId) async => [
     Vacuna(
@@ -302,6 +310,15 @@ void main() {
         ),
       ),
     ),
+    'banner': () => Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: BannerPremium(onTap: () {}),
+        ),
+      ),
+    ),
     'vacios': () => Builder(
       builder: (context) {
         final t = AppLocalizations.of(context);
@@ -370,6 +387,45 @@ void main() {
           image.dispose();
         }
       });
+
+      // Con PAWLIFE_SCREENSHOTS=1 se guarda además cada pantalla sola, en
+      // portugués y tema claro, para el README (docs/screenshots/).
+      if (Platform.environment['PAWLIFE_SCREENSHOTS'] == '1') {
+        final solo = GlobalKey();
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: RepaintBoundary(
+                key: solo,
+                child: cell(
+                  entry.value(),
+                  const Locale('pt'),
+                  ThemeMode.light,
+                  entry.key == 'premium' ? 840.0 : cellHeight,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final limite =
+            solo.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+        await tester.runAsync(() async {
+          final imagen = await limite.toImage(pixelRatio: 2);
+          try {
+            final bytes = await imagen.toByteData(
+              format: ui.ImageByteFormat.png,
+            );
+            final out = File('docs/screenshots/${entry.key}.png');
+            await out.parent.create(recursive: true);
+            await out.writeAsBytes(bytes!.buffer.asUint8List());
+          } finally {
+            imagen.dispose();
+          }
+        });
+      }
     });
   }
 }
