@@ -2060,4 +2060,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get premiumBannerBody =>
       'Unlimited pets and tasks, exclusive cards and watch mode.';
+
+  @override
+  String get deleteShort => 'Delete';
 }

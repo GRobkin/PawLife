@@ -466,6 +466,9 @@ class _ConfirmarBorradoState extends State<ConfirmarBorradoDialog> {
         _segundos <= 0 &&
         _escrito.trim().toLowerCase() == widget.palabra;
     return AlertDialog(
+      // Un poco más ancho que el valor por omisión: los botones caben en una
+      // sola fila.
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       title: Text(t.deleteAccountTitle),
       content: SingleChildScrollView(
         child: Column(
@@ -473,18 +476,51 @@ class _ConfirmarBorradoState extends State<ConfirmarBorradoDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.deleteAccountBody),
-            const SizedBox(height: 8),
-            CheckboxListTile(
+            const SizedBox(height: 14),
+            // La casilla y su texto parten del mismo borde izquierdo que el
+            // resto del diálogo (la casilla estándar trae un margen propio).
+            InkWell(
               key: const ValueKey('borrar-entiendo'),
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: _entiendo,
-              onChanged: (v) => setState(() => _entiendo = v ?? false),
-              title: Text(
-                t.deleteUnderstand,
-                style: const TextStyle(fontSize: 14),
+              borderRadius: BorderRadius.circular(8),
+              // El foco y el resaltado los lleva la propia casilla.
+              canRequestFocus: false,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () => setState(() => _entiendo = !_entiendo),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: Checkbox(
+                        value: _entiendo,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: const VisualDensity(
+                          horizontal: -4,
+                          vertical: -4,
+                        ),
+                        onChanged: (v) =>
+                            setState(() => _entiendo = v ?? false),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          t.deleteUnderstand,
+                          style: const TextStyle(fontSize: 14, height: 1.3),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 10),
             TextField(
               key: const ValueKey('borrar-confirmacion'),
               autocorrect: false,
@@ -495,16 +531,31 @@ class _ConfirmarBorradoState extends State<ConfirmarBorradoDialog> {
           ],
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 6, 24, 20),
+      // Los dos botones en la misma fila, del mismo alto y ancho.
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(t.cancel),
-        ),
-        FilledButton(
-          onPressed: listo ? () => Navigator.pop(context, true) : null,
-          child: Text(
-            _segundos > 0 ? '${t.deleteForever} ($_segundos)' : t.deleteForever,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(t.cancel),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: listo ? () => Navigator.pop(context, true) : null,
+                child: Text(
+                  _segundos > 0
+                      ? '${t.deleteShort} ($_segundos)'
+                      : t.deleteShort,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
