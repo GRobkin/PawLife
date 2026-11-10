@@ -1,5 +1,4 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 
 class PushService {
   PushService({FirebaseMessaging? messaging})
@@ -21,7 +20,6 @@ class PushService {
       final settings = await _messaging.requestPermission();
 
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        debugPrint('FCM: permiso de notificaciones denegado');
         return null;
       }
 
@@ -29,7 +27,6 @@ class PushService {
 
       return token;
     } catch (_) {
-      debugPrint('No se pudieron inicializar las notificaciones.');
       return null;
     }
   }

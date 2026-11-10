@@ -2053,4 +2053,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wearableLocating => 'FINDING GPS';
+
+  @override
+  String get premiumBannerTitle => 'Go Premium';
+
+  @override
+  String get premiumBannerBody =>
+      'Unlimited pets and tasks, exclusive cards and watch mode.';
 }

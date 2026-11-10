@@ -34,18 +34,29 @@ class WalkSummaryScreen extends StatefulWidget {
     super.key,
     required this.session,
     required this.mascotaId,
+    this.repository,
+    this.mascotas,
   });
 
   final WalkSession session;
   final String mascotaId;
+
+  /// Repositorios inyectables (pruebas y capturas). Por omisión se crean los
+  /// reales.
+  final WalkRepository? repository;
+  final PawLifeRepository? mascotas;
+
+  /// Los tests lo apagan para no pedir teselas del mapa a la red.
+  static bool mapaReal = true;
 
   @override
   State<WalkSummaryScreen> createState() => _WalkSummaryScreenState();
 }
 
 class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
-  final WalkRepository _repository = WalkRepository();
-  final PawLifeRepository _mascotas = PawLifeRepository();
+  late final WalkRepository _repository = widget.repository ?? WalkRepository();
+  late final PawLifeRepository _mascotas =
+      widget.mascotas ?? PawLifeRepository();
 
   _SaveStatus _saveStatus = _SaveStatus.saving;
   String? _saveError;
@@ -182,89 +193,116 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
       },
       child: Scaffold(
         backgroundColor: context.fondoPantalla,
-        body: Stack(
+        // Dos franjas: arriba el mapa y el contenido que se desplaza; abajo, el
+        // botón en su propio espacio. Así lo que se desplaza nunca queda por
+        // detrás del botón ni pegado a él.
+        body: Column(
           children: [
-            // 1. Mapa de fondo, anclado arriba
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: mapHeight,
-              child: _MapHeader(points: _points),
-            ),
-
-            // 2. Contenido scrolleable, empieza debajo del mapa
-            Positioned.fill(
-              child: ListView(
-                // clipBehavior none para que el badge pueda sobresalir
-                // hacia arriba sin quedar recortado.
-                clipBehavior: Clip.none,
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  mapHeight - 20,
-                  20,
-                  // Espacio para el botón fijo de abajo + la barra de
-                  // navegación del sistema.
-                  MediaQuery.of(context).padding.bottom + 100,
-                ),
+            Expanded(
+              child: Stack(
                 children: [
-                  _buildBadge(),
-                  const SizedBox(height: 14),
-                  Center(
-                    child: Text(
-                      t.walkWith(_mascotaNombre ?? t.yourPet),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineSmall?.copyWith(color: context.texto),
+                  // 1. Mapa de fondo, anclado arriba
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: mapHeight,
+                    child: _MapHeader(points: _points),
+                  ),
+
+                  // 2. Contenido scrolleable, empieza debajo del mapa y se
+                  // funde con el fondo al llegar al borde de abajo.
+                  Positioned.fill(
+                    child: ShaderMask(
+                      blendMode: BlendMode.dstIn,
+                      shaderCallback: (rect) => LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: const [
+                          Colors.black,
+                          Colors.black,
+                          Colors.transparent,
+                        ],
+                        stops: [0, 1 - 26 / rect.height, 1],
+                      ).createShader(rect),
+                      child: ListView(
+                        // clipBehavior none para que el badge pueda sobresalir
+                        // hacia arriba sin quedar recortado.
+                        clipBehavior: Clip.none,
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          mapHeight - 20,
+                          20,
+                          32,
+                        ),
+                        children: [
+                          _buildBadge(),
+                          const SizedBox(height: 14),
+                          Center(
+                            child: Text(
+                              t.walkWith(_mascotaNombre ?? t.yourPet),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(color: context.texto),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Center(
+                            child: Text(
+                              formatDateTime(context, session.startedAt),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: context.textoSuave,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 22),
+                          _buildStats(),
+                          const SizedBox(height: 14),
+                          _buildPetCard(),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Center(
-                    child: Text(
-                      formatDateTime(context, session.startedAt),
-                      style: TextStyle(fontSize: 14, color: context.textoSuave),
+
+                  // 3. Botón de cerrar, flotando sobre el mapa
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 12,
+                    left: 16,
+                    child: Material(
+                      color: context.superficie,
+                      shape: const CircleBorder(),
+                      elevation: 3,
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: () => _close(context),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.close,
+                            size: 22,
+                            color: context.texto,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 22),
-                  _buildStats(),
-                  const SizedBox(height: 14),
-                  _buildPetCard(),
                 ],
               ),
             ),
 
-            // 3. Botón de cerrar, flotando sobre el mapa
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 12,
-              left: 16,
-              child: Material(
-                color: context.superficie,
-                shape: const CircleBorder(),
-                elevation: 3,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => _close(context),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Icon(Icons.close, size: 22, color: context.texto),
-                  ),
-                ),
+            // 4. Botón principal, en su propia franja. La barra del sistema ya
+            // queda reservada por AreaSegura.
+            Container(
+              width: double.infinity,
+              color: context.fondoPantalla,
+              padding: EdgeInsets.fromLTRB(
+                20,
+                14,
+                20,
+                16 + MediaQuery.of(context).padding.bottom,
               ),
-            ),
-
-            // 4. Botón principal fijo abajo, respetando la barra del sistema
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 0,
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildSaveButton(context),
-                ),
-              ),
+              child: _buildSaveButton(context),
             ),
           ],
         ),
@@ -310,39 +348,49 @@ class _WalkSummaryScreenState extends State<WalkSummaryScreen> {
               ),
             ),
           ),
-        ElevatedButton.icon(
-          onPressed: saving
-              ? null
-              : failed
-              ? _save
-              : () => _close(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: failed ? Colors.redAccent : context.botonFondo,
-            foregroundColor: failed ? Colors.white : context.botonTexto,
-            disabledBackgroundColor: context.botonFondo.withValues(alpha: 0.6),
-            disabledForegroundColor: context.botonTexto.withValues(alpha: 0.7),
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          icon: saving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(Colors.white70),
-                  ),
-                )
-              : Icon(failed ? Icons.refresh : Icons.check_circle, size: 20),
-          label: Text(
-            saving
-                ? t.savingWalk
+        // A todo el ancho y con altura propia: dentro de la Column el botón se
+        // encogía a lo que ocupa su contenido.
+        SizedBox(
+          width: double.infinity,
+          height: 60,
+          child: ElevatedButton.icon(
+            onPressed: saving
+                ? null
                 : failed
-                ? t.retry
-                : t.walkSaved,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                ? _save
+                : () => _close(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: failed ? Colors.redAccent : context.botonFondo,
+              foregroundColor: failed ? Colors.white : context.botonTexto,
+              disabledBackgroundColor: context.botonFondo.withValues(
+                alpha: 0.6,
+              ),
+              disabledForegroundColor: context.botonTexto.withValues(
+                alpha: 0.7,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+            icon: saving
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      valueColor: AlwaysStoppedAnimation(Colors.white70),
+                    ),
+                  )
+                : Icon(failed ? Icons.refresh : Icons.check_circle, size: 24),
+            label: Text(
+              saving
+                  ? t.savingWalk
+                  : failed
+                  ? t.retry
+                  : t.walkSaved,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
           ),
         ),
       ],
@@ -528,10 +576,11 @@ class _MapHeader extends StatelessWidget {
             ),
           ),
           children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: kAppPackageId,
-            ),
+            if (WalkSummaryScreen.mapaReal)
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: kAppPackageId,
+              ),
             if (points.length > 1)
               // La ruta se dibuja desde el inicio hasta el final una sola vez,
               // al llegar al resumen. Solo se reconstruye la capa de la línea.

@@ -3615,6 +3615,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'BUSCANDO GPS'**
   String get wearableLocating;
+
+  /// No description provided for @premiumBannerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pasate a Premium'**
+  String get premiumBannerTitle;
+
+  /// No description provided for @premiumBannerBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Mascotas y tareas sin límite, tarjetas exclusivas y modo reloj.'**
+  String get premiumBannerBody;
 }
 
 class _AppLocalizationsDelegate

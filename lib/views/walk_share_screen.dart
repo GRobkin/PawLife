@@ -26,9 +26,14 @@ class WalkShareScreen extends StatefulWidget {
     super.key,
     required this.paseo,
     required this.mascota,
+    this.comprobarPremium,
   });
   final Paseo paseo;
   final Mascota mascota;
+
+  /// Comprueba el plan. Por omisión consulta al servidor; las pruebas y las
+  /// capturas pasan la suya para no tocar la red.
+  final Future<bool> Function()? comprobarPremium;
 
   @override
   State<WalkShareScreen> createState() => _WalkShareScreenState();
@@ -50,6 +55,16 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
   }
 
   Future<void> _consultarPremium() async {
+    final propia = widget.comprobarPremium;
+    if (propia != null) {
+      try {
+        final activo = await propia();
+        if (mounted) setState(() => _premium = activo);
+      } catch (_) {
+        // Sin dato del plan se trata como gratuito.
+      }
+      return;
+    }
     final repo = PawLifeRepository();
     try {
       final estado = await repo.fetchPremium();
@@ -154,36 +169,39 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
+                // Los cuatro estilos en una sola fila, del mismo ancho.
+                Row(
                   children: [
-                    for (final e in [
+                    for (final (i, e) in [
                       (TarjetaEstilo.bosque, t.shareStyleForest),
                       (TarjetaEstilo.menta, t.shareStyleMint),
                       (TarjetaEstilo.cifras, t.shareStyleStats),
                       (TarjetaEstilo.candy, t.shareStyleCandy),
-                    ])
-                      ChoiceChip(
-                        avatar: e.$1 == TarjetaEstilo.bosque || _premium
-                            ? null
-                            : const Icon(Icons.lock_outline, size: 16),
-                        label: Text(e.$2),
-                        selected: _estilo == e.$1,
-                        onSelected: (_) {
-                          if (_estilo == e.$1) return;
-                          // Menta y Cifras son de Premium.
-                          if (e.$1 != TarjetaEstilo.bosque && !_premium) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(t.premiumLockedCard)),
+                    ].indexed) ...[
+                      if (i > 0) const SizedBox(width: 8),
+                      Expanded(
+                        child: _OpcionEstilo(
+                          estilo: e.$1,
+                          nombre: e.$2,
+                          elegido: _estilo == e.$1,
+                          bloqueado: e.$1 != TarjetaEstilo.bosque && !_premium,
+                          onTap: () {
+                            if (_estilo == e.$1) return;
+                            // Menta, Cifras y Candy son de Premium.
+                            if (e.$1 != TarjetaEstilo.bosque && !_premium) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(t.premiumLockedCard)),
+                              );
+                              return;
+                            }
+                            setState(() => _estilo = e.$1);
+                            WidgetsBinding.instance.addPostFrameCallback(
+                              (_) => _prepare(),
                             );
-                            return;
-                          }
-                          setState(() => _estilo = e.$1);
-                          WidgetsBinding.instance.addPostFrameCallback(
-                            (_) => _prepare(),
-                          );
-                        },
+                          },
+                        ),
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -201,6 +219,109 @@ class _WalkShareScreenState extends State<WalkShareScreen> {
                         : () => _share(buttonContext),
                     icon: const Icon(Icons.ios_share),
                     label: Text(_sharing ? t.sharingEllipsis : t.sharePng),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Una opción de estilo: muestra el color de la carta, su nombre y, si es de
+/// Premium y no se tiene, un candado.
+class _OpcionEstilo extends StatelessWidget {
+  const _OpcionEstilo({
+    required this.estilo,
+    required this.nombre,
+    required this.elegido,
+    required this.bloqueado,
+    required this.onTap,
+  });
+
+  final TarjetaEstilo estilo;
+  final String nombre;
+  final bool elegido;
+  final bool bloqueado;
+  final VoidCallback onTap;
+
+  Color get _muestra => switch (estilo) {
+    TarjetaEstilo.bosque => AppColors.verdeOscuro,
+    TarjetaEstilo.menta => AppColors.verdeSuave,
+    TarjetaEstilo.cifras => SelvaPainter.cifrasFondo,
+    TarjetaEstilo.candy => const Color(0xFFFFB3D1),
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: elegido,
+      label: nombre,
+      excludeSemantics: true,
+      child: Material(
+        color: elegido ? context.mentaSuave : context.superficie,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Container(
+            height: 70,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: elegido ? context.marca : context.bordeSuave,
+                width: elegido ? 2 : 1,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _muestra,
+                        border: Border.all(
+                          color: context.texto.withValues(alpha: .18),
+                        ),
+                      ),
+                    ),
+                    if (bloqueado)
+                      Positioned(
+                        right: -6,
+                        bottom: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: context.superficie,
+                          ),
+                          child: Icon(
+                            Icons.lock,
+                            size: 12,
+                            color: context.textoSuave,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  nombre,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: elegido ? FontWeight.w900 : FontWeight.w700,
+                    color: context.texto,
                   ),
                 ),
               ],
