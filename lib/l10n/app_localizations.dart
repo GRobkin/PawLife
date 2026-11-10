@@ -3627,6 +3627,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Mascotas y tareas sin límite, tarjetas exclusivas y modo reloj.'**
   String get premiumBannerBody;
+
+  /// No description provided for @deleteShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get deleteShort;
 }
 
 class _AppLocalizationsDelegate

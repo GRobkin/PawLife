@@ -1041,5 +1041,6 @@
   "wearableCheckFailed": "No se pudo comprobar tu plan.",
   "wearableLocating": "BUSCANDO GPS",
   "premiumBannerTitle": "Pasate a Premium",
-  "premiumBannerBody": "Mascotas y tareas sin límite, tarjetas exclusivas y modo reloj."
+  "premiumBannerBody": "Mascotas y tareas sin límite, tarjetas exclusivas y modo reloj.",
+  "deleteShort": "Eliminar"
 }

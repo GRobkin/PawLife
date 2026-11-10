@@ -2077,4 +2077,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get premiumBannerBody =>
       'Pets e tarefas ilimitados, cartões exclusivos e modo relógio.';
+
+  @override
+  String get deleteShort => 'Excluir';
 }

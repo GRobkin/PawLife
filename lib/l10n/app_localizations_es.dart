@@ -2073,4 +2073,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get premiumBannerBody =>
       'Mascotas y tareas sin límite, tarjetas exclusivas y modo reloj.';
+
+  @override
+  String get deleteShort => 'Eliminar';
 }

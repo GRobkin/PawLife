@@ -587,5 +587,6 @@
   "wearableCheckFailed": "Não foi possível verificar seu plano.",
   "wearableLocating": "PROCURANDO GPS",
   "premiumBannerTitle": "Seja Premium",
-  "premiumBannerBody": "Pets e tarefas ilimitados, cartões exclusivos e modo relógio."
+  "premiumBannerBody": "Pets e tarefas ilimitados, cartões exclusivos e modo relógio.",
+  "deleteShort": "Excluir"
 }

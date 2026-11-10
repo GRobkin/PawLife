@@ -587,5 +587,6 @@
   "wearableCheckFailed": "Couldn't check your plan.",
   "wearableLocating": "FINDING GPS",
   "premiumBannerTitle": "Go Premium",
-  "premiumBannerBody": "Unlimited pets and tasks, exclusive cards and watch mode."
+  "premiumBannerBody": "Unlimited pets and tasks, exclusive cards and watch mode.",
+  "deleteShort": "Delete"
 }
