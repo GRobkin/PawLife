@@ -74,6 +74,33 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+  # Generan el ícono y la pantalla de carga nativa a partir de assets/icon/.
+  # Se aplican a mano (ver tool/gerar_icones_test.dart); no se usan al compilar.
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
+
+# Ícono del app. Imágenes: tool/gerar_icones_test.dart.
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#12352A"
+  adaptive_icon_foreground: "assets/icon/foreground.png"
+
+# Pantalla de carga nativa: el verde de la marca con la huella, la misma que se
+# ve al abrir la app hasta que Flutter dibuja el primer cuadro.
+#   dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#12352A"
+  image: "assets/icon/splash.png"
+  fullscreen: false
+  android_12:
+    color: "#12352A"
+    image: "assets/icon/splash.png"
+    icon_background_color: "#12352A"
+
 flutter:
   generate: true
   uses-material-design: true

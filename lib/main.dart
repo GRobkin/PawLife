@@ -19,9 +19,9 @@ import 'services/auth_service.dart';
 import 'services/session_registration.dart';
 import 'views/account_deleting_screen.dart';
 import 'views/home_screen.dart';
+import 'views/splash_screen.dart';
 import 'views/widgets/area_segura.dart';
 import 'views/welcome_screen.dart';
-import 'theme/app_palette.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -137,7 +137,7 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
         // en el dispositivo. Enseñar Welcome aquí haría que a un usuario ya
         // logueado le parpadease la pantalla de bienvenida en cada arranque.
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const _SplashScreen();
+          return const PantallaCarga();
         }
 
         if (snapshot.data == null) {
@@ -149,30 +149,6 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
               eliminandose ? const AccountDeletingScreen() : const HomeScreen(),
         );
       },
-    );
-  }
-}
-
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.pets, size: 56, color: context.marca),
-            const SizedBox(height: 20),
-            const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
