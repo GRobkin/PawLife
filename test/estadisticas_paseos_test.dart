@@ -24,6 +24,18 @@ void main() {
     expect(e.paseoHoy, isFalse);
   });
 
+  test('semana lunes a domingo, día de hoy y km de los últimos 7 días', () {
+    final e = EstadisticasPaseos.calcular([
+      paseo(DateTime(2026, 11, 10, 8), metros: 2000),
+      paseo(DateTime(2026, 11, 10, 18), metros: 500),
+      paseo(DateTime(2026, 11, 8, 9), metros: 3000),
+      paseo(DateTime(2026, 11, 2, 9), metros: 9000),
+    ], ahora);
+    expect(e.diaHoy, 1);
+    expect(e.semana, [false, true, false, false, false, false, false]);
+    expect(e.kmUltimos7, [0, 0, 0, 0, 3.0, 0, 2.5]);
+  });
+
   test('racha de días seguidos que incluye hoy', () {
     final e = EstadisticasPaseos.calcular([
       paseo(DateTime(2026, 11, 10, 8)),

@@ -24,7 +24,7 @@ void main() {
   testWidgets('captura de la tarjeta de racha en sus tres formas', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(840, 2000);
+    tester.view.physicalSize = const Size(840, 3000);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     const e = EstadisticasPaseos(
@@ -32,6 +32,9 @@ void main() {
       paseosSemana: 2,
       kmSemana: 6.2,
       paseoHoy: false,
+      semana: [true, true, true, true, true, false, false],
+      diaHoy: 5,
+      kmUltimos7: [1, 0, 2.4, 1.2, 3, 2.1, 0],
     );
     Widget tarjeta(
       double ancho,
@@ -79,19 +82,19 @@ void main() {
           child: Column(
             children: [
               SizedBox(
-                height: 150,
+                height: 215,
                 child: tarjeta(350, 1, ThemeMode.light, 'es'),
               ),
               SizedBox(
-                height: 230,
+                height: 300,
                 child: tarjeta(280, 1, ThemeMode.light, 'pt'),
               ),
               SizedBox(
-                height: 320,
+                height: 400,
                 child: tarjeta(350, 2, ThemeMode.dark, 'es'),
               ),
               SizedBox(
-                height: 240,
+                height: 300,
                 child: tarjeta(350, 1.5, ThemeMode.dark, 'en'),
               ),
             ],

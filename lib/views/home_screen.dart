@@ -30,6 +30,7 @@ import 'widgets/motion.dart';
 import 'widgets/esqueletos.dart';
 import 'widgets/portada_mascota.dart';
 import 'widgets/racha_meta.dart';
+import 'widgets/resumen_actividad.dart';
 import 'widgets/selector_mascota.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -757,6 +758,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final cuantosHoy = deHoy.length;
 
     return _summaryBand(
+      barras: EstadisticasPaseos.calcular(paseos, DateTime.now()).kmUltimos7,
       left: _SummaryData(
         Icons.map_outlined,
         t.lastWalk,
@@ -799,71 +801,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return formatDayMonthTime(context, fecha);
   }
 
-  /// Las dos cifras de actividad en una sola banda, con los números grandes
-  /// como protagonistas.
+  /// Las cifras de actividad: el último paseo grande, el tiempo en un bloque
+  /// menta y la tira de los últimos 7 días.
   Widget _summaryBand({
     required _SummaryData left,
     required _SummaryData right,
-  }) {
-    Widget cell(_SummaryData d) => Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(d.icon, size: 16, color: context.marca),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  d.label,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelMedium?.copyWith(color: context.textoSuave),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              d.value,
-              style: Theme.of(
-                context,
-              ).textTheme.displaySmall?.copyWith(color: context.texto),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            d.hint,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: context.textoTenue),
-          ),
-        ],
-      ),
-    );
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-      decoration: BoxDecoration(
-        color: context.superficie,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            cell(left),
-            VerticalDivider(color: context.bordeSuave, width: 28),
-            cell(right),
-          ],
-        ),
-      ),
-    );
-  }
+    List<double>? barras,
+  }) => ResumenActividad(
+    principal: CifraResumen(left.icon, left.label, left.value, left.hint),
+    secundaria: CifraResumen(right.icon, right.label, right.value, right.hint),
+    kmPorDia: barras,
+  );
 }
 
 class _SummaryData {
