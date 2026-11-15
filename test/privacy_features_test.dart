@@ -12,7 +12,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:pawlife/models/horario_silencio.dart';
 import 'package:pawlife/services/api_client.dart';
+import 'package:pawlife/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pawlife/services/auth_service.dart';
 import 'package:pawlife/services/pawlife_repository.dart';
 import 'package:pawlife/services/local_reminder_service.dart';
@@ -346,6 +349,7 @@ void main() {
   for (final width in [320.0, 390.0, 800.0]) {
     for (final scale in [1.0, 2.0]) {
       testWidgets('privacidad responsive $width texto $scale', (tester) async {
+        SharedPreferences.setMockInitialValues({});
         tester.view.physicalSize = Size(width, 850);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
@@ -381,6 +385,12 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+        // Con "No molestar" activo (las dos horas y su texto) tampoco desborda.
+        await tester.ensureVisible(find.byKey(const ValueKey('no-molestar')));
+        await tester.tap(find.byKey(const ValueKey('no-molestar')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('no-molestar-desde')), findsOneWidget);
+        expect(tester.takeException(), isNull);
         await tester.scrollUntilVisible(
           find.text('Registrar solicitud'),
           250,
@@ -412,4 +422,68 @@ void main() {
       });
     }
   }
+
+  testWidgets('no molestar: activar muestra las horas y las guarda', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final auth = PrivacyAuth();
+    addTearDown(auth.changes.close);
+    final repository = PrivacyRepoFixture();
+    final reminders = PrivacyReminders();
+    await tester.runAsync(() async {
+      await (FontLoader(
+        'NunitoSans',
+      )..addFont(rootBundle.load('assets/fonts/NunitoSans.ttf'))).load();
+      await (FontLoader(
+        'MaterialIcons',
+      )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
+    });
+    tester.view.physicalSize = const Size(780, 1500);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final marco = GlobalKey();
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: marco,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: AppTheme.light,
+          home: PrivacyScreen(
+            auth: auth,
+            repository: repository,
+            reminders: reminders,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('no-molestar-desde')), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('no-molestar')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('no-molestar-desde')), findsOneWidget);
+    expect(find.byKey(const ValueKey('no-molestar-hasta')), findsOneWidget);
+    // Cambiar el horario reprograma los avisos.
+    expect(reminders.synced, greaterThan(0));
+
+    final guardado = await HorarioSilencio.leer();
+    expect(guardado.activo, isTrue);
+    expect(guardado.desdeMin, 22 * 60);
+    await tester.runAsync(() async {
+      final img =
+          await (marco.currentContext!.findRenderObject()!
+                  as RenderRepaintBoundary)
+              .toImage();
+      final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
+      final f = File('build/test-artifacts/no-molestar.png');
+      await f.parent.create(recursive: true);
+      await f.writeAsBytes(bytes!.buffer.asUint8List());
+      img.dispose();
+    });
+    await tester.pumpWidget(const SizedBox());
+  });
 }

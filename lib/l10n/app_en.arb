@@ -588,5 +588,48 @@
   "wearableLocating": "FINDING GPS",
   "premiumBannerTitle": "Go Premium",
   "premiumBannerBody": "Unlimited pets and tasks, exclusive cards and watch mode.",
-  "deleteShort": "Delete"
+  "deleteShort": "Delete",
+  "quietTitle": "Do not disturb",
+  "quietHint": "Pick the hours when you don't want alerts.",
+  "quietFrom": "From",
+  "quietTo": "Until",
+  "streakTitle": "Streak",
+  "streakStart": "Walk today to start",
+  "streakKeep": "Walk today to keep it",
+  "streakToday": "Today's counted",
+  "weeklyGoalTitle": "Weekly goal",
+  "weeklyGoalProgress": "{done} of {goal} walks",
+  "@weeklyGoalProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyGoalDone": "Goal reached!",
+  "weeklyGoalPick": "Walks per week",
+  "streakUnit": "{count, plural, one{day in a row} other{days in a row}}",
+  "@streakUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quietHintRange": "No alerts from {desde} to {hasta}. Scheduled ones that fall in that window show at {hasta}.",
+  "quietSameHours": "Pick two different times: with the same time there's no window.",
+  "@quietHintRange": {
+    "placeholders": {
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      }
+    }
+  },
+  "streakFreeLimit": "Free plan: the last 7 days are counted."
 }

@@ -184,6 +184,16 @@ class WalksFixture implements WalkRepository {
       velocidadMaximaKmh: 6.1,
       ruta: route,
     ),
+    for (final dias in [1, 2])
+      Paseo(
+        id: 'd$dias',
+        fechaInicio: DateTime.now().subtract(Duration(days: dias, hours: 4)),
+        fechaFin: DateTime.now().subtract(Duration(days: dias, hours: 3)),
+        duracionSegundos: 1800,
+        distanciaMetros: 1900,
+        velocidadMaximaKmh: 5.4,
+        ruta: route,
+      ),
   ];
   @override
   Future<WalkPage> fetchHistory(String mascotaId, {String? cursor}) async =>

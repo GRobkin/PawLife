@@ -2063,4 +2063,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteShort => 'Delete';
+
+  @override
+  String get quietTitle => 'Do not disturb';
+
+  @override
+  String get quietHint => 'Pick the hours when you don\'t want alerts.';
+
+  @override
+  String get quietFrom => 'From';
+
+  @override
+  String get quietTo => 'Until';
+
+  @override
+  String get streakTitle => 'Streak';
+
+  @override
+  String get streakStart => 'Walk today to start';
+
+  @override
+  String get streakKeep => 'Walk today to keep it';
+
+  @override
+  String get streakToday => 'Today\'s counted';
+
+  @override
+  String get weeklyGoalTitle => 'Weekly goal';
+
+  @override
+  String weeklyGoalProgress(int done, int goal) {
+    return '$done of $goal walks';
+  }
+
+  @override
+  String get weeklyGoalDone => 'Goal reached!';
+
+  @override
+  String get weeklyGoalPick => 'Walks per week';
+
+  @override
+  String streakUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days in a row',
+      one: 'day in a row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quietHintRange(String desde, String hasta) {
+    return 'No alerts from $desde to $hasta. Scheduled ones that fall in that window show at $hasta.';
+  }
+
+  @override
+  String get quietSameHours =>
+      'Pick two different times: with the same time there\'s no window.';
+
+  @override
+  String get streakFreeLimit => 'Free plan: the last 7 days are counted.';
 }

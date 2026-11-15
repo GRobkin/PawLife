@@ -2076,4 +2076,66 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteShort => 'Eliminar';
+
+  @override
+  String get quietTitle => 'No molestar';
+
+  @override
+  String get quietHint =>
+      'Elegí las horas en las que no querés recibir avisos.';
+
+  @override
+  String get quietFrom => 'Desde';
+
+  @override
+  String get quietTo => 'Hasta';
+
+  @override
+  String get streakTitle => 'Racha';
+
+  @override
+  String get streakStart => 'Paseá hoy para empezar';
+
+  @override
+  String get streakKeep => 'Paseá hoy para mantenerla';
+
+  @override
+  String get streakToday => 'Hoy ya sumaste';
+
+  @override
+  String get weeklyGoalTitle => 'Meta semanal';
+
+  @override
+  String weeklyGoalProgress(int done, int goal) {
+    return '$done de $goal paseos';
+  }
+
+  @override
+  String get weeklyGoalDone => '¡Meta cumplida!';
+
+  @override
+  String get weeklyGoalPick => 'Paseos por semana';
+
+  @override
+  String streakUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'días seguidos',
+      one: 'día seguido',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quietHintRange(String desde, String hasta) {
+    return 'Sin avisos de $desde a $hasta. Los programados que caigan ahí se muestran a las $hasta.';
+  }
+
+  @override
+  String get quietSameHours =>
+      'Elegí dos horas distintas: con la misma hora no hay franja.';
+
+  @override
+  String get streakFreeLimit => 'Plan gratis: se cuentan los últimos 7 días.';
 }

@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
+import '../models/horario_silencio.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/local_reminder_service.dart';
@@ -16,6 +17,7 @@ import '../services/pawlife_repository.dart';
 import '../services/privacy_export_service.dart';
 import '../theme/app_palette.dart';
 import 'widgets/reauthentication_dialog.dart';
+import 'widgets/selector_hora.dart';
 
 class PrivacyScreen extends StatefulWidget {
   const PrivacyScreen({super.key, this.auth, this.repository, this.reminders});
@@ -33,6 +35,36 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
   late final _auth = widget.auth ?? AuthService();
   late final _uid = _auth.currentUser?.uid ?? '';
   late final _reminders = widget.reminders ?? LocalReminderService.instance;
+
+  /// "No molestar": se guarda en el dispositivo y reprograma los avisos.
+  HorarioSilencio _silencio = const HorarioSilencio();
+
+  Future<void> _cambiarSilencio(HorarioSilencio nuevo) async {
+    setState(() => _silencio = nuevo);
+    await nuevo.guardar();
+    try {
+      // sync también lleva el horario al servidor (push con la app cerrada).
+      await _reminders.sync(_repo);
+    } catch (_) {
+      // Los avisos se reprograman en la próxima sincronización.
+    }
+  }
+
+  Future<void> _elegirSilencio({required bool desde}) async {
+    final actual = desde ? _silencio.desdeMin : _silencio.hastaMin;
+    final hora = await elegirHora(
+      context,
+      TimeOfDay(hour: actual ~/ 60, minute: actual % 60),
+    );
+    if (hora == null || !mounted) return;
+    final minutos = hora.hour * 60 + hora.minute;
+    await _cambiarSilencio(
+      desde
+          ? _silencio.copyWith(desdeMin: minutos)
+          : _silencio.copyWith(hastaMin: minutos),
+    );
+  }
+
   late final _repo =
       widget.repository ??
       PawLifeRepository(
@@ -55,6 +87,9 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
   @override
   void initState() {
     super.initState();
+    HorarioSilencio.leer().then((v) {
+      if (mounted) setState(() => _silencio = v);
+    });
     _authChanges = _auth.authStateChanges.listen((_) {
       if (mounted && !_sameUser) {
         unawaited(_export?.cancel());
@@ -323,6 +358,52 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                           : (value) => _preference('avisosEquipo', value),
                     ),
                     SwitchListTile.adaptive(
+                      key: const ValueKey('no-molestar'),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(t.quietTitle),
+                      subtitle: !_silencio.activo
+                          ? Text(t.quietHint)
+                          : _silencio.sinFranja
+                          ? Text(
+                              t.quietSameHours,
+                              style: TextStyle(color: context.alertaTexto),
+                            )
+                          : Text(
+                              t.quietHintRange(
+                                HorarioSilencio.formatoHora(_silencio.desdeMin),
+                                HorarioSilencio.formatoHora(_silencio.hastaMin),
+                              ),
+                            ),
+                      value: _silencio.activo,
+                      onChanged: (v) =>
+                          _cambiarSilencio(_silencio.copyWith(activo: v)),
+                    ),
+                    if (_silencio.activo)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _HoraSilencio(
+                                key: const ValueKey('no-molestar-desde'),
+                                etiqueta: t.quietFrom,
+                                minutos: _silencio.desdeMin,
+                                onTap: () => _elegirSilencio(desde: true),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _HoraSilencio(
+                                key: const ValueKey('no-molestar-hasta'),
+                                etiqueta: t.quietTo,
+                                minutos: _silencio.hastaMin,
+                                onTap: () => _elegirSilencio(desde: false),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    SwitchListTile.adaptive(
                       contentPadding: EdgeInsets.zero,
                       title: Text(t.inactivityTitle),
                       subtitle: Text(t.inactivityHint),
@@ -513,6 +594,46 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                   ],
                 ],
               ),
+      ),
+    );
+  }
+}
+
+/// Una hora del horario de "no molestar": etiqueta y hora, tocable.
+class _HoraSilencio extends StatelessWidget {
+  const _HoraSilencio({
+    super.key,
+    required this.etiqueta,
+    required this.minutos,
+    required this.onTap,
+  });
+
+  final String etiqueta;
+  final int minutos;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final hora = HorarioSilencio.formatoHora(minutos);
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        minimumSize: const Size(0, 56),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              etiqueta,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            ),
+          ),
+          Text(
+            hora,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+        ],
       ),
     );
   }
