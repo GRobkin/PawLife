@@ -3633,6 +3633,102 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Eliminar'**
   String get deleteShort;
+
+  /// No description provided for @quietTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No molestar'**
+  String get quietTitle;
+
+  /// No description provided for @quietHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegí las horas en las que no querés recibir avisos.'**
+  String get quietHint;
+
+  /// No description provided for @quietFrom.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde'**
+  String get quietFrom;
+
+  /// No description provided for @quietTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta'**
+  String get quietTo;
+
+  /// No description provided for @streakTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha'**
+  String get streakTitle;
+
+  /// No description provided for @streakStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Paseá hoy para empezar'**
+  String get streakStart;
+
+  /// No description provided for @streakKeep.
+  ///
+  /// In es, this message translates to:
+  /// **'Paseá hoy para mantenerla'**
+  String get streakKeep;
+
+  /// No description provided for @streakToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy ya sumaste'**
+  String get streakToday;
+
+  /// No description provided for @weeklyGoalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Meta semanal'**
+  String get weeklyGoalTitle;
+
+  /// No description provided for @weeklyGoalProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'{done} de {goal} paseos'**
+  String weeklyGoalProgress(int done, int goal);
+
+  /// No description provided for @weeklyGoalDone.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Meta cumplida!'**
+  String get weeklyGoalDone;
+
+  /// No description provided for @weeklyGoalPick.
+  ///
+  /// In es, this message translates to:
+  /// **'Paseos por semana'**
+  String get weeklyGoalPick;
+
+  /// No description provided for @streakUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, one{día seguido} other{días seguidos}}'**
+  String streakUnit(int count);
+
+  /// No description provided for @quietHintRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin avisos de {desde} a {hasta}. Los programados que caigan ahí se muestran a las {hasta}.'**
+  String quietHintRange(String desde, String hasta);
+
+  /// No description provided for @quietSameHours.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegí dos horas distintas: con la misma hora no hay franja.'**
+  String get quietSameHours;
+
+  /// No description provided for @streakFreeLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'Plan gratis: se cuentan los últimos 7 días.'**
+  String get streakFreeLimit;
 }
 
 class _AppLocalizationsDelegate

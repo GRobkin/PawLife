@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/formatting.dart';
+import '../models/estadisticas_paseos.dart';
 import '../models/pawlife_models.dart';
 import '../services/auth_service.dart';
 import '../services/pawlife_repository.dart';
@@ -28,6 +29,7 @@ import 'widgets/carrusel_hoy.dart';
 import 'widgets/motion.dart';
 import 'widgets/esqueletos.dart';
 import 'widgets/portada_mascota.dart';
+import 'widgets/racha_meta.dart';
 import 'widgets/selector_mascota.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -62,6 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // El modo reloj es de Premium: sin Premium (o sin conexión) no se ofrece.
   bool? _premium;
 
+  /// Paseos por semana que se propone la persona (guardado en el dispositivo).
+  int _meta = MetaSemanal.porOmision;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _cargarRecordatorios();
     PawLifeRepository.premiumActivo.addListener(_alCambiarPremium);
     _consultarPremium();
+    MetaSemanal.leer().then((v) {
+      if (mounted) setState(() => _meta = v);
+    });
   }
 
   @override
@@ -128,8 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) setState(() => _paseos = null);
 
     try {
-      // 20 basta: el resumen solo mira el último paseo y los de hoy.
-      final paseos = await _walks.fetchPaseos(activa.id, limite: 20);
+      // 60 alcanzan para el resumen (último paseo y los de hoy) y para contar
+      // la racha de días y los paseos de la semana.
+      final paseos = await _walks.fetchPaseos(activa.id, limite: 60);
       if (!mounted) return;
       setState(() => _paseos = paseos);
     } catch (_) {
@@ -215,6 +224,13 @@ class _HomeScreenState extends State<HomeScreen> {
     ).push(MaterialPageRoute(builder: (_) => PremiumScreen(repository: _repo)));
     // Al volver puede haber activado Premium: se vuelve a consultar.
     if (mounted) _consultarPremium();
+  }
+
+  Future<void> _cambiarMeta() async {
+    final elegida = await elegirMetaSemanal(context, _meta);
+    if (elegida == null || !mounted) return;
+    setState(() => _meta = elegida);
+    await MetaSemanal.guardar(elegida);
   }
 
   void _irAMascotas() {
@@ -308,6 +324,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 8),
                 _buildActivitySummary(),
+                // Racha y meta semanal: aparecen cuando ya hay paseos cargados.
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: TransicionCarga(
+                    child: _paseos == null
+                        ? const RachaMetaEsqueleto(key: ValueKey('racha-carga'))
+                        : RachaMeta(
+                            key: const ValueKey('racha'),
+                            estadisticas: EstadisticasPaseos.calcular(
+                              _paseos!,
+                              DateTime.now(),
+                            ),
+                            meta: _meta,
+                            limitada: _premium != true,
+                            nombreMascota: SeleccionMascota.resolver(
+                              _mascotas ?? const [],
+                            )?.nombre,
+                            onCambiarMeta: _cambiarMeta,
+                          ),
+                  ),
+                ),
                 const SizedBox(height: 18),
                 Row(
                   children: [

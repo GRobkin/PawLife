@@ -1042,5 +1042,48 @@
   "wearableLocating": "BUSCANDO GPS",
   "premiumBannerTitle": "Pasate a Premium",
   "premiumBannerBody": "Mascotas y tareas sin límite, tarjetas exclusivas y modo reloj.",
-  "deleteShort": "Eliminar"
+  "deleteShort": "Eliminar",
+  "quietTitle": "No molestar",
+  "quietHint": "Elegí las horas en las que no querés recibir avisos.",
+  "quietFrom": "Desde",
+  "quietTo": "Hasta",
+  "streakTitle": "Racha",
+  "streakStart": "Paseá hoy para empezar",
+  "streakKeep": "Paseá hoy para mantenerla",
+  "streakToday": "Hoy ya sumaste",
+  "weeklyGoalTitle": "Meta semanal",
+  "weeklyGoalProgress": "{done} de {goal} paseos",
+  "@weeklyGoalProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyGoalDone": "¡Meta cumplida!",
+  "weeklyGoalPick": "Paseos por semana",
+  "streakUnit": "{count, plural, one{día seguido} other{días seguidos}}",
+  "@streakUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quietHintRange": "Sin avisos de {desde} a {hasta}. Los programados que caigan ahí se muestran a las {hasta}.",
+  "quietSameHours": "Elegí dos horas distintas: con la misma hora no hay franja.",
+  "@quietHintRange": {
+    "placeholders": {
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      }
+    }
+  },
+  "streakFreeLimit": "Plan gratis: se cuentan los últimos 7 días."
 }

@@ -7,6 +7,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:intl/intl.dart';
 
 import '../l10n/active_locale.dart';
+import '../models/horario_silencio.dart';
 import '../models/pawlife_models.dart';
 import 'pawlife_repository.dart';
 
@@ -49,6 +50,8 @@ class LocalReminderService {
     required String body,
   }) async {
     if (!_supported) return;
+    // En "no molestar" no se muestra; el aviso sigue en la lista de tareas.
+    if ((await HorarioSilencio.leer()).contiene(DateTime.now())) return;
     await _init();
     await _notifications.show(
       id: _idFor('recordatorio:$reminderId'),
@@ -213,11 +216,13 @@ class LocalReminderService {
       }
     }
 
-    events.sort((a, b) => a.at.compareTo(b.at));
+    final silencio = await HorarioSilencio.leer();
+    await _enviarHorarioAlServidor(repository, preferences, silencio);
+    final programados = planificarAvisos([
+      for (final e in events) AvisoPlanificado(e.key, e.at, e.title, e.body),
+    ], silencio);
     await _notifications.cancelAllPendingNotifications();
-    // iOS admite un número limitado de avisos pendientes. Se priorizan los próximos.
-    for (var index = 0; index < events.length && index < 60; index++) {
-      final event = events[index];
+    for (final event in programados) {
       await _notifications.zonedSchedule(
         id: _idFor(event.key),
         title: event.title,
@@ -226,6 +231,25 @@ class LocalReminderService {
         notificationDetails: _details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
+    }
+  }
+
+  /// Lleva el horario de no molestar al servidor: con la app cerrada es él
+  /// quien decide si manda el push. Solo escribe si hay diferencia; si falla,
+  /// reintenta en la próxima sincronización.
+  Future<void> _enviarHorarioAlServidor(
+    PawLifeRepository repository,
+    Map<String, dynamic> preferences,
+    HorarioSilencio silencio,
+  ) async {
+    try {
+      final zona = (await FlutterTimezone.getLocalTimezone()).identifier;
+      if (silencio.coincideConServidor(preferences['noMolestar'], zona)) {
+        return;
+      }
+      await repository.updatePreferences({'noMolestar': silencio.aApi(zona)});
+    } catch (_) {
+      // Sin red o sin zona: queda el horario local y se reintenta luego.
     }
   }
 
@@ -243,6 +267,32 @@ class LocalReminderService {
           r.fecha.difference(time).inHours.abs() < 12,
     );
   }
+}
+
+/// Un aviso con su hora ya calculada.
+class AvisoPlanificado {
+  const AvisoPlanificado(this.key, this.at, this.title, this.body);
+  final String key;
+  final DateTime at;
+  final String title;
+  final String body;
+}
+
+/// iOS admite un número limitado de avisos pendientes: se programan los
+/// próximos, como máximo este número.
+const int maxAvisosProgramados = 60;
+
+/// Pospone los avisos que caen en "no molestar" hasta que termina la franja,
+/// los ordena por hora y se queda con los próximos [maxAvisosProgramados].
+List<AvisoPlanificado> planificarAvisos(
+  Iterable<AvisoPlanificado> avisos,
+  HorarioSilencio silencio,
+) {
+  final lista = [
+    for (final e in avisos)
+      AvisoPlanificado(e.key, silencio.ajustar(e.at), e.title, e.body),
+  ]..sort((a, b) => a.at.compareTo(b.at));
+  return lista.take(maxAvisosProgramados).toList();
 }
 
 class _Notice {
