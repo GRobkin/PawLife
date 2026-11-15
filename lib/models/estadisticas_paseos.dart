@@ -14,6 +14,9 @@ class EstadisticasPaseos {
     required this.paseosSemana,
     required this.kmSemana,
     required this.paseoHoy,
+    this.semana = const [false, false, false, false, false, false, false],
+    this.diaHoy = 0,
+    this.kmUltimos7 = const [0, 0, 0, 0, 0, 0, 0],
   });
 
   /// Días seguidos con al menos un paseo. Si hoy todavía no hubo, la racha de
@@ -22,6 +25,15 @@ class EstadisticasPaseos {
   final int paseosSemana;
   final double kmSemana;
   final bool paseoHoy;
+
+  /// Lunes a domingo de esta semana: ¿hubo paseo ese día?
+  final List<bool> semana;
+
+  /// Posición de hoy en [semana] (0 = lunes).
+  final int diaHoy;
+
+  /// Kilómetros de los últimos 7 días; el último es hoy.
+  final List<double> kmUltimos7;
 
   factory EstadisticasPaseos.calcular(Iterable<Paseo> paseos, DateTime ahora) {
     DateTime dia(DateTime d) {
@@ -50,7 +62,19 @@ class EstadisticasPaseos {
         metros += p.distanciaMetros;
       }
     }
+    final semana = [
+      for (var i = 0; i < 7; i++)
+        dias.contains(DateTime(lunes.year, lunes.month, lunes.day + i)),
+    ];
+    final km7 = List<double>.filled(7, 0);
+    for (final p in paseos) {
+      final dif = hoy.difference(dia(p.fechaInicio)).inDays;
+      if (dif >= 0 && dif < 7) km7[6 - dif] += p.distanciaMetros / 1000;
+    }
     return EstadisticasPaseos(
+      semana: semana,
+      diaHoy: hoy.weekday - 1,
+      kmUltimos7: km7,
       racha: racha,
       paseosSemana: paseosSemana,
       kmSemana: metros / 1000,

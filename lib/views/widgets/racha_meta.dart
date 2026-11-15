@@ -2,11 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../models/estadisticas_paseos.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_palette.dart';
 import 'motion.dart';
 
 /// ¿Hay que apilar la racha y la meta en vertical? Sí en pantallas angostas o
 /// con el texto agrandado: en fila no caben sin cortarse.
+/// La tarjeta es verde bosque (en oscuro, un nivel por encima del fondo) con el
+/// verde menta como único acento: se distingue del resumen blanco de arriba.
+Color _fondoTarjeta(BuildContext context) =>
+    context.esOscuro ? AppColors.oscuroNivel2 : AppColors.verdeOscuro;
+const Color _menta = AppColors.verdeAcento;
+const Color _blanco = Colors.white;
+final Color _blancoSuave = Colors.white.withValues(alpha: 0.72);
+final Color _linea = Colors.white.withValues(alpha: 0.16);
+
 bool _apilar(BuildContext context, double ancho) {
   final escala = MediaQuery.textScalerOf(context).scale(10) / 10;
   return ancho < 330 || escala > 1.25;
@@ -47,36 +57,31 @@ class RachaMeta extends StatelessWidget {
               ? const EdgeInsets.fromLTRB(16, 14, 12, 8)
               : const EdgeInsets.fromLTRB(16, 14, 8, 14),
           decoration: BoxDecoration(
-            color: context.superficie,
-            borderRadius: BorderRadius.circular(20),
+            color: _fondoTarjeta(context),
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: apilar
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    racha,
-                    Divider(
-                      height: 22,
-                      thickness: 1,
-                      color: context.bordeSuave,
-                    ),
-                    metaSemanal,
-                  ],
-                )
-              : IntrinsicHeight(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (apilar) ...[
+                racha,
+                Divider(height: 22, thickness: 1, color: _linea),
+                metaSemanal,
+              ] else
+                IntrinsicHeight(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(flex: 9, child: racha),
-                      VerticalDivider(
-                        width: 20,
-                        thickness: 1,
-                        color: context.bordeSuave,
-                      ),
+                      VerticalDivider(width: 20, thickness: 1, color: _linea),
                       Expanded(flex: 11, child: metaSemanal),
                     ],
                   ),
                 ),
+              const SizedBox(height: 12),
+              _TiraDias(estadisticas: estadisticas),
+            ],
+          ),
         );
       },
     );
@@ -100,8 +105,8 @@ class RachaMeta extends StatelessWidget {
       children: [
         Icon(
           Icons.local_fire_department_rounded,
-          size: 28,
-          color: e.racha > 0 ? context.marca : context.textoTenue,
+          size: 30,
+          color: e.racha > 0 ? _menta : _blancoSuave,
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -116,7 +121,7 @@ class RachaMeta extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: context.textoSuave,
+                  color: _blancoSuave,
                 ),
               ),
               // El número grande y la unidad al lado: no se corta.
@@ -127,10 +132,10 @@ class RachaMeta extends StatelessWidget {
                   Text(
                     tope ? '${e.racha}+' : '${e.racha}',
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 30,
                       height: 1.1,
                       fontWeight: FontWeight.w900,
-                      color: context.texto,
+                      color: _blanco,
                     ),
                   ),
                   const SizedBox(width: 5),
@@ -143,7 +148,7 @@ class RachaMeta extends StatelessWidget {
                         fontSize: 12,
                         height: 1.15,
                         fontWeight: FontWeight.w700,
-                        color: context.texto,
+                        color: _blanco,
                       ),
                     ),
                   ),
@@ -156,7 +161,7 @@ class RachaMeta extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   height: 1.25,
-                  color: context.textoSuave,
+                  color: _blancoSuave,
                 ),
               ),
             ],
@@ -201,8 +206,8 @@ class RachaMeta extends StatelessWidget {
                           value: v,
                           strokeWidth: 6,
                           strokeCap: StrokeCap.round,
-                          backgroundColor: context.mentaSuave,
-                          color: context.marca,
+                          backgroundColor: _linea,
+                          color: _menta,
                         ),
                       ),
                     ),
@@ -214,28 +219,24 @@ class RachaMeta extends StatelessWidget {
                         padding: const EdgeInsets.all(2.5),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: context.superficie,
-                          border: Border.all(color: context.bordeSuave),
+                          color: _fondoTarjeta(context),
+                          border: Border.all(color: _linea),
                         ),
                         child: Icon(
                           Icons.edit_rounded,
                           size: 10,
-                          color: context.textoSuave,
+                          color: _blancoSuave,
                         ),
                       ),
                     ),
                     cumplida
-                        ? Icon(
-                            Icons.check_rounded,
-                            size: 24,
-                            color: context.marca,
-                          )
+                        ? Icon(Icons.check_rounded, size: 24, color: _menta)
                         : Text(
                             '${e.paseosSemana}/$meta',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
-                              color: context.texto,
+                              color: _blanco,
                             ),
                           ),
                   ],
@@ -254,7 +255,7 @@ class RachaMeta extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: context.textoSuave,
+                        color: _blancoSuave,
                       ),
                     ),
                     Text(
@@ -267,7 +268,7 @@ class RachaMeta extends StatelessWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         height: 1.2,
-                        color: context.texto,
+                        color: _blanco,
                       ),
                     ),
                   ],
@@ -279,6 +280,72 @@ class RachaMeta extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Lunes a domingo: un círculo por día. Con paseo, relleno menta con tilde;
+/// hoy sin paseo, contorno menta; el resto, tenue.
+class _TiraDias extends StatelessWidget {
+  const _TiraDias({required this.estadisticas});
+  final EstadisticasPaseos estadisticas;
+
+  @override
+  Widget build(BuildContext context) {
+    // narrowWeekdays empieza en domingo; la semana de la tarjeta, en lunes.
+    final letras = MaterialLocalizations.of(context).narrowWeekdays;
+    return ExcludeSemantics(
+      child: Row(
+        children: [
+          for (var i = 0; i < 7; i++)
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _CirculoDia(
+                    paseo: estadisticas.semana[i],
+                    hoy: i == estadisticas.diaHoy,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    letras[(i + 1) % 7],
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: i == estadisticas.diaHoy
+                          ? FontWeight.w900
+                          : FontWeight.w600,
+                      color: i == estadisticas.diaHoy ? _blanco : _blancoSuave,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CirculoDia extends StatelessWidget {
+  const _CirculoDia({required this.paseo, required this.hoy});
+  final bool paseo;
+  final bool hoy;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 26,
+    height: 26,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: paseo ? _menta : _linea.withValues(alpha: 0.1),
+      border: hoy && !paseo ? Border.all(color: _menta, width: 2) : null,
+    ),
+    child: paseo
+        ? const Icon(
+            Icons.check_rounded,
+            size: 16,
+            color: AppColors.verdeOscuro,
+          )
+        : null,
+  );
 }
 
 /// Mismo tamaño y estructura que [RachaMeta], con bloques en lugar de datos:
@@ -297,28 +364,27 @@ class RachaMetaEsqueleto extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           decoration: BoxDecoration(
-            color: context.superficie,
-            borderRadius: BorderRadius.circular(20),
+            color: _fondoTarjeta(context),
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: apilar
-              ? Column(
-                  children: [
-                    racha,
-                    Divider(
-                      height: 22,
-                      thickness: 1,
-                      color: context.bordeSuave,
-                    ),
-                    meta,
-                  ],
-                )
-              : Row(
+          child: Column(
+            children: [
+              if (apilar) ...[
+                racha,
+                Divider(height: 22, thickness: 1, color: _linea),
+                meta,
+              ] else
+                Row(
                   children: [
                     Expanded(flex: 9, child: racha),
                     const SizedBox(width: 20),
                     const Expanded(flex: 11, child: meta),
                   ],
                 ),
+              const SizedBox(height: 12),
+              const SizedBox(height: 40),
+            ],
+          ),
         );
       },
     );
