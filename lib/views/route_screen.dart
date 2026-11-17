@@ -312,15 +312,14 @@ class _RouteScreenBodyState extends State<_RouteScreenBody> {
                         ),
                       ],
                     ),
-                    const Align(
-                      alignment: Alignment.bottomLeft,
-                      child: ColoredBox(
-                        color: Colors.white,
-                        child: Text(
-                          '© OpenStreetMap contributors · openstreetmap.org/copyright',
-                          style: TextStyle(fontSize: 10, color: Colors.black87),
-                        ),
-                      ),
+                    // Atribución exigida por OpenStreetMap, lo más discreta posible:
+                    // un icono "i" que se despliega al tocarlo.
+                    const RichAttributionWidget(
+                      showFlutterMapAttribution: false,
+                      alignment: AttributionAlignment.bottomLeft,
+                      attributions: [
+                        TextSourceAttribution('OpenStreetMap contributors'),
+                      ],
                     ),
                   ],
                 ),

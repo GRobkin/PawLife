@@ -228,6 +228,8 @@ Widget cell(
 void main() {
   // Sin red en los tests: la tarjeta usa la traza en vez del mapa real.
   WalkShareCard.mapaReal = false;
+  // El destello del banner anima en bucle y pumpAndSettle nunca terminaría.
+  BannerPremium.animar = false;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();

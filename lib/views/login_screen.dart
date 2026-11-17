@@ -138,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: context.esOscuro
-                ? const [Color(0xFF0E1A15), Color(0xFF0B1410)]
+                ? const [Color(0xFF09090B), Color(0xFF111113)]
                 : const [Color(0xFFF4F7FB), Color(0xFFEFF4F1)],
           ),
         ),

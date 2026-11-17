@@ -25,4 +25,36 @@ void main() {
     await tester.pump();
     expect(toques, 1);
   });
+
+  testWidgets('con movimiento reducido el destello no anima en bucle', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(disableAnimations: true),
+          child: child!,
+        ),
+        home: Scaffold(body: BannerPremium(onTap: () {})),
+      ),
+    );
+    await tester.pumpAndSettle(); // no se cuelga: no hay animación pendiente
+    expect(find.text('Pasate a Premium'), findsOneWidget);
+  });
+
+  testWidgets('con movimiento normal el destello anima', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(body: BannerPremium(onTap: () {})),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.hasRunningAnimations, isTrue);
+  });
 }

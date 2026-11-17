@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import 'widgets/huella_pawlife.dart';
 
 /// Pantalla de carga de la app mientras Firebase restaura la sesión.
 ///
@@ -29,14 +28,13 @@ class PantallaCarga extends StatefulWidget {
 
 class _PantallaCargaState extends State<PantallaCarga>
     with SingleTickerProviderStateMixin {
-  static const _tamanoHuella = 155.0;
+  static const _ladoImagen = 256.0;
   static const _anchoBarra = 132.0;
 
   late final AnimationController _barra = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1500),
   );
-  Timer? _espera;
   bool _extras = false;
   bool _arrancado = false;
 
@@ -56,21 +54,14 @@ class _PantallaCargaState extends State<PantallaCarga>
     super.didChangeDependencies();
     if (_arrancado || !widget.animar) return;
     _arrancado = true;
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _extras = true; // Sin movimiento: se ve todo desde el principio, quieto.
-      return;
-    }
-    // El primer instante es idéntico al splash nativo; lo demás se funde.
-    _espera = Timer(const Duration(milliseconds: 350), () {
-      if (!mounted) return;
-      setState(() => _extras = true);
-      _barra.repeat();
-    });
+    // Desde el primer cuadro se ve todo: huella, rastro, nombre y barrita. El
+    // splash nativo del sistema no puede llevar la barra; esta pantalla sí.
+    _extras = true;
+    if (!MediaQuery.disableAnimationsOf(context)) _barra.repeat();
   }
 
   @override
   void dispose() {
-    _espera?.cancel();
     _barra.dispose();
     super.dispose();
   }
@@ -105,25 +96,10 @@ class _PantallaCargaState extends State<PantallaCarga>
                   ),
                 ),
               ),
-            // La huella principal: igual a la del splash nativo.
-            Center(
-              child: ShaderMask(
-                shaderCallback: (r) => const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFA6F0CB),
-                    AppColors.verdeAcento,
-                    Color(0xFF3FA878),
-                  ],
-                ).createShader(r),
-                child: const Icon(
-                  Icons.pets,
-                  size: _tamanoHuella,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            // La huella principal: la misma imagen del splash nativo, que se
+            // dibuja en un cuadrado de 256 dp. Así no hay salto al pasar de uno
+            // a otro.
+            Center(child: HuellaPawLife(lado: _ladoImagen, escala: 0.9)),
             // Marca y barrita de carga, abajo.
             Positioned(
               left: 0,

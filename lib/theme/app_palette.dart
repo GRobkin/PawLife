@@ -44,11 +44,11 @@ extension AppPalette on BuildContext {
   Color get relleno =>
       esOscuro ? AppColors.oscuroNivel2 : const Color(0xFFEDF2F7);
   Color get rellenoNeutro =>
-      esOscuro ? const Color(0xFF222E28) : const Color(0xFFF0F1F3);
+      esOscuro ? const Color(0xFF232326) : const Color(0xFFF0F1F3);
 
   /// Fondos con tinte de marca.
   Color get mentaSuave =>
-      esOscuro ? const Color(0xFF1D3328) : AppColors.verdeSuave;
+      esOscuro ? const Color(0xFF1F2A24) : AppColors.verdeSuave;
   Color get tarjetaMenta =>
       esOscuro ? AppColors.oscuroNivel1 : const Color(0xFFF1F8F4);
   Color get fondoMenta => esOscuro ? fondoPantalla : AppColors.verdeSuave;
