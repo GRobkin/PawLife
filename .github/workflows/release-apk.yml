@@ -1,8 +1,8 @@
-# Genera el APK de PawLife y lo publica como borrador de release en GitHub.
+# Genera el APK de PawLife y lo publica como release en GitHub.
 #
 # Se dispara al subir una etiqueta de versión (v1.0.0, v1.0.1-beta.1...). El
-# release queda como BORRADOR: nada se publica hasta que alguien lo revise y
-# lo publique a mano desde la pestaña Releases.
+# release queda publicado y el APK se baja desde:
+#   https://github.com/GRobkin/PawLife/releases/latest/download/PawLife.apk
 #
 # Secretos necesarios (Settings > Secrets and variables > Actions):
 #   ANDROID_KEYSTORE_BASE64   el .jks en base64 (base64 -w0 upload.jks)
@@ -63,19 +63,19 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
+      # Un solo APK universal (sirve en cualquier teléfono Android) con un nombre
+      # fijo: así el enlace .../releases/latest/download/PawLife.apk siempre baja
+      # la última versión.
       - name: Compilar APK
-        run: flutter build apk --release --split-per-abi
+        run: |
+          flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk PawLife.apk
+          sha256sum PawLife.apk > PawLife.apk.sha256
 
-      - name: Sumas SHA-256
-        working-directory: build/app/outputs/flutter-apk
-        run: sha256sum *.apk > SHA256SUMS.txt
-
-      - name: Borrador de release
+      - name: Publicar release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" \
-            build/app/outputs/flutter-apk/*.apk \
-            build/app/outputs/flutter-apk/SHA256SUMS.txt \
-            --draft --generate-notes --title "PawLife ${{ github.ref_name }}" \
-            $(case "${{ github.ref_name }}" in *-*) echo --prerelease;; esac)
+          gh release create "${{ github.ref_name }}" PawLife.apk PawLife.apk.sha256 \
+            --latest --title "PawLife ${{ github.ref_name }}" \
+            --notes "App de prueba para Android. Bajá PawLife.apk en el teléfono, abrilo y aceptá instalar. Firmado con clave de depuración."

@@ -18,6 +18,22 @@
 
 ---
 
+## 📲 Descargar la app (Android)
+
+<div align="center">
+
+### **[⬇️ Descargar PawLife.apk](https://github.com/GRobkin/PawLife/releases/latest/download/PawLife.apk)**
+
+</div>
+
+1. **Abrí el enlace en el celular** y tocá *Descargar*.
+2. Abrí el archivo descargado. Si Android lo pide, activá **"Instalar apps desconocidas"** para el navegador.
+3. Tocá **Instalar** y abrí PawLife.
+
+> Versión de prueba, firmada con clave de depuración. Si aparece un aviso de Play Protect, elegí *Instalar de todos modos*.
+
+---
+
 ## Sobre el proyecto
 
 **PawLife** es una aplicación móvil hecha en Flutter para quienes cuidan perros y gatos. En lugar de planillas,
