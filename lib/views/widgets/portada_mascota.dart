@@ -103,7 +103,7 @@ class _FondoSinFoto extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: context.esOscuro
-              ? const [Color(0xFF1D3328), Color(0xFF16241D)]
+              ? const [Color(0xFF27272A), Color(0xFF18181B)]
               : const [Color(0xFFE8D9C0), Color(0xFFD5E3D2)],
         ),
       ),

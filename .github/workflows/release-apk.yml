@@ -1,0 +1,81 @@
+# Genera el APK de PawLife y lo publica como borrador de release en GitHub.
+#
+# Se dispara al subir una etiqueta de versión (v1.0.0, v1.0.1-beta.1...). El
+# release queda como BORRADOR: nada se publica hasta que alguien lo revise y
+# lo publique a mano desde la pestaña Releases.
+#
+# Secretos necesarios (Settings > Secrets and variables > Actions):
+#   ANDROID_KEYSTORE_BASE64   el .jks en base64 (base64 -w0 upload.jks)
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_ALIAS
+#   ANDROID_KEY_PASSWORD
+# Sin ellos el APK se firma con la clave de depuración y NO sirve para publicar.
+
+name: Release APK
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Acción de terceros: revisar y fijar a un commit antes del primer uso real.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # La misma versión con la que se probó en local.
+          flutter-version: '3.47.2'
+          cache: true
+
+      - name: Clave de firma
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > android/app/upload.jks
+            {
+              echo "storeFile=app/upload.jks"
+              echo "storePassword=$STORE_PASS"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "keyPassword=$KEY_PASS"
+            } > android/key.properties
+          else
+            echo "::warning::Sin clave de firma: el APK queda firmado con la de depuración."
+          fi
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      - name: Compilar APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Sumas SHA-256
+        working-directory: build/app/outputs/flutter-apk
+        run: sha256sum *.apk > SHA256SUMS.txt
+
+      - name: Borrador de release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            build/app/outputs/flutter-apk/*.apk \
+            build/app/outputs/flutter-apk/SHA256SUMS.txt \
+            --draft --generate-notes --title "PawLife ${{ github.ref_name }}" \
+            $(case "${{ github.ref_name }}" in *-*) echo --prerelease;; esac)

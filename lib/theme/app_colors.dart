@@ -22,8 +22,9 @@ abstract final class AppColors {
   /// Fondo general de las pantallas.
   static const Color fondo = Color(0xFFF7F8FA);
 
-  /// Fondo general en modo oscuro (verde casi negro, afín a la marca).
-  static const Color fondoOscuro = Color(0xFF0E1A15);
+  /// Fondo general en modo oscuro: zinc casi negro. Los grises neutros dejan
+  /// que el verde de marca (acento) sea el único color de la pantalla.
+  static const Color fondoOscuro = Color(0xFF09090B);
 
   /// Fondo alternativo, un pelín más azulado (el del Home).
   static const Color fondoAlterno = Color(0xFFF4F5F7);
@@ -42,10 +43,10 @@ abstract final class AppColors {
 
   /// Escala de superficies del modo oscuro, de menor a mayor elevación.
   static const Color oscuroNivel0 = fondoOscuro;
-  static const Color oscuroNivel1 = Color(0xFF16241D);
-  static const Color oscuroNivel2 = Color(0xFF1E2F26);
-  static const Color oscuroNivel3 = Color(0xFF283B31);
-  static const Color oscuroBorde = Color(0xFF33463C);
+  static const Color oscuroNivel1 = Color(0xFF18181B);
+  static const Color oscuroNivel2 = Color(0xFF27272A);
+  static const Color oscuroNivel3 = Color(0xFF3F3F46);
+  static const Color oscuroBorde = Color(0xFF3A3A40);
 
   /// Naranja de "próximo" / pendiente.
   static const Color aviso = Color(0xFFE08D2F);

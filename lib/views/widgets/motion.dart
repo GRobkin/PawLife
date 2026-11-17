@@ -406,13 +406,16 @@ class MarcaPawLife extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: context.botonFondo,
-            borderRadius: BorderRadius.circular(10),
+        // El mismo logo del icono de la app.
+        ClipRRect(
+          borderRadius: BorderRadius.circular(9),
+          child: Image.asset(
+            'assets/icon/icon.png',
+            width: 30,
+            height: 30,
+            filterQuality: FilterQuality.medium,
+            excludeFromSemantics: true,
           ),
-          child: Icon(Icons.pets, size: 16, color: context.botonTexto),
         ),
         const SizedBox(width: 9),
         Text(

@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -32,6 +34,8 @@ class LocalReminderService {
       channelDescription: 'Avisos de vacunas, medicamentos y tareas',
       importance: Importance.high,
       priority: Priority.high,
+      icon: 'ic_stat_pawlife',
+      color: Color(0xFF12352A),
     ),
     iOS: DarwinNotificationDetails(),
   );
@@ -77,11 +81,21 @@ class LocalReminderService {
       ),
     );
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await _notifications
+      final android = _notifications
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.requestNotificationsPermission();
+          >();
+      // El canal existe desde el principio: los push del servidor lo piden
+      // por su id y, si no existiera, caerían en uno genérico.
+      await android?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'pawlife_cuidados',
+          'Cuidados y tareas',
+          description: 'Avisos de vacunas, medicamentos y tareas',
+          importance: Importance.high,
+        ),
+      );
+      await android?.requestNotificationsPermission();
     }
     _initialized = true;
   }

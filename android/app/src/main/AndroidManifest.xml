@@ -15,6 +15,18 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
+        <!-- Avisos push con la app cerrada: huella como icono, verde de marca y
+             el mismo canal que usan los avisos locales. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_pawlife" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/pawlife_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="pawlife_cuidados" />
+
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>

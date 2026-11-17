@@ -698,7 +698,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         t.readyForAdventure,
                         style: TextStyle(
-                          color: context.botonTexto.withValues(alpha: 0.9),
+                          color: context.botonTexto,
+                          fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
                       ),

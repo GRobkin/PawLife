@@ -88,6 +88,7 @@ flutter_launcher_icons:
   remove_alpha_ios: true
   adaptive_icon_background: "#12352A"
   adaptive_icon_foreground: "assets/icon/foreground.png"
+  adaptive_icon_monochrome: "assets/icon/monochrome.png"
 
 # Pantalla de carga nativa: el verde de la marca con la huella, la misma que se
 # ve al abrir la app hasta que Flutter dibuja el primer cuadro.
@@ -114,3 +115,4 @@ flutter:
     # Se declara la carpeta entera y no cada archivo: así añadir una imagen
     # nueva no obliga a tocar este archivo otra vez.
     - assets/images/
+    - assets/icon/
