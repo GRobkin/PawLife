@@ -3,7 +3,7 @@
 // El teléfono sigue haciendo GPS, sesión y guardado. El reloj manda comandos
 // y recibe el estado. Este archivo define el protocolo y el puente; el
 // transporte concreto (Data Layer de Wear OS) se implementa aparte, en
-// Android, y aún no existe: ver docs/PLAN_WEAR_OS.md.
+// Android, y aún no existe.
 
 import 'dart:async';
 

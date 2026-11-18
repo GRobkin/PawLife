@@ -1,13 +1,13 @@
-# Cierre de paseos y notificaciones — 15/10/2026
+# Cierre de paseos y notificaciones: 15/10/2026
 
 ## Funciones implementadas
 
-- **Historial:** Inicio → Ver historial de paseos, o ficha de mascota → Paseos → Abrir historial. Selección de mascota, fechas, distancia, duración, vista previa de ruta, actualización, errores y páginas de 30 registros. La API verifica dueño de mascota y cursor.
-- **Detalle:** mapa, inicio/final del recorrido, estadísticas, foto y eliminación con confirmación. El historial se actualiza después de borrar.
-- **PNG:** disponible al finalizar y desde un paseo guardado. Vista previa con mascota, foto del paseo si existe, fecha, distancia, duración y traza GPS. Imagen al triple de resolución de la tarjeta. No contiene calles ni coordenadas. Abre el menú de compartir; el navegador descarga el archivo cuando no admite compartir.
-- **Cámara:** abre la cámara durante el paseo; permite cancelar, reemplazar o quitar la foto. Guarda una imagen reducida junto al recorrido sin Firebase Storage ni plan de pago.
-- **Guardado:** identificador estable para reintentos; una respuesta perdida no duplica paseos. Fecha y mascota reales, errores visibles y confirmación antes de salir sin guardar.
-- **Panel:** `https://apipaw.vercel.app/notificaciones`. Login Firebase por correo o Google; permisos por UID comprobados en el servidor. Búsqueda por correo completo, selección de destinatario, vista previa y confirmación. Hasta tres dispositivos distintos recientes, excluyendo demo/inactivos, cuota y registro de resultado. Repetir la misma solicitud no vuelve a enviar.
+- Historial: Inicio → Ver historial de paseos, o ficha de mascota → Paseos → Abrir historial. Selección de mascota, fechas, distancia, duración, vista previa de ruta, actualización, errores y páginas de 30 registros. La API verifica dueño de mascota y cursor.
+- Detalle: mapa, inicio/final del recorrido, estadísticas, foto y eliminación con confirmación. El historial se actualiza después de borrar.
+- PNG: disponible al finalizar y desde un paseo guardado. Vista previa con mascota, foto del paseo si existe, fecha, distancia, duración y traza GPS. Imagen al triple de resolución de la tarjeta. No contiene calles ni coordenadas. Abre el menú de compartir; el navegador descarga el archivo cuando no admite compartir.
+- Cámara: abre la cámara durante el paseo; permite cancelar, reemplazar o quitar la foto. Guarda una imagen reducida junto al recorrido sin Firebase Storage ni plan de pago.
+- Guardado: identificador estable para reintentos; una respuesta perdida no duplica paseos. Fecha y mascota reales, errores visibles y confirmación antes de salir sin guardar.
+- Panel: `https://apipaw.vercel.app/notificaciones`. Login Firebase por correo o Google; permisos por UID comprobados en el servidor. Búsqueda por correo completo, selección de destinatario, vista previa y confirmación. Hasta tres dispositivos distintos recientes, excluyendo demo/inactivos, cuota y registro de resultado. Repetir la misma solicitud no vuelve a enviar.
 
 ## Administración
 

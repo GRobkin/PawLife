@@ -142,7 +142,7 @@ lib/theme/                            Paleta, tema claro/oscuro y componentes vi
 lib/l10n/                             Textos en es/en/pt (archivos .arb).
 test/                                 Pruebas unitarias y de widgets.
 tool/                                 Utilidades: generar íconos y la demostración del reloj.
-docs/                                 Planes, auditorías, alcance y capturas de pantalla.
+docs/                                 Alcance, cierre de la entrega, guía del APK y capturas de pantalla.
 ```
 
 El inicio de sesión es obligatorio y no existe sesión anónima. El `AuthGate` escucha `authStateChanges`:
@@ -273,7 +273,5 @@ Funciona y está cubierto por pruebas locales, pero todavía **falta**:
 
 - [Cierre de la entrega](docs/CIERRE_ENTREGA.md) — funciones, pruebas y pendientes.
 - [Alcance del proyecto semestral](docs/ESCOPO_PROJETO_SEMESTRAL.md) (en portugués)
-- [Plan de pendientes y reloj](docs/PLAN_PENDIENTES_Y_RELOJ.md)
-- [Plan social de los paseos](docs/PLAN_SOCIAL_PASEOS.md)
 - El panel administrativo (notificaciones y Premium manual) está en la API: `https://apipaw.vercel.app/notificaciones`,
   y exige una cuenta administradora habilitada en el backend.
