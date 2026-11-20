@@ -65,6 +65,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ? null
             : authErrorText(AppLocalizations.of(context), e),
       );
+    } catch (e) {
+      // Cualquier otro fallo (plugin, red, plataforma) también se muestra:
+      // sin esto el botón volvía a su estado normal sin decir nada.
+      if (!mounted) return;
+      setState(
+        () => _error =
+            '${AppLocalizations.of(context).authGeneric} (${e.runtimeType})',
+      );
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
