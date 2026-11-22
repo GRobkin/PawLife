@@ -298,7 +298,7 @@ class _VisitDialogState extends State<_VisitDialog> {
                   DateTime(2000),
                   DateTime.now().add(const Duration(days: 1)),
                 );
-                if (d != null) setState(() => _fecha = d);
+                if (d != null && mounted) setState(() => _fecha = d);
               },
             ),
             ListTile(
@@ -322,7 +322,7 @@ class _VisitDialogState extends State<_VisitDialog> {
                   _fecha,
                   DateTime.now().add(const Duration(days: 3650)),
                 );
-                if (d != null) setState(() => _proxima = d);
+                if (d != null && mounted) setState(() => _proxima = d);
               },
             ),
           ],

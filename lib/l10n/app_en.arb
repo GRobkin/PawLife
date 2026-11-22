@@ -43,6 +43,7 @@
   "createAccountSubtitle": "Fill in your details to get started.",
   "fullName": "Full name",
   "fullNameHint": "e.g. Jane Smith",
+  "emailHint": "name@example.com",
   "confirmPassword": "Confirm password",
   "createAccount": "Create account",
   "errEnterEmail": "Enter your email.",

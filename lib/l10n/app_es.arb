@@ -57,6 +57,7 @@
   "createAccountSubtitle": "Completá tus datos para empezar.",
   "fullName": "Nombre completo",
   "fullNameHint": "Ej. Juana Pérez",
+  "emailHint": "nombre@ejemplo.com",
   "confirmPassword": "Confirmar contraseña",
   "createAccount": "Crear cuenta",
   "errEnterEmail": "Escribí tu correo electrónico.",

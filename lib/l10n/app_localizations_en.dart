@@ -143,6 +143,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fullNameHint => 'e.g. Jane Smith';
 
   @override
+  String get emailHint => 'name@example.com';
+
+  @override
   String get confirmPassword => 'Confirm password';
 
   @override

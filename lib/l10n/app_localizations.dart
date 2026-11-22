@@ -358,6 +358,12 @@ abstract class AppLocalizations {
   /// **'Ej. Juana Pérez'**
   String get fullNameHint;
 
+  /// No description provided for @emailHint.
+  ///
+  /// In es, this message translates to:
+  /// **'nombre@ejemplo.com'**
+  String get emailHint;
+
   /// No description provided for @confirmPassword.
   ///
   /// In es, this message translates to:

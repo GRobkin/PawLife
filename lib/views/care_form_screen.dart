@@ -140,7 +140,9 @@ class _VaccineFormScreenState extends State<VaccineFormScreen> {
               date: _aplicacion,
               onTap: () async {
                 final value = await _fecha(_aplicacion);
-                if (value != null) setState(() => _aplicacion = value);
+                if (value != null && mounted) {
+                  setState(() => _aplicacion = value);
+                }
               },
             ),
             const SizedBox(height: 16),
@@ -149,7 +151,7 @@ class _VaccineFormScreenState extends State<VaccineFormScreen> {
               date: _proxima,
               onTap: () async {
                 final value = await _fecha(_proxima);
-                if (value != null) setState(() => _proxima = value);
+                if (value != null && mounted) setState(() => _proxima = value);
               },
             ),
             const SizedBox(height: 16),
@@ -220,7 +222,7 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
     );
     if (fecha == null || !mounted) return;
     final hora = await elegirHora(context, TimeOfDay.fromDateTime(_fechaHora));
-    if (hora == null) return;
+    if (hora == null || !mounted) return;
     setState(() {
       _fechaHora = DateTime(
         fecha.year,
@@ -462,7 +464,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
               date: _inicio,
               onTap: () async {
                 final v = await _fecha(_inicio);
-                if (v != null) setState(() => _inicio = v);
+                if (v != null && mounted) setState(() => _inicio = v);
               },
             ),
             const SizedBox(height: 16),
@@ -471,7 +473,7 @@ class _MedicationFormScreenState extends State<MedicationFormScreen> {
               date: _fin,
               onTap: () async {
                 final v = await _fecha(_fin ?? _inicio);
-                if (v != null) setState(() => _fin = v);
+                if (v != null && mounted) setState(() => _fin = v);
               },
               onClear: _fin == null ? null : () => setState(() => _fin = null),
             ),
