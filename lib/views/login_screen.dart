@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../config/app_identity.dart';
 import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
 import '../theme/app_colors.dart';
@@ -346,6 +347,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 18),
+                  // Qué APK es: con las versiones de prueba todas decían 1.0.0
+                  // y no había forma de saber cuál estaba instalada.
+                  Text(
+                    'PawLife $kAppVersion',
+                    style: TextStyle(fontSize: 12, color: context.textoTenue),
                   ),
                 ],
               ),

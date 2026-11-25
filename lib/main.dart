@@ -11,6 +11,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'config/app_identity.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'preferences/app_preferences.dart';
@@ -227,7 +228,7 @@ class _FranjaError extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.errorStripTitle,
+                          '${t.errorStripTitle} · $kAppVersion',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,

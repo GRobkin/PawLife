@@ -12,21 +12,39 @@ https://github.com/GRobkin/PawLife/releases/latest/download/PawLife.apk
 2. Abrirlo. Si Android lo pide, permitir "instalar apps desconocidas" para el navegador.
 3. Tocar *Instalar* (si aparece un aviso de Play Protect, elegir *Instalar de todos modos*).
 
-Es una versión de prueba, firmada con la clave de depuración.
+Las versiones `beta.1` a `beta.4` salieron firmadas con una clave de depuración
+distinta en cada compilación. Android no deja instalar una versión encima de otra
+cuando la firma cambia, así que al pasar a la primera versión firmada con la clave
+propia hay que desinstalar la anterior (se pierde la sesión, no los datos: viven
+en la cuenta). A partir de ahí las actualizaciones entran encima.
+
+La pantalla de acceso muestra abajo la versión instalada (`PawLife v1.0.0-beta.5`).
 
 ## Publicar una versión nueva
 
 El workflow `.github/workflows/release-apk.yml` se dispara al subir una etiqueta
-`v*`: corre el análisis y las pruebas, compila `flutter build apk --release` y
-publica `PawLife.apk` y su suma SHA-256 en un release.
+`v*`: corre el análisis y las pruebas, compila `flutter build apk --release`,
+comprueba la firma del APK ya compilado y publica `PawLife.apk` y su suma SHA-256
+en un release.
+
+**La primera vez**, antes de subir la etiqueta:
+
+1. Correr `tool\configurar-firma.ps1` (con `gh auth login` hecho). Crea la clave,
+   carga los cuatro secretos en GitHub e imprime el SHA-1 y el SHA-256.
+2. Registrar esas dos huellas en Firebase (Configuración del proyecto > Tus apps >
+   Android > Agregar huella digital).
+
+Sin los secretos el workflow se niega a publicar, y si el APK quedara firmado con
+la clave de depuración también corta. Con la firma correcta, el resumen de la
+ejecución en GitHub Actions lista las huellas del APK publicado.
 
 ```bash
-git tag v1.0.0-beta.3
-git push origin v1.0.0-beta.3
+git tag v1.0.0-beta.5
+git push origin v1.0.0-beta.5
 ```
 
-Subir el número de `version:` en `pubspec.yaml` en cada APK nuevo (`1.0.0+1`:
-nombre y código de versión).
+El código de versión (`versionCode`) sube solo en cada ejecución del workflow; no
+hace falta tocar `version:` en `pubspec.yaml` para eso.
 
 ## Compilar en local
 
@@ -46,15 +64,13 @@ de `arm64-v8a` sirve para casi todos los teléfonos actuales).
    después de publicar crea una app distinta. Elegir el definitivo antes y
    actualizar a la vez `applicationId`, `namespace`, el paquete Kotlin,
    `kAppPackageId`, la app registrada en Firebase y su `google-services.json`.
-2. **Clave de firma propia.** Crearla una vez y guardarla fuera de git:
-   ```bash
-   keytool -genkey -v -keystore upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
-   ```
-   Crear `android/key.properties` (ya está en `.gitignore`) con `storeFile`,
-   `storePassword`, `keyAlias` y `keyPassword`. Para que Actions firme con ella,
-   cargar `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
-   `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD` como secretos del repositorio.
-   Perder la clave impide actualizar la app instalada: guardar una copia.
+2. **Clave de firma propia.** `tool\configurar-firma.ps1` la crea en
+   `%USERPROFILE%\.pawlife-firma` y carga los secretos del workflow
+   (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y
+   `ANDROID_KEY_PASSWORD`). Para compilar firmado en local, crear además
+   `android/key.properties` (ya está en `.gitignore`) con `storeFile`,
+   `storePassword`, `keyAlias` y `keyPassword`. Perder la clave impide actualizar
+   la app instalada: guardar una copia de la carpeta y de la contraseña.
 3. **Firebase.** Registrar el SHA-1 y el SHA-256 de la clave de firma en la app
    Android de Firebase (necesario para el inicio de sesión con Google).
 

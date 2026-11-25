@@ -56,7 +56,12 @@ jobs:
               echo "keyPassword=$KEY_PASS"
             } > android/key.properties
           else
-            echo "::warning::Sin clave de firma: el APK queda firmado con la de depuración."
+            # Un APK firmado con la clave de depuración del ejecutor no sirve: la
+            # firma cambia en cada compilación, Google rechaza el acceso porque la
+            # huella no está en Firebase y Android no deja actualizar encima de la
+            # versión anterior. Mejor no publicarlo.
+            echo "::error::Faltan los secretos de firma (ANDROID_KEYSTORE_BASE64 y los otros tres). Corré tool/configurar-firma.ps1 una vez; ver docs/RELEASE_APK.md."
+            exit 1
           fi
 
       - run: flutter pub get
@@ -68,9 +73,31 @@ jobs:
       # la última versión.
       - name: Compilar APK
         run: |
-          flutter build apk --release
+          # --build-number sube en cada ejecución (el versionCode ya no queda en
+          # 1) y APP_VERSION deja ver dentro de la app qué versión es.
+          flutter build apk --release \
+            --build-number="${{ github.run_number }}" \
+            --dart-define=APP_VERSION="${{ github.ref_name }}"
           cp build/app/outputs/flutter-apk/app-release.apk PawLife.apk
           sha256sum PawLife.apk > PawLife.apk.sha256
+
+      # Lee la firma del APK ya compilado: si es la de depuración corta aquí, y si
+      # no, deja la huella a la vista para registrarla en Firebase.
+      - name: Comprobar la firma
+        run: |
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs PawLife.apk | tee firma.txt
+          if grep -q "CN=Android Debug" firma.txt; then
+            echo "::error::El APK quedó firmado con la clave de depuración."
+            exit 1
+          fi
+          {
+            echo "### Firma del APK"
+            echo ""
+            echo "Registrar estas huellas en Firebase (Configuración del proyecto > Tus apps > Android):"
+            echo ""
+            grep -E "SHA-(1|256) digest" firma.txt | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publicar release
         env:
