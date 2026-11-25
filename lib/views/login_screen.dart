@@ -98,7 +98,19 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    _ejecutar(() => _auth.signInWithEmail(email: email, password: password));
+    // Sin límite, un acceso que nunca responde dejaba el botón girando sin
+    // decir nada. (Google queda fuera: ahí la persona elige la cuenta a mano.)
+    _ejecutar(
+      () => _auth
+          .signInWithEmail(email: email, password: password)
+          .timeout(
+            const Duration(seconds: 40),
+            onTimeout: () => throw const AuthException(
+              'El servidor no respondió a tiempo.',
+              code: 'timeout',
+            ),
+          ),
+    );
   }
 
   void _onGooglePressed() {

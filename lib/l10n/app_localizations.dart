@@ -2338,6 +2338,24 @@ abstract class AppLocalizations {
   /// **'No se pudo completar la operación. Intentá otra vez.'**
   String get authGeneric;
 
+  /// No description provided for @authTimeout.
+  ///
+  /// In es, this message translates to:
+  /// **'El servidor no respondió a tiempo. Revisá la conexión e intentá otra vez.'**
+  String get authTimeout;
+
+  /// No description provided for @errorStripTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Algo falló'**
+  String get errorStripTitle;
+
+  /// No description provided for @errorStripClose.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get errorStripClose;
+
   /// No description provided for @googleInterrupted.
   ///
   /// In es, this message translates to:

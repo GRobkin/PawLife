@@ -1321,6 +1321,16 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo completar la operación. Intentá otra vez.';
 
   @override
+  String get authTimeout =>
+      'El servidor no respondió a tiempo. Revisá la conexión e intentá otra vez.';
+
+  @override
+  String get errorStripTitle => 'Algo falló';
+
+  @override
+  String get errorStripClose => 'Cerrar';
+
+  @override
   String get googleInterrupted =>
       'El acceso con Google se interrumpió. Probá de nuevo.';
 

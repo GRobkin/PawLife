@@ -16,6 +16,7 @@ import 'l10n/app_localizations.dart';
 import 'preferences/app_preferences.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
+import 'services/error_log.dart';
 import 'services/session_registration.dart';
 import 'views/account_deleting_screen.dart';
 import 'views/home_screen.dart';
@@ -26,6 +27,7 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ErrorLog.install();
 
   // Necesario para poder recibir datos del foreground service (ver
   // services/walk_task_handler.dart) en el isolate principal de la UI.
@@ -100,13 +102,24 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
   // reconstrucción abriría una suscripción nueva y el StreamBuilder volvería
   // al estado "waiting", haciendo parpadear la pantalla.
   final SessionRegistration _registration = SessionRegistration();
-  late final Stream<User?> _sesion = AuthService().authStateChanges.map((user) {
-    _registration.start(user);
-    // Sesión cerrada: el aviso de borrado de la cuenta anterior ya no aplica
-    // a la siguiente. Se limpia aquí, al llegar el evento, y no en build().
-    if (user == null) cuentaEliminandose.value = false;
-    return user;
-  });
+  late final Stream<User?> _sesion = AuthService().authStateChanges
+      .map((user) {
+        // Si algo falla al preparar la sesión (avisos push, recordatorios), la
+        // persona igual entra. Un error aquí rompía el stream y AuthGate volvía
+        // a la bienvenida sin explicar nada.
+        try {
+          _registration.start(user);
+        } catch (error, stack) {
+          ErrorLog.report(error, stack, contexto: 'sesión');
+        }
+        // Sesión cerrada: el aviso de borrado de la cuenta anterior ya no aplica
+        // a la siguiente. Se limpia aquí, al llegar el evento, y no en build().
+        if (user == null) cuentaEliminandose.value = false;
+        return user;
+      })
+      .handleError((Object error, StackTrace stack) {
+        ErrorLog.report(error, stack, contexto: 'autenticación');
+      });
 
   @override
   void initState() {
@@ -168,15 +181,82 @@ class _MaxWidth extends StatelessWidget {
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,
       // La barra de navegación de Android no tapa nada de la app.
-      child: AreaSegura(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: maxWidth),
-            child: child,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: AreaSegura(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: maxWidth),
+                  child: child,
+                ),
+              ),
+            ),
           ),
-        ),
+          const Positioned(left: 0, right: 0, bottom: 0, child: _FranjaError()),
+        ],
       ),
+    );
+  }
+}
+
+/// Franja con el último error inesperado. Sin ella, un fallo que no llega a
+/// ninguna pantalla deja la app "sin hacer nada" y sin pista de la causa.
+class _FranjaError extends StatelessWidget {
+  const _FranjaError();
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String?>(
+      valueListenable: ErrorLog.last,
+      builder: (context, texto, _) {
+        if (texto == null) return const SizedBox.shrink();
+        final t = AppLocalizations.of(context);
+        return Material(
+          color: const Color(0xFF7A1F1F),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.errorStripTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        SelectableText(
+                          texto,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: ErrorLog.clear,
+                    style: TextButton.styleFrom(foregroundColor: Colors.white),
+                    child: Text(t.errorStripClose),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

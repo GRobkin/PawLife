@@ -28,6 +28,7 @@ String authErrorText(AppLocalizations t, AuthException e) => switch (e.code) {
   'sin-sesion' => t.authNoSession,
   'sesion-cambio' => t.authSessionChanged,
   'cancelado' => t.authCancelled,
+  'timeout' => t.authTimeout,
   'password-required' => t.errEnterCurrentPassword,
   'google-account' => t.authGoogleAccount,
   'password-fields' => t.authPasswordFields,

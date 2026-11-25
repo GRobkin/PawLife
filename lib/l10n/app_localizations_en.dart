@@ -1310,6 +1310,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authGeneric => 'Couldn\'t complete the operation. Try again.';
 
   @override
+  String get authTimeout =>
+      'The server didn\'t respond in time. Check your connection and try again.';
+
+  @override
+  String get errorStripTitle => 'Something went wrong';
+
+  @override
+  String get errorStripClose => 'Close';
+
+  @override
   String get googleInterrupted => 'Google sign-in was interrupted. Try again.';
 
   @override
