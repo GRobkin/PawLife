@@ -374,6 +374,7 @@
   "authPushDisconnect": "Couldn't disconnect notifications. Try signing out again.",
   "authGeneric": "Couldn't complete the operation. Try again.",
   "authTimeout": "The server didn't respond in time. Check your connection and try again.",
+  "googleRejected": "Google rejected the sign-in from this app. This usually means the APK is signed with a key that isn't registered in Firebase, or there is no connection.",
   "errorStripTitle": "Something went wrong",
   "errorStripClose": "Close",
   "googleInterrupted": "Google sign-in was interrupted. Try again.",

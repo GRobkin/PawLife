@@ -29,6 +29,8 @@ String authErrorText(AppLocalizations t, AuthException e) => switch (e.code) {
   'sesion-cambio' => t.authSessionChanged,
   'cancelado' => t.authCancelled,
   'timeout' => t.authTimeout,
+  // Lleva el texto original de Google al final: es lo que permite saber la causa.
+  'google-rejected' => '${t.googleRejected} (${e.message})',
   'password-required' => t.errEnterCurrentPassword,
   'google-account' => t.authGoogleAccount,
   'password-fields' => t.authPasswordFields,

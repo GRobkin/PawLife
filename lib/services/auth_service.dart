@@ -124,7 +124,7 @@ class AuthService {
       }
       throw _traducir(e);
     } on GoogleSignInException catch (e) {
-      throw _traducirGoogle(e);
+      throw traducirGoogle(e);
     }
   }
 
@@ -328,7 +328,7 @@ class AuthService {
 
       return user;
     } on GoogleSignInException catch (e) {
-      throw _traducirGoogle(e);
+      throw traducirGoogle(e);
     } on FirebaseAuthException catch (e) {
       throw _traducir(e);
     }
@@ -457,7 +457,29 @@ class AuthService {
     return AuthException(mensaje, code: e.code);
   }
 
-  AuthException _traducirGoogle(GoogleSignInException e) {
+  /// En Android, Google también devuelve "canceled" cuando rechaza a la app,
+  /// por ejemplo si la firma del APK no está registrada en Firebase: el texto
+  /// es "[16] Account reauth failed." y no "Cancelled by user". Solo lo segundo
+  /// es una cancelación de verdad y se calla; lo demás hay que mostrarlo, o la
+  /// persona toca el botón y no pasa nada.
+  static final _cancelacionDePersona = RegExp(
+    r'cancel+ed by (the )?user',
+    caseSensitive: false,
+  );
+
+  static bool _canceladoPorLaPersona(GoogleSignInException e) {
+    final descripcion = e.description;
+    return descripcion == null ||
+        descripcion.isEmpty ||
+        _cancelacionDePersona.hasMatch(descripcion);
+  }
+
+  @visibleForTesting
+  static AuthException traducirGoogle(GoogleSignInException e) {
+    if (e.code == GoogleSignInExceptionCode.canceled &&
+        !_canceladoPorLaPersona(e)) {
+      return AuthException(e.description ?? '', code: 'google-rejected');
+    }
     final mensaje = switch (e.code) {
       GoogleSignInExceptionCode.canceled => 'Acceso con Google cancelado.',
       GoogleSignInExceptionCode.interrupted =>

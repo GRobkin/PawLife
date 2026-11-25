@@ -1325,6 +1325,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'El servidor no respondió a tiempo. Revisá la conexión e intentá otra vez.';
 
   @override
+  String get googleRejected =>
+      'Google rechazó el acceso desde esta app. Suele pasar si este APK está firmado con una clave que no está registrada en Firebase, o si no hay conexión.';
+
+  @override
   String get errorStripTitle => 'Algo falló';
 
   @override

@@ -1314,6 +1314,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The server didn\'t respond in time. Check your connection and try again.';
 
   @override
+  String get googleRejected =>
+      'Google rejected the sign-in from this app. This usually means the APK is signed with a key that isn\'t registered in Firebase, or there is no connection.';
+
+  @override
   String get errorStripTitle => 'Something went wrong';
 
   @override

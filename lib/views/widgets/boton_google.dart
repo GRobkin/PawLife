@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../l10n/error_messages.dart';
 import '../../services/auth_service.dart';
+import '../../services/error_log.dart';
 import '../../theme/app_palette.dart';
 import 'motion.dart';
 
@@ -21,6 +22,11 @@ Future<String?> entrarConGoogle(BuildContext context, AuthService auth) async {
     return null;
   } on AuthException catch (e) {
     return e.isCancelled ? null : authErrorText(t, e);
+  } catch (error, stack) {
+    // Cualquier otro fallo también se cuenta: si se escapaba, la pantalla
+    // se quedaba con el botón girando y todo desactivado.
+    ErrorLog.report(error, stack, contexto: 'Google');
+    return '${t.authGeneric} (${error.runtimeType})';
   }
 }
 

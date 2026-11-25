@@ -374,6 +374,7 @@
   "authPushDisconnect": "Não foi possível desconectar as notificações. Tente sair novamente.",
   "authGeneric": "Não foi possível concluir a operação. Tente novamente.",
   "authTimeout": "O servidor não respondeu a tempo. Verifique a conexão e tente novamente.",
+  "googleRejected": "O Google recusou o acesso deste app. Costuma acontecer quando o APK está assinado com uma chave que não está registrada no Firebase, ou quando não há conexão.",
   "errorStripTitle": "Algo deu errado",
   "errorStripClose": "Fechar",
   "googleInterrupted": "O acesso com o Google foi interrompido. Tente novamente.",

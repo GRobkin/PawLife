@@ -58,6 +58,40 @@ de `arm64-v8a` sirve para casi todos los teléfonos actuales).
 3. **Firebase.** Registrar el SHA-1 y el SHA-256 de la clave de firma en la app
    Android de Firebase (necesario para el inicio de sesión con Google).
 
+## Si "Continuar con Google" no deja entrar
+
+En Android, si Google no reconoce la firma del APK, `google_sign_in` 7 responde
+"cancelado" (`[16] Account reauth failed.`) en lugar de un error de
+configuración. Hasta la versión `beta.3` la app trataba eso como si la persona
+hubiera cerrado el selector, así que el botón no hacía nada y no decía nada. Desde
+la versión siguiente muestra "Google rechazó el acceso desde esta app" con el
+texto original entre paréntesis.
+
+La causa habitual es la firma. Si el workflow no tiene los secretos de firma
+(paso 2 de arriba), el APK sale firmado con una clave de depuración que el
+ejecutor de GitHub crea de nuevo en cada compilación. Esa huella no está
+registrada en Firebase y cambia en cada versión. Con la clave propia en los
+secretos, la huella es siempre la misma y se registra una sola vez.
+
+Para ver la huella de un APK ya compilado, con el Android SDK instalado:
+
+```bash
+apksigner verify --print-certs PawLife.apk
+```
+
+(`keytool -printcert -jarfile` no sirve con estos APK: solo traen firma v2.)
+
+Para ver el motivo exacto en el teléfono, con el cable y la depuración USB:
+
+```bash
+adb logcat -s Auth:W Auth.Api.Credentials:W
+```
+
+`not registered to use OAuth2.0` indica que falta la huella; `Network error`,
+que el teléfono no llegó a Google.
+
+El inicio de sesión con correo y contraseña no depende de la huella.
+
 ## Qué falta probar en un teléfono
 
 GPS durante el paseo, cámara y galería, notificaciones (primer plano, segundo
