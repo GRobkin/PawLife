@@ -5,11 +5,14 @@
 // Igual que LoginScreen: no navega al Home al terminar. De eso se encarga el
 // AuthGate de main.dart, que escucha el estado de la sesión.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../l10n/error_messages.dart';
 import '../services/auth_service.dart';
+import '../services/pawlife_repository.dart';
 import '../theme/app_palette.dart';
 import 'login_screen.dart';
 import 'widgets/boton_google.dart';
@@ -100,6 +103,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Home montado debajo: solo hay que vaciar la pila para dejarlo a la
       // vista. Ver la nota en main.dart.
       Navigator.of(context).popUntil((ruta) => ruta.isFirst);
+
+      // El perfil de la API se crea con el primer pedido, antes de que Firebase
+      // tenga el nombre en el token. Se lo mandamos explícito para que no quede
+      // vacío. Si falla no pasa nada: se corrige desde el perfil.
+      unawaited(
+        PawLifeRepository()
+            .updatePerfil(nombre: nombre)
+            .then<void>((_) {})
+            .catchError((Object _) {}),
+      );
     } on AuthException catch (e) {
       if (!mounted) return;
       setState(() => _error = authErrorText(AppLocalizations.of(context), e));

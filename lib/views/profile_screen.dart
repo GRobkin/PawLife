@@ -19,6 +19,17 @@ import 'widgets/iniciar_paseo.dart';
 import 'widgets/preferences_section.dart';
 import 'widgets/pawlife_bottom_nav.dart';
 
+/// Nombre que se muestra en el perfil. La API lo toma del token la primera vez
+/// que se crea el perfil, y al registrarse con correo ese token todavía no trae
+/// el nombre (se guarda en Firebase un instante después): el perfil nace vacío.
+/// Si pasa, se usa el de Firebase para no enseñar el campo en blanco.
+@visibleForTesting
+String nombreInicialPerfil(String? nombreApi, String? nombreFirebase) {
+  final api = nombreApi?.trim() ?? '';
+  if (api.isNotEmpty) return api;
+  return nombreFirebase?.trim() ?? '';
+}
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -58,7 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final perfil = response['perfil'];
       setState(() {
         _perfil = perfil is Map<String, dynamic> ? perfil : {};
-        _nombre.text = (_perfil?['nombre'] as String?) ?? '';
+        _nombre.text = nombreInicialPerfil(
+          _perfil?['nombre'] as String?,
+          _auth.currentUser?.displayName,
+        );
         _error = null;
       });
     } catch (e) {
