@@ -30,7 +30,7 @@
 2. Abrí el archivo descargado. Si Android lo pide, activá **"Instalar apps desconocidas"** para el navegador.
 3. Tocá **Instalar** y abrí PawLife.
 
-> Versión de prueba, firmada con clave de depuración. Si aparece un aviso de Play Protect, elegí *Instalar de todos modos*.
+> Versión de prueba, firmada con la clave propia del proyecto. Si aparece un aviso de Play Protect, elegí *Instalar de todos modos*. Si tenés instalada una versión anterior a la beta 5, desinstalala antes.
 
 ---
 
